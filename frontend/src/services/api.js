@@ -58,4 +58,10 @@ export const mandiService = {
     getHistory: () => api.get('/mandi/analytics'),
 };
 
+export const predictionService = {
+    predictYield: (data) => api.post('/predict/yield', data),
+    predictPest: (data) => api.post('/predict/pest', data),
+    predictIrrigation: (data) => api.post('/predict/irrigation', data),
+};
+
 export default api;

@@ -57,6 +57,7 @@ class AgentResponse:
     confidence_score: float = 0.0
     citations: List[dict] = None
     follow_up_questions: List[str] = None
+    document_hashes: List[str] = None  # NEW: Track unique chunk hashes used
 
 class OrchestratorAgent:
     def __init__(self, retriever_callable: Callable, weather_callable: Callable, market_callable: Callable):
@@ -73,7 +74,7 @@ class OrchestratorAgent:
     def generate(self, query: str, language: str = "en", location_context: str = "", 
                  image_data: str = None, images: List[str] = None, 
                  profile: dict = None, history: list = None,
-                 corrections: list = None) -> AgentResponse:
+                 corrections: list = None, db: Session = None) -> AgentResponse:
         
         # Format history for Gemini
         gemini_history = []
@@ -86,14 +87,19 @@ class OrchestratorAgent:
         used_sources = []
         agents_called = set()
         sub_agent_confidences = []
+        used_hashes = [] # NEW: Track chunk hashes for feedback loop
 
         # Wrap the core tools to capture sources centrally
         def tracked_retriever(search_query: str) -> str:
-            docs: List[Document] = self.retriever_callable(search_query)
+            docs: List[Document] = self.retriever_callable(search_query, db=db)
             if not docs:
                 return "No internal results found."
                 
             for d in docs:
+                # Track unique chunk hashes
+                if d.chunk_hash not in [h for h in used_hashes]:
+                    used_hashes.append(d.chunk_hash)
+                
                 if not any(hasattr(existing, 'chunk_id') and existing.chunk_id == d.chunk_id for existing in used_sources):
                     used_sources.append(d)
             parts = []
@@ -214,11 +220,20 @@ class OrchestratorAgent:
             import json
             prompt += f"\n\n[USER CORRECTIONS/PREVIOUS FEEDBACK]\n{json.dumps(corrections, indent=2)}\nIMPORTANT: Use these corrections to improve your advice."
 
+        # NEW: Dynamic Few-Shot Injection of "Gold Standard" examples
+        if db:
+            from backend.models.models import ChatHistory
+            gold_examples = db.query(ChatHistory).filter(ChatHistory.is_helpful == 1).order_by(ChatHistory.timestamp.desc()).limit(3).all()
+            if gold_examples:
+                prompt += "\n\n[HIGH-QUALITY EXAMPLES FROM PAST SUCCESSFUL SESSIONS]"
+                for ex in gold_examples:
+                    prompt += f"\nQuery: {ex.query}\nReference Answer Layout: {ex.answer[:300]}..."
+
         prompt += f"\n\n[CRITICAL INSTRUCTION: You MUST format your final response entirely in the language corresponding to language code '{language}'.]"
 
         # 5. Execution Step
         model = genai.GenerativeModel(
-            model_name="gemini-1.5-pro-latest",
+            model_name="gemini-flash-latest",
             system_instruction=SYSTEM_PROMPT,
             tools=[
                 ask_crop_advisor, ask_weather_agent, ask_agricultural_vision_agent, 
@@ -283,17 +298,13 @@ class OrchestratorAgent:
                 sources=[], language_detected=language, agents_used=list(agents_called)
             )
 
-        sources_out = [
-            {"source": doc.source, "page": doc.page, "excerpt": doc.text[:200]}
-            for doc in used_sources[:3]
-        ]
-
         return AgentResponse(
             answer=answer,
-            sources=sources_out,
+            sources=[{"text": s.text, "source": s.source, "page": s.page} for s in used_sources],
             language_detected=language,
             agents_used=list(agents_called),
             explanation=explanation,
             confidence_score=confidence,
-            citations=citations
+            citations=citations,
+            document_hashes=used_hashes
         )

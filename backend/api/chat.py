@@ -169,12 +169,24 @@ def handle_chat_query(
         images=req.images, # New multi-image support
         profile=req.profile or (current_user.profile.__dict__ if current_user and current_user.profile else None),
         history=thread_history or req.history,
-        corrections=corrections
+        corrections=corrections,
+        db=db
     )
 
     # 5. Persistent Save
     if current_user and session:
         try:
+            # Capture 7+ Features for metadata learning loop
+            meta_context = {
+                "crop": req.profile.get("primary_crop") if req.profile else (current_user.profile.primary_crop if current_user and current_user.profile else "Unknown"),
+                "location": req.location or (current_user.profile.location_name if current_user and current_user.profile else "Unknown"),
+                "sowing_date": str(req.profile.get("sowing_date")) if req.profile else (str(current_user.profile.sowing_date) if current_user and current_user.profile else None),
+                "soil_type": req.profile.get("soil_role") if req.profile else (current_user.profile.soil_role if current_user and current_user.profile else "Standard"),
+                "farm_size": req.profile.get("farm_size") if req.profile else (current_user.profile.farm_size if current_user and current_user.profile else 0.0),
+                "user_lang": target_lang,
+                "client_source": "web_mvp"
+            }
+
             new_msg = ChatHistory(
                 session_id=session.id,
                 user_id=current_user.id,
@@ -184,7 +196,9 @@ def handle_chat_query(
                 confidence_score=agent_response.confidence_score,
                 agents_used=agent_response.agents_used,
                 sources=agent_response.sources,
-                citations=agent_response.citations
+                citations=agent_response.citations,
+                document_ids=agent_response.document_hashes or [],
+                meta_context=meta_context
             )
             session.updated_at = datetime.utcnow()
             db.add(new_msg)
@@ -197,17 +211,26 @@ def handle_chat_query(
     else:
         msg_id = None
 
+    # Normalize Citations to List[dict] for Pydantic
+    processed_citations = []
+    if agent_response.citations:
+        for c in agent_response.citations:
+            if isinstance(c, str):
+                processed_citations.append({"text": c})
+            elif isinstance(c, dict):
+                processed_citations.append(c)
+
     return ChatResponse(
         id=msg_id if current_user and session else None,
         answer=agent_response.answer,
         explanation=agent_response.explanation,
         confidence_score=agent_response.confidence_score,
         sources=[SourceInfo(**s) for s in agent_response.sources],
-        citations=agent_response.citations,
+        citations=processed_citations,
         language=target_lang,
         agents_used=agent_response.agents_used,
         session_id=session.id if session else None,
-        follow_up_questions=getattr(agent_response, 'follow_up_questions', [])
+        follow_up_questions=getattr(agent_response, 'follow_up_questions', []) or []
     )
 
 @router.get("/sessions", response_model=List[SessionResponse])
@@ -262,7 +285,24 @@ def submit_feedback(
         msg.feedback_text = req.feedback_text
     
     db.commit()
-    return {"status": "feedback saved"}
+    db.refresh(msg)
+    
+    # NEW: Global Chunk Feedback Learning Loop Update
+    if msg.document_ids:
+        from backend.models.models import ChunkFeedback
+        for chunk_h in msg.document_ids:
+            score = db.query(ChunkFeedback).filter(ChunkFeedback.chunk_hash == chunk_h).first()
+            if not score:
+                score = ChunkFeedback(chunk_hash=chunk_h)
+                db.add(score)
+            
+            if req.is_helpful == 1:
+                score.helpful_count += 1
+            elif req.is_helpful == -1:
+                score.unhelpful_count += 1
+        db.commit()
+
+    return {"status": "success", "message_id": message_id}
 
 @router.patch("/sessions/{session_id}", response_model=SessionResponse)
 def rename_session(session_id: int, update: SessionRename, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

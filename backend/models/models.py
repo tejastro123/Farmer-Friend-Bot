@@ -59,6 +59,7 @@ class ChatHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=True) # Temporarily nullable for migration
     user_id = Column(Integer, ForeignKey("users.id"))
+    query = Column(String)
     answer = Column(String)
     explanation = Column(String, nullable=True)
     confidence_score = Column(Float, nullable=True)
@@ -67,9 +68,25 @@ class ChatHistory(Base):
     citations = Column(JSON, default=[])
     is_helpful = Column(Integer, nullable=True) # 1 for positive, -1 for negative
     feedback_text = Column(String, nullable=True)
+    
+    # NEW LEARNING FIELDS
+    meta_context = Column(JSON, default={}) # Stores 7+ features: crop, location, etc.
+    latencies = Column(JSON, default={})    # Execution times per agent/step
+    document_ids = Column(JSON, default=[]) # Specific hashes/source IDs used for RAG
+    
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     session = relationship("ChatSession", back_populates="messages")
     user = relationship("User", back_populates="history") # Keep legacy backref for now
+
+class ChunkFeedback(Base):
+    """Tracks historical helpfulness of specific knowledge chunks for RAG boosting"""
+    __tablename__ = "chunk_feedback"
+
+    id = Column(Integer, primary_key=True, index=True)
+    chunk_hash = Column(String, unique=True, index=True)
+    helpful_count = Column(Integer, default=0)
+    unhelpful_count = Column(Integer, default=0)
+    last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 User.history = relationship("ChatHistory", back_populates="user")

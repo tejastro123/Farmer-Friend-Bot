@@ -31,7 +31,17 @@ def predict_crop_yield_tool(crop: str, soil_type: str, area_acres: float, avg_te
     except Exception as e:
         return f"Prediction failed: {str(e)}"
 
-def predict_disease_risk_tool(crop: str, humidity_pct: float, temp_c: float) -> str:
+def predict_disease_risk_tool(
+    crop: str, 
+    humidity_pct: float, 
+    temp_c: float, 
+    wind_speed_kph: float = 10.0, 
+    soil_moisture: float = 40.0, 
+    ndvi_index: float = 0.6, 
+    historical_pressure: float = 0.2, 
+    leaf_wetness_hrs: float = 4.0, 
+    last_24h_rainfall: float = 5.0
+) -> str:
     """
     Predict the probability of a pest or disease outbreak using historical weather mapping ML model.
     Call this tool when analyzing weather for risk, or if asked "Will pest attacks increase?"
@@ -40,16 +50,25 @@ def predict_disease_risk_tool(crop: str, humidity_pct: float, temp_c: float) -> 
         crop: The name of the crop.
         humidity_pct: Current or forecasted relative humidity (%).
         temp_c: Current or forecasted temperature (°C).
+        wind_speed_kph: Wind speed in km/h.
+        soil_moisture: Soil moisture level (%).
+        ndvi_index: Normalized Difference Vegetation Index (0.0 to 1.0).
+        historical_pressure: Regional historical pest pressure (0.0 to 1.0).
+        leaf_wetness_hrs: Hours per day of leaf wetness.
+        last_24h_rainfall: Rainfall in the last 24 hours (mm).
     """
-    logger.info(f"[Tool] predict_disease_risk_tool called for {crop}.")
+    logger.info(f"[Tool] predict_disease_risk_tool called for {crop} with multi-factor indicators.")
     try:
         engine = get_ml_predictors()
-        prob = engine.predict_disease_risk(crop, humidity_pct, temp_c)
+        prob = engine.predict_disease_risk(
+            crop, humidity_pct, temp_c, wind_speed_kph, soil_moisture, 
+            ndvi_index, historical_pressure, leaf_wetness_hrs, last_24h_rainfall
+        )
         if prob < 0:
             return "Unable to predict disease risk."
             
-        danger = "HIGH RISK" if prob > 60 else "MODERATE RISK" if prob > 30 else "LOW RISK"
-        return f"ML Disease Outbreak Risk for {crop.capitalize()}: {prob:.1f}% ({danger}). Recommend immediate preventive measures if risk is > 50%."
+        danger = "CRITICAL RISK" if prob > 75 else "HIGH RISK" if prob > 50 else "MODERATE RISK" if prob > 25 else "LOW RISK"
+        return f"ML Disease Outbreak Forecast for {crop.capitalize()}: {prob:.1f}% ({danger}). Recommend preventive measures and scouting if risk is > 40%."
     except Exception as e:
         return f"Prediction failed: {str(e)}"
 

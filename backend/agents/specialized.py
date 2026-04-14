@@ -116,7 +116,7 @@ def create_specialized_agents(rag_tool: Callable, weather_tool: Callable, market
         "crop": SubAgent("Crop Advisor Agent", CROP_PROMPT, tools=[rag_tool, predict_crop_yield_tool, search_knowledge_graph]),
         "weather": SubAgent("Weather Intelligence Agent", WEATHER_PROMPT, tools=[weather_tool, search_knowledge_graph]),
         "vision": SubAgent("Agricultural Vision Agent", VISION_PROMPT, tools=[rag_tool, predict_disease_risk_tool, search_knowledge_graph]),
-        "market": SubAgent("Market Advisor Agent", MARKET_PROMPT, tools=[market_tool, rag_tool, forecast_market_price_tool, search_knowledge_graph]),
+        "market": SubAgent("Market Advisor Agent", MARK_PROMPT, tools=[market_tool, rag_tool, forecast_market_price_tool, search_knowledge_graph]),
         "gov": SubAgent("Government Scheme Agent", GOV_PROMPT, tools=[rag_tool, search_knowledge_graph]),
         "economics": SubAgent("Farm Economics Agent", ECONOMICS_PROMPT, tools=[get_cost_analysis, estimate_profit_and_roi, rag_tool]),
         "trading": SubAgent("Digital Mandi Agent", TRADING_PROMPT, tools=[create_sale_listing, match_buyers_for_crop, set_market_alert, market_tool])

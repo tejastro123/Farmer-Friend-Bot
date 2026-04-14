@@ -247,6 +247,7 @@ const ChatPage = () => {
     };
 
     const handleFeedback = async (msgId, isHelpful, index) => {
+        if (!msgId) return;
         try {
             await chatService.submitFeedback(msgId, { is_helpful: isHelpful });
             setMessages(prev => prev.map((m, i) => i === index ? { ...m, is_helpful: isHelpful } : m));

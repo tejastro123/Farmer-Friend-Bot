@@ -30,6 +30,11 @@ class Document:
     chunk_id: int
     page: Optional[int] = None
 
+    @property
+    def chunk_hash(self) -> str:
+        import hashlib
+        return hashlib.sha256(self.text.encode('utf-8')).hexdigest()
+
 
 class VectorStore:
     """

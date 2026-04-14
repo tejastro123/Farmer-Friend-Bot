@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, NavLink, Navigate } from 'react-router-dom';
-import { Leaf, Upload, MessageSquare, User, Home, LogIn, LogOut, ShoppingBag } from 'lucide-react';
+import { Leaf, Upload, MessageSquare, User, Home, LogIn, LogOut, ShoppingBag, TrendingUp, Bug, Droplets } from 'lucide-react';
 import LandingPage from './pages/LandingPage';
 import ChatPage from './pages/ChatPage';
 import UploadPage from './pages/UploadPage';
@@ -9,6 +9,9 @@ import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
 import MarketPage from './pages/MarketPage';
 import BillPage from './pages/BillPage';
+import YieldPage from './pages/YieldPage';
+import PestForecastPage from './pages/PestForecastPage';
+import IrrigationOptimizerPage from './pages/IrrigationOptimizerPage';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -48,6 +51,15 @@ function App() {
             <NavLink to="/market" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
               <ShoppingBag size={20} /> Market
             </NavLink>
+            <NavLink to="/yield" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <TrendingUp size={20} /> Yield A.I.
+            </NavLink>
+            <NavLink to="/pest-forecast" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Bug size={20} /> Pest Alerts
+            </NavLink>
+            <NavLink to="/irrigation-optimizer" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+              <Droplets size={20} /> Watering
+            </NavLink>
             {isLoggedIn ? (
               <>
                 <NavLink to="/profile" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
@@ -72,6 +84,9 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/chat" element={<ChatPage />} />
             <Route path="/upload" element={<UploadPage />} />
+            <Route path="/yield" element={<PrivateRoute><YieldPage /></PrivateRoute>} />
+            <Route path="/pest-forecast" element={<PrivateRoute><PestForecastPage /></PrivateRoute>} />
+            <Route path="/irrigation-optimizer" element={<PrivateRoute><IrrigationOptimizerPage /></PrivateRoute>} />
             <Route 
               path="/profile" 
               element={

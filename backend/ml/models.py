@@ -10,7 +10,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 import xgboost as xgb
 
-from backend.ml.synthetic_data import generate_yield_data, generate_disease_data, generate_market_data
+from backend.ml.synthetic_data import generate_yield_data, generate_disease_data, generate_market_data, generate_irrigation_data
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +19,12 @@ class MLPredictors:
         self.yield_model = None
         self.disease_model = None
         self.price_model = None
+        self.irrigation_model = None
         
         # Encoders for categorical string inputs
         self.crop_le = LabelEncoder()
         self.soil_le = LabelEncoder()
+        self.source_le = LabelEncoder()
         
         logger.info("Initializing ML Prediction Service. Generating and training synthetic models...")
         self._train_models()
@@ -48,7 +50,7 @@ class MLPredictors:
             df_disease = generate_disease_data(2000)
             df_disease['crop'] = self.crop_le.transform(df_disease['crop'])
             
-            X_d = df_disease[['crop', 'humidity_pct', 'temp_c']]
+            X_d = df_disease[['crop', 'humidity_pct', 'temp_c', 'wind_speed_kph', 'soil_moisture', 'ndvi_index', 'historical_pressure', 'leaf_wetness_hrs', 'last_24h_rainfall']]
             y_d = df_disease['disease_outbreak']
             
             self.disease_model = RandomForestClassifier(n_estimators=100, random_state=42)
@@ -66,6 +68,20 @@ class MLPredictors:
             self.price_model.fit(X_m, y_m)
             logger.info("Market Price Model (XGBoost) trained.")
 
+            # 4. Train Irrigation Optimizer Model (Random Forest)
+            df_irr = generate_irrigation_data(2000)
+            self.source_le.fit(df_irr['water_source'].tolist() + ['canal', 'tubewell', 'pond'])
+            
+            df_irr['crop'] = self.crop_le.transform(df_irr['crop'])
+            df_irr['water_source'] = self.source_le.transform(df_irr['water_source'])
+            
+            X_i = df_irr[['crop', 'soil_moisture', 'temp_c', 'humidity_pct', 'wind_speed_kph', 'solar_intensity', 'water_availability', 'crop_age_days', 'rainfall_forecast_mm', 'soil_type_drying_const', 'leaf_area_index', 'water_source']]
+            y_i = df_irr['irrigation_needed']
+            
+            self.irrigation_model = RandomForestClassifier(n_estimators=100, random_state=42)
+            self.irrigation_model.fit(X_i, y_i)
+            logger.info("Irrigation Optimizer Model (RandomForest) trained.")
+
         except Exception as e:
             logger.error(f"Failed to train ML Models: {e}")
 
@@ -81,11 +97,12 @@ class MLPredictors:
             logger.error(f"Yield predict error: {e}")
             return -1.0
 
-    def predict_disease_risk(self, crop: str, humidity_pct: float, temp_c: float) -> float:
-        """Predict probability (%) of pest/disease outbreak."""
+    def predict_disease_risk(self, crop: str, humidity_pct: float, temp_c: float, wind_speed_kph: float, soil_moisture: float, ndvi_index: float, historical_pressure: float, leaf_wetness_hrs: float, last_24h_rainfall: float) -> float:
+        """Predict probability (%) of pest/disease outbreak using 9 indicators."""
         try:
             c = self.crop_le.transform([crop.lower()])[0]
-            data = pd.DataFrame([[c, humidity_pct, temp_c]], columns=['crop', 'humidity_pct', 'temp_c'])
+            data = pd.DataFrame([[c, humidity_pct, temp_c, wind_speed_kph, soil_moisture, ndvi_index, historical_pressure, leaf_wetness_hrs, last_24h_rainfall]], 
+                                columns=['crop', 'humidity_pct', 'temp_c', 'wind_speed_kph', 'soil_moisture', 'ndvi_index', 'historical_pressure', 'leaf_wetness_hrs', 'last_24h_rainfall'])
             # Returns prob of class 1
             return float(self.disease_model.predict_proba(data)[0][1]) * 100 
         except Exception as e:
@@ -100,6 +117,19 @@ class MLPredictors:
             return float(self.price_model.predict(data)[0])
         except Exception as e:
             logger.error(f"Price forecast error: {e}")
+            return -1.0
+
+    def predict_irrigation_need(self, crop: str, soil_moisture: float, temp_c: float, humidity_pct: float, wind_speed_kph: float, solar_intensity: float, water_availability: float, crop_age_days: int, rainfall_forecast_mm: float, soil_type_drying_const: float, leaf_area_index: float, water_source: str) -> float:
+        """Predict probability (%) of needing irrigation."""
+        try:
+            c = self.crop_le.transform([crop.lower()])[0]
+            src = self.source_le.transform([water_source.lower()])[0]
+            data = pd.DataFrame([[c, soil_moisture, temp_c, humidity_pct, wind_speed_kph, solar_intensity, water_availability, crop_age_days, rainfall_forecast_mm, soil_type_drying_const, leaf_area_index, src]], 
+                                columns=['crop', 'soil_moisture', 'temp_c', 'humidity_pct', 'wind_speed_kph', 'solar_intensity', 'water_availability', 'crop_age_days', 'rainfall_forecast_mm', 'soil_type_drying_const', 'leaf_area_index', 'water_source'])
+            # Returns prob of class 1
+            return float(self.irrigation_model.predict_proba(data)[0][1]) * 100 
+        except Exception as e:
+            logger.error(f"Irrigation predict error: {e}")
             return -1.0
 
 # Singleton instance
