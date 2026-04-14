@@ -33,6 +33,7 @@ export const chatService = {
     getSessionMessages: (sessionId) => api.get(`/sessions/${sessionId}/messages`),
     renameSession: (sessionId, title) => api.patch(`/sessions/${sessionId}`, { title }),
     deleteSession: (sessionId) => api.delete(`/sessions/${sessionId}`),
+    submitFeedback: (messageId, feedback) => api.post(`/message/${messageId}/feedback`, feedback),
 };
 
 export const ingestService = {

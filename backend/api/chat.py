@@ -97,12 +97,18 @@ class SourceInfo(BaseModel):
     excerpt: str
 
 class ChatResponse(BaseModel):
+    id: Optional[int] = None
     answer: str
+    explanation: Optional[str] = ""
+    confidence_score: Optional[float] = 0.0
     sources: List[SourceInfo]
+    citations: Optional[List[dict]] = []
     language: str
     agents_used: List[str]
     session_id: Optional[int] = None
     follow_up_questions: List[str] = []
+    is_helpful: Optional[int] = None
+    feedback_text: Optional[str] = None
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
@@ -163,18 +169,30 @@ def handle_chat_query(
                 user_id=current_user.id,
                 query=req.query,
                 answer=agent_response.answer,
+                explanation=agent_response.explanation,
+                confidence_score=agent_response.confidence_score,
                 agents_used=agent_response.agents_used,
-                sources=agent_response.sources
+                sources=agent_response.sources,
+                citations=agent_response.citations
             )
             session.updated_at = datetime.utcnow()
             db.add(new_msg)
             db.commit()
+            db.refresh(new_msg)
+            msg_id = new_msg.id
         except Exception as e:
             logger.error(f"Failed to save message: {e}")
+            msg_id = None
+    else:
+        msg_id = None
 
     return ChatResponse(
+        id=msg_id if current_user and session else None,
         answer=agent_response.answer,
+        explanation=agent_response.explanation,
+        confidence_score=agent_response.confidence_score,
         sources=[SourceInfo(**s) for s in agent_response.sources],
+        citations=agent_response.citations,
         language=target_lang,
         agents_used=agent_response.agents_used,
         session_id=session.id if session else None,
@@ -196,15 +214,44 @@ def get_session_messages(session_id: int, current_user: User = Depends(get_curre
     msgs = db.query(ChatHistory).filter(ChatHistory.session_id == session.id).order_by(ChatHistory.timestamp.asc()).all()
     return [
         ChatResponse(
+            id=m.id,
             answer=m.answer,
+            explanation=m.explanation,
+            confidence_score=m.confidence_score,
             sources=[SourceInfo(**s) for s in m.sources],
+            citations=m.citations,
             language="en",
             agents_used=m.agents_used,
             session_id=session.id,
-            follow_up_questions=[]
+            follow_up_questions=[],
+            is_helpful=m.is_helpful,
+            feedback_text=m.feedback_text
         )
         for m in msgs
     ]
+
+class FeedbackRequest(BaseModel):
+    is_helpful: int # 1 or -1
+    feedback_text: Optional[str] = None
+
+@router.post("/message/{message_id}/feedback")
+def submit_feedback(
+    message_id: int,
+    req: FeedbackRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Submit 👍/👎 and optional correction for a specific message."""
+    msg = db.query(ChatHistory).filter(ChatHistory.id == message_id, ChatHistory.user_id == current_user.id).first()
+    if not msg:
+        raise HTTPException(status_code=404, detail="Message not found")
+    
+    msg.is_helpful = req.is_helpful
+    if req.feedback_text:
+        msg.feedback_text = req.feedback_text
+    
+    db.commit()
+    return {"status": "feedback saved"}
 
 @router.patch("/sessions/{session_id}", response_model=SessionResponse)
 def rename_session(session_id: int, update: SessionRename, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):

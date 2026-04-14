@@ -3,7 +3,8 @@ import {
     Send, MapPin, Globe, Loader2, Info, Camera, Mic, MicOff, 
     Volume2, X, AlertCircle, History, Plus, MessageSquare, 
     User, Bot, ArrowRight, Table, Zap, TrendingUp, 
-    Sprout, Activity, Trash2, Edit3, Download, Share2, FileText
+    Sprout, Activity, Trash2, Edit3, Download, Share2, FileText,
+    ThumbsUp, ThumbsDown, CheckCircle2, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { marked } from 'marked';
 import { authService, chatService } from '../services/api';
@@ -220,10 +221,14 @@ const ChatPage = () => {
             
             const agentMsg = {
                 role: 'agent',
+                id: res.data.id,
                 answer: res.data.answer,
+                explanation: res.data.explanation,
+                confidence: (res.data.confidence_score * 100).toFixed(0),
                 sources: res.data.sources,
+                citations: res.data.citations,
                 agents_used: res.data.agents_used,
-                confidence: Math.floor(Math.random() * 15) + 85
+                session_id: res.data.session_id
             };
 
             setMessages(prev => [...prev, agentMsg]);
@@ -238,6 +243,30 @@ const ChatPage = () => {
             setMessages(prev => [...prev, { role: 'agent', answer: "Connection error. Please verify the backend is running." }]);
         } finally {
             setIsTyping(false);
+        }
+    };
+
+    const handleFeedback = async (msgId, isHelpful, index) => {
+        try {
+            await chatService.submitFeedback(msgId, { is_helpful: isHelpful });
+            setMessages(prev => prev.map((m, i) => i === index ? { ...m, is_helpful: isHelpful } : m));
+        } catch (err) {
+            console.error("Feedback error:", err);
+        }
+    };
+
+    const [correctionIndex, setCorrectionIndex] = useState(null);
+    const [correctionText, setCorrectionText] = useState('');
+
+    const submitCorrection = async () => {
+        const msg = messages[correctionIndex];
+        try {
+            await chatService.submitFeedback(msg.id, { is_helpful: -1, feedback_text: correctionText });
+            setMessages(prev => prev.map((m, i) => i === correctionIndex ? { ...m, is_helpful: -1, feedback_text: correctionText } : m));
+            setCorrectionIndex(null);
+            setCorrectionText('');
+        } catch (err) {
+            console.error("Correction error:", err);
         }
     };
 
@@ -360,13 +389,38 @@ const ChatPage = () => {
                                                     ))}
                                                 </div>
                                             )}
+                                            {msg.role === 'agent' && msg.confidence && (
+                                                <div className="trust-badge glass-dark">
+                                                    <CheckCircle2 size={12} color={msg.confidence > 80 ? 'var(--secondary)' : 'var(--warning)'} />
+                                                    <span>{msg.confidence}% Confidence</span>
+                                                </div>
+                                            )}
                                             <div 
                                                 className="markdown-body" 
                                                 dangerouslySetInnerHTML={{ __html: marked(msg.answer || msg.text || '') }} 
                                             />
+                                            
+                                            {msg.role === 'agent' && msg.explanation && (
+                                                <details className="reasoning-expander">
+                                                    <summary><Info size={12} /> Why this recommendation?</summary>
+                                                    <div className="explanation-text">{msg.explanation}</div>
+                                                </details>
+                                            )}
+
+                                            {msg.citations?.length > 0 && (
+                                                <div className="citations-list">
+                                                    <p className="text-xs opacity-60 mt-2 flex items-center gap-1"><FileText size={10}/> Citations:</p>
+                                                    <ul className="text-xs list-disc ml-4 opacity-80">
+                                                        {msg.citations.map((c, ci) => (
+                                                            <li key={ci}>{c.title || c.text}</li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )}
+
                                             {msg.sources?.length > 0 && (
                                                 <div className="message-sources-list">
-                                                    <p><Info size={12} /> Sources:</p>
+                                                    <p><Info size={12} /> Data Sources:</p>
                                                     <div className="sources-chips">
                                                         {msg.sources.map((s, si) => <span key={si}>{s.source}</span>)}
                                                     </div>
@@ -374,12 +428,49 @@ const ChatPage = () => {
                                             )}
                                         </div>
                                         {msg.role === 'agent' && (
-                                            <div className="message-actions">
-                                                <button onClick={() => speak(msg.answer)} title="Listen"><Volume2 size={16}/></button>
-                                                <button onClick={() => navigator.clipboard.writeText(msg.answer)} title="Copy"><ArrowRight size={16} className="rotate-90"/></button>
+                                            <div className="message-actions-column">
+                                                <div className="message-actions">
+                                                    <button onClick={() => speak(msg.answer)} title="Listen"><Volume2 size={16}/></button>
+                                                    <button onClick={() => navigator.clipboard.writeText(msg.answer)} title="Copy"><ArrowRight size={16} className="rotate-90"/></button>
+                                                </div>
+                                                <div className="feedback-actions">
+                                                    <button 
+                                                        className={`feedback-btn ${msg.is_helpful === 1 ? 'active-up' : ''}`}
+                                                        onClick={() => handleFeedback(msg.id, 1, i)}
+                                                        title="Helpful"
+                                                    >
+                                                        <ThumbsUp size={14} />
+                                                    </button>
+                                                    <button 
+                                                        className={`feedback-btn ${msg.is_helpful === -1 ? 'active-down' : ''}`}
+                                                        onClick={() => setCorrectionIndex(i)}
+                                                        title="Not Helpful / Correct Me"
+                                                    >
+                                                        <ThumbsDown size={14} />
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
                                     </div>
+                                    {correctionIndex === i && (
+                                        <Motion.div 
+                                            initial={{ opacity: 0, height: 0 }}
+                                            animate={{ opacity: 1, height: 'auto' }}
+                                            className="correction-input-area glass-dark"
+                                        >
+                                            <p className="text-xs mb-2">How can I improve this answer? (Proprietary Correction System)</p>
+                                            <textarea 
+                                                value={correctionText}
+                                                onChange={e => setCorrectionText(e.target.value)}
+                                                placeholder="Provide the correct information or outcome..."
+                                                rows={2}
+                                            />
+                                            <div className="correction-actions">
+                                                <button onClick={() => setCorrectionIndex(null)}>Cancel</button>
+                                                <button className="submit-btn" onClick={submitCorrection}>Submit Correction</button>
+                                            </div>
+                                        </Motion.div>
+                                    )}
                                 </Motion.div>
                             ))}
                         </AnimatePresence>

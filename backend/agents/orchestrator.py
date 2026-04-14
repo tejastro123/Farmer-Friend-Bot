@@ -35,13 +35,14 @@ Your toolkit includes specialized sub-agents. Based on the user's query:
 6. Base your final response PRIMARILY on the agents' output.
 7. If the user question is in Hindi/Telugu/Tamil/other language, respond in the same language exactly.
 8. Keep answers concise but complete — farmers need actionable advice.
-
-🔥 HYPERLOCAL RULE: You MUST tailor advice based on the Farmer's specific SOIL and REGION context. 
-
-🔥 CONVERSATIONAL RULE: You are talking to a human. Be empathetic. 
-- ALWAYS append 3 short, helpful follow-up questions at the end of your response.
-- These questions should guide the user (e.g., "Would you like me to predict the yield for this crop?" or "Should I check the market price for Pune?").
-- Format follow-ups as a list at the very end, preceded by the token [FOLLOW_UP] on a new line.
+9. 🔥 TRUST & EXPLAINABILITY RULE: Farmers need to know WHY you are making a recommendation.
+   - For every major recommendation, provide a "Reasoning" or "Why" explanation.
+   - Assign a "Confidence Score" (0-100) based on the quality of agent reports and data consistency.
+   - Provide specific citations where possible (e.g., "[1] ICAR Rice Handbook").
+   - You MUST append these to your output using these exact tokens on new lines:
+     [EXPLANATION] ... detailed reasoning ...
+     [CONFIDENCE] ... numeric score ...
+     [CITATIONS] ... JSON list of citations ...
 
 NEVER make up data. If an agent fails to return prediction data, state that you don't have that information.
 """
@@ -52,6 +53,9 @@ class AgentResponse:
     sources: List[dict]  # Contains RAG sources
     language_detected: str
     agents_used: List[str] # E.g., ["Weather Intelligence", "Crop Advisor"]
+    explanation: str = ""
+    confidence_score: float = 0.0
+    citations: List[dict] = None
     follow_up_questions: List[str] = None
 
 class OrchestratorAgent:
@@ -242,19 +246,59 @@ Include this specific hyperlocal context when querying sub-agents. Your advice M
         try:
             chat = model.start_chat(history=gemini_history, enable_automatic_function_calling=True)
             response = send_orchestrator_message(chat, prompt) 
-            full_text = response.text
+            # Parse structured fields
+            explanation = ""
+            confidence = 0.85 # Default fallback
+            citations = []
             
-            # Parse follow-ups
+            # Extract Explanation
+            if "[EXPLANATION]" in full_text:
+                parts = full_text.split("[EXPLANATION]")
+                answer_part = parts[0]
+                rest = parts[1]
+                if "[CONFIDENCE]" in rest:
+                    exp_parts = rest.split("[CONFIDENCE]")
+                    explanation = exp_parts[0].strip()
+                    rest = exp_parts[1]
+                else:
+                    explanation = rest.strip()
+            else:
+                answer_part = full_text
+
+            # Extract Confidence
+            if "[CONFIDENCE]" in full_text:
+                import re
+                conf_match = re.search(r"\[CONFIDENCE\]\s*(\d+)", full_text)
+                if conf_match:
+                    confidence = float(conf_match.group(1)) / 100.0
+
+            # Extract Citations
+            if "[CITATIONS]" in full_text:
+                try:
+                    cit_part = full_text.split("[CITATIONS]")[1].split("[")[0].strip() # Simplistic extraction
+                    # For now, let's just use manual parsing if JSON is hard for it
+                    import json
+                    cit_match = re.search(r"\[CITATIONS\]\s*(\{.*\}|\[.*\])", full_text, re.DOTALL)
+                    if cit_match:
+                        citations = json.loads(cit_match.group(1))
+                except:
+                    pass
+
+            # Extract Follow-ups
             if "[FOLLOW_UP]" in full_text:
                 parts = full_text.split("[FOLLOW_UP]")
-                answer = parts[0].strip()
+                answer = parts[0].split("[EXPLANATION]")[0].strip()
                 follow_ups = [q.strip("- ").strip() for q in parts[1].strip().split("\n") if q.strip()]
             else:
-                answer = full_text
+                answer = answer_part.strip()
                 follow_ups = []
         except Exception as e:
             logger.error(f"Orchestrator API error during tool loop or final synthesis: {e}")
             answer = f"I'm having trouble coordinating my agents due to high server load (Gemini Quota). Please try again in 30 seconds. (Error: {str(e)})"
+            explanation = "Internal coordination failure."
+            confidence = 0.0
+            citations = []
+            follow_ups = []
 
         # Map Document objects to UI-friendly dicts
         sources_out = [
@@ -270,5 +314,8 @@ Include this specific hyperlocal context when querying sub-agents. Your advice M
             sources=sources_out,
             language_detected=language,
             agents_used=list(agents_called),
+            explanation=explanation,
+            confidence_score=confidence,
+            citations=citations,
             follow_up_questions=follow_ups[:3]
         )

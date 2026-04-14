@@ -59,10 +59,14 @@ class ChatHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=True) # Temporarily nullable for migration
     user_id = Column(Integer, ForeignKey("users.id"))
-    query = Column(String)
     answer = Column(String)
+    explanation = Column(String, nullable=True)
+    confidence_score = Column(Float, nullable=True)
     agents_used = Column(JSON, default=[])
     sources = Column(JSON, default=[])
+    citations = Column(JSON, default=[])
+    is_helpful = Column(Integer, nullable=True) # 1 for positive, -1 for negative
+    feedback_text = Column(String, nullable=True)
     timestamp = Column(DateTime, default=datetime.utcnow)
 
     session = relationship("ChatSession", back_populates="messages")
