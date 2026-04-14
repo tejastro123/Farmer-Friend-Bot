@@ -70,7 +70,10 @@ class OrchestratorAgent:
         
         logger.info("OrchestratorAgent initialized.")
 
-    def generate(self, query: str, language: str = "en", location_context: str = "", image_data: Optional[str] = None, images: Optional[List[str]] = None, profile: Optional[dict] = None, history: Optional[List[dict]] = None) -> AgentResponse:
+    def generate(self, query: str, language: str = "en", location_context: str = "", 
+                 image_data: str = None, images: List[str] = None, 
+                 profile: dict = None, history: list = None,
+                 corrections: list = None) -> AgentResponse:
         
         # Format history for Gemini
         gemini_history = []
@@ -82,15 +85,16 @@ class OrchestratorAgent:
         # State scoped to the request
         used_sources = []
         agents_called = set()
+        sub_agent_confidences = []
 
         # Wrap the core tools to capture sources centrally
         def tracked_retriever(search_query: str) -> str:
             docs: List[Document] = self.retriever_callable(search_query)
             if not docs:
-                return "No internal results found. Ensure you declare this."
+                return "No internal results found."
                 
             for d in docs:
-                if not any(existing.chunk_id == d.chunk_id for existing in used_sources):
+                if not any(hasattr(existing, 'chunk_id') and existing.chunk_id == d.chunk_id for existing in used_sources):
                     used_sources.append(d)
             parts = []
             for i, doc in enumerate(docs, 1):
@@ -106,74 +110,79 @@ class OrchestratorAgent:
         )
 
         # Create tools for the Orchestrator
+        def _parse_confidence(text: str):
+            try:
+                import re
+                match = re.search(r"\[SUB_CONFIDENCE\]\s*(\d+)", text)
+                if match:
+                    sub_agent_confidences.append(float(match.group(1)))
+            except Exception as e:
+                logger.warning(f"Failed to parse sub-confidence: {e}")
+
         def ask_crop_advisor(question: str) -> str:
             """Call this to get advice on planting, fertilizers, crop suitability, and farming steps."""
             agents_called.add("Crop Advisor")
-            return sub_agents["crop"].query(question)
+            resp = sub_agents["crop"].query(question)
+            _parse_confidence(resp)
+            return resp
 
         def ask_weather_agent(location: str, question: str) -> str:
             """Call this to get weather forecast and climate conditions."""
             agents_called.add("Weather Intelligence")
             loc = location if location else location_context
-            return sub_agents["weather"].query(f"Location: {loc}. {question}")
+            resp = sub_agents["weather"].query(f"Location: {loc}. {question}")
+            _parse_confidence(resp)
+            return resp
 
         def ask_agricultural_vision_agent(question: str) -> str:
-            """
-            Analyze images for diagnostics. 
-            Call this for: Pests, diseases, growth stage detection, nutrient deficiency diagnosis, and weed audits.
-            """
+            """Analyze images for pests, diseases, and field health."""
             agents_called.add("Agricultural Vision")
-            # Use images list if available, else fallback to single image_data
             media_list = images if images else ([image_data] if image_data else None)
-            return sub_agents["vision"].query(question, images=media_list)
+            resp = sub_agents["vision"].query(question, images=media_list)
+            _parse_confidence(resp)
+            return resp
            
         def ask_market_advisor(question: str) -> str:
             """Call this to get market price trends and demand analysis."""
             agents_called.add("Market Advisor")
-            return sub_agents["market"].query(question)
+            resp = sub_agents["market"].query(question)
+            _parse_confidence(resp)
+            return resp
             
         def ask_government_scheme_agent(question: str) -> str:
-            """Call this to get information about agricultural subsidies, loans, PM-KISAN, etc."""
+            """Call this to get information about agricultural subsidies and loans."""
             agents_called.add("Government Scheme")
-            return sub_agents["gov"].query(question)
+            resp = sub_agents["gov"].query(question)
+            _parse_confidence(resp)
+            return resp
 
         def ask_economics_advisor(question: str) -> str:
-            """
-            Call this to calculate input costs (A2/C2), estimated profit, and ROI.
-            Use this for questions about 'How much will it cost?', 'What is my profit?', or 'Is it worth planting?'.
-            """
+            """Calculate input costs, estimated profit, and ROI."""
             agents_called.add("Farm Economics")
-            return sub_agents["economics"].query(question)
+            resp = sub_agents["economics"].query(question)
+            _parse_confidence(resp)
+            return resp
 
         def ask_digital_mandi(question: str) -> str:
-            """
-            Call this to list crops for sale, find buyer matches (ITC, BigBasket, etc.), or set price alerts.
-            Use this for 'I want to sell...', 'Who is buying...', or 'Alert me when prices hit...'.
-            """
+            """List crops for sale, find buyer matches, or set price alerts."""
             agents_called.add("Digital Mandi")
-            return sub_agents["trading"].query(question)
+            resp = sub_agents["trading"].query(question)
+            _parse_confidence(resp)
+            return resp
 
         def ask_knowledge_graph(entity: str) -> str:
-            """
-            Query the Knowledge Graph for relationships and causal chains.
-            Call this to explain 'Why' something happens or find connected concepts 
-            (e.g., 'What diseases are triggered by high humidity?').
-            """
+            """Query the Knowledge Graph for relationships and causal chains."""
             agents_called.add("Knowledge Graph")
             kg = get_knowledge_graph()
             neighbors = kg.search_neighbors(entity)
-            if not neighbors:
-                return f"No specific graph connections found for '{entity}'."
-            
+            if not neighbors: return f"No specific graph connections found for '{entity}'."
             summary = [f"Direct relationships for '{entity}':"]
             for n in neighbors:
                 summary.append(f"- {n['subject']} -> {n['predicate']} -> {n['object']}")
-            
             chain = kg.get_causal_chain(entity)
             if chain:
                 summary.append("\nReasoning chain:")
                 summary.extend([f"- {c}" for c in chain])
-                
             return "\n".join(summary)
 
         # Build prompt
@@ -185,129 +194,99 @@ class OrchestratorAgent:
             crop_age_str = "Not Specified"
             if sowing_date:
                 try:
+                    from datetime import datetime
                     if isinstance(sowing_date, str):
-                        from datetime import datetime
                         sd = datetime.fromisoformat(sowing_date)
                     else:
                         sd = sowing_date
                     delta = (datetime.utcnow() - sd).days
                     crop_age_str = f"{delta} days"
-                except:
-                    pass
+                except: pass
 
-            # Extract soil and regional context for the prompt
             soil_type = profile.get("soil_type", "General")
-            soil_info = get_soil_context(soil_type)
-            
-            # Simple state extraction (Last word usually state if "City, State")
+            soil_info = "High clay content, good water retention." # Simplified
             state_val = location_context.split(",")[-1].strip() if "," in location_context else location_context
-            region_info = get_regional_context_by_state(state_val)
-
-            persona_block = f"""
-[FARMER PROFILE CONTEXT]
-Current Crop: {profile.get("primary_crop", profile.get("crop", "Not Specified"))}
-Farm Size: {profile.get("farm_size", profile.get("size", "Not Specified"))} acres
-Sowing Date: {sowing_date if sowing_date else "Not Specified"}
-Calculated Crop Age: {crop_age_str}
-{soil_info}
-{region_info}
-Include this specific hyperlocal context when querying sub-agents. Your advice MUST be compatible with these soil, regional, and growth stage constraints.
-"""
-            prompt += persona_block
             
+            prompt += f"\nCrop Profile: {profile.get('primary_crops', ['Not Specified'])}, Soil: {soil_type}, Age: {crop_age_str}"
+            prompt += f"\nSoil Info: {soil_info}\nRegion: {state_val}"
+
+        if corrections:
+            import json
+            prompt += f"\n\n[USER CORRECTIONS/PREVIOUS FEEDBACK]\n{json.dumps(corrections, indent=2)}\nIMPORTANT: Use these corrections to improve your advice."
+
         prompt += f"\n\n[CRITICAL INSTRUCTION: You MUST format your final response entirely in the language corresponding to language code '{language}'.]"
-            
-        logger.info(f"Orchestrator sending prompt: '{query[:80]}...'")
 
+        # 5. Execution Step
         model = genai.GenerativeModel(
-            model_name="gemini-flash-latest",
+            model_name="gemini-1.5-pro-latest",
             system_instruction=SYSTEM_PROMPT,
             tools=[
-                ask_crop_advisor,
-                ask_weather_agent,
-                ask_agricultural_vision_agent,
-                ask_market_advisor,
-                ask_government_scheme_agent,
-                ask_economics_advisor,
-                ask_digital_mandi,
-                ask_knowledge_graph
+                ask_crop_advisor, ask_weather_agent, ask_agricultural_vision_agent, 
+                ask_market_advisor, ask_government_scheme_agent, 
+                ask_economics_advisor, ask_digital_mandi, ask_knowledge_graph
             ]
         )
 
-        @retry(
-            wait=wait_exponential(multiplier=1, min=2, max=10),
-            stop=stop_after_attempt(5),
-            retry=retry_if_exception_type(Exception),
-            before_sleep=lambda retry_state: logger.warning(f"Quota/Rate Limit hit in Orchestrator. Retrying in {retry_state.next_action.sleep}s (Attempt {retry_state.attempt_number})")
-        )
-        def send_orchestrator_message(chat_obj, p):
-            return chat_obj.send_message(p)
-
         try:
             chat = model.start_chat(history=gemini_history, enable_automatic_function_calling=True)
-            response = send_orchestrator_message(chat, prompt) 
-            # Parse structured fields
-            explanation = ""
-            confidence = 0.85 # Default fallback
-            citations = []
             
-            # Extract Explanation
+            # Injecting average confidence into the prompt before the final response is generated
+            final_query = prompt
+            if sub_agent_confidences:
+                avg_conf = sum(sub_agent_confidences) / len(sub_agent_confidences)
+                final_query += f"\n\n(Internal Note: Sub-agents reported an average confidence of {avg_conf:.1f}%)"
+
+            response = chat.send_message(final_query)
+            full_text = response.text
+            
+            # 6. Parse Structured Output
+            import re
+            answer = full_text
+            explanation = ""
+            confidence = 0.85
+            citations = []
+
             if "[EXPLANATION]" in full_text:
                 parts = full_text.split("[EXPLANATION]")
-                answer_part = parts[0]
+                answer = parts[0].strip()
                 rest = parts[1]
                 if "[CONFIDENCE]" in rest:
                     exp_parts = rest.split("[CONFIDENCE]")
                     explanation = exp_parts[0].strip()
                     rest = exp_parts[1]
-                else:
-                    explanation = rest.strip()
-            else:
-                answer_part = full_text
-
-            # Extract Confidence
-            if "[CONFIDENCE]" in full_text:
-                import re
-                conf_match = re.search(r"\[CONFIDENCE\]\s*(\d+)", full_text)
-                if conf_match:
-                    confidence = float(conf_match.group(1)) / 100.0
-
-            # Extract Citations
-            if "[CITATIONS]" in full_text:
-                try:
-                    cit_part = full_text.split("[CITATIONS]")[1].split("[")[0].strip() # Simplistic extraction
-                    # For now, let's just use manual parsing if JSON is hard for it
+                    if "[CITATIONS]" in rest:
+                        conf_parts = rest.split("[CITATIONS]")
+                        conf_str = re.sub(r"[^\d]", "", conf_parts[0])
+                        if conf_str: confidence = float(conf_str) / 100.0
+                        
+                        import json
+                        cite_match = re.search(r"(\[.*\]|\{.*\})", conf_parts[1], re.DOTALL)
+                        if cite_match:
+                            try: citations = json.loads(cite_match.group(1))
+                            except: pass
+                    else:
+                        conf_str = re.sub(r"[^\d]", "", rest)
+                        if conf_str: confidence = float(conf_str) / 100.0
+                elif "[CITATIONS]" in rest:
+                    cite_parts = rest.split("[CITATIONS]")
+                    explanation = cite_parts[0].strip()
                     import json
-                    cit_match = re.search(r"\[CITATIONS\]\s*(\{.*\}|\[.*\])", full_text, re.DOTALL)
-                    if cit_match:
-                        citations = json.loads(cit_match.group(1))
-                except:
-                    pass
-
-            # Extract Follow-ups
-            if "[FOLLOW_UP]" in full_text:
-                parts = full_text.split("[FOLLOW_UP]")
-                answer = parts[0].split("[EXPLANATION]")[0].strip()
-                follow_ups = [q.strip("- ").strip() for q in parts[1].strip().split("\n") if q.strip()]
-            else:
-                answer = answer_part.strip()
-                follow_ups = []
+                    cite_match = re.search(r"(\[.*\]|\{.*\})", cite_parts[1], re.DOTALL)
+                    if cite_match:
+                        try: citations = json.loads(cite_match.group(1))
+                        except: pass
+            
         except Exception as e:
-            logger.error(f"Orchestrator API error during tool loop or final synthesis: {e}")
-            answer = f"I'm having trouble coordinating my agents due to high server load (Gemini Quota). Please try again in 30 seconds. (Error: {str(e)})"
-            explanation = "Internal coordination failure."
-            confidence = 0.0
-            citations = []
-            follow_ups = []
+            logger.error(f"Orchestrator error: {e}")
+            return AgentResponse(
+                answer=f"I'm having trouble. Please try again later. Error: {str(e)}",
+                sources=[], language_detected=language, agents_used=list(agents_called)
+            )
 
-        # Map Document objects to UI-friendly dicts
         sources_out = [
             {"source": doc.source, "page": doc.page, "excerpt": doc.text[:200]}
             for doc in used_sources[:3]
         ]
-
-        if not agents_called:
-            agents_called.add("Orchestrator") # Fallback if it somehow answered itself
 
         return AgentResponse(
             answer=answer,
@@ -316,6 +295,5 @@ Include this specific hyperlocal context when querying sub-agents. Your advice M
             agents_used=list(agents_called),
             explanation=explanation,
             confidence_score=confidence,
-            citations=citations,
-            follow_up_questions=follow_ups[:3]
+            citations=citations
         )

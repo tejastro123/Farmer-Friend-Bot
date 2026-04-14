@@ -2135,3 +2135,162 @@ select.glass-input option {
   overflow-x: auto;
   margin-bottom: 1rem;
 }
+
+/* Trust Layer & Feedback UI */
+
+.trust-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--secondary);
+  margin-bottom: 0.75rem;
+}
+
+.reasoning-expander {
+  margin-top: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reasoning-expander summary {
+  padding: 0.75rem 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--secondary);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(82, 183, 136, 0.05);
+  transition: all 0.2s;
+}
+
+.reasoning-expander summary:hover {
+  background: rgba(82, 183, 136, 0.1);
+}
+
+.explanation-text {
+  padding: 1rem;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-style: italic;
+  line-height: 1.6;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.citations-list {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.message-actions-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  padding-top: 0.5rem;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.feedback-btn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+}
+
+.feedback-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  transform: scale(1.1);
+}
+
+.feedback-btn.active-up {
+  color: var(--success);
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.feedback-btn.active-down {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.correction-input-area {
+  margin: 0.5rem 0 1.5rem 64px;
+  padding: 1.25rem;
+  border-radius: 16px;
+  max-width: 650px;
+  background: rgba(30, 77, 43, 0.1);
+  border: 1px solid rgba(82, 183, 136, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.correction-input-area textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.correction-input-area textarea:focus {
+  border-color: var(--secondary);
+}
+
+.correction-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.correction-actions button {
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+  border: none;
+}
+
+.correction-actions .submit-btn {
+  background: var(--secondary);
+  color: var(--bg-dark);
+}
+
+.correction-actions .submit-btn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+}

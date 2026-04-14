@@ -146,9 +146,19 @@ def handle_chat_query(
             thread_history.append({"role": "user", "content": m.query})
             thread_history.append({"role": "assistant", "content": m.answer})
 
-    # 3. Pipeline language handling
     target_lang = req.preferred_language or detect_language(req.query)
     query_en = req.query if target_lang == "en" else translate_to_english(req.query, target_lang)
+
+    # 3b. Fetch Recent Corrections (Learned Experience)
+    corrections = []
+    if current_user:
+        recent_bad_msgs = db.query(ChatHistory).filter(
+            ChatHistory.user_id == current_user.id,
+            ChatHistory.is_helpful == -1,
+            ChatHistory.feedback_text != None
+        ).order_by(ChatHistory.timestamp.desc()).limit(5).all()
+        for m in recent_bad_msgs:
+            corrections.append({"query": m.query, "correction": m.feedback_text})
 
     # 4. Agent Execution
     agent_response = agent.generate(
@@ -158,7 +168,8 @@ def handle_chat_query(
         image_data=req.images[0] if req.images else None, # Migration compatibility
         images=req.images, # New multi-image support
         profile=req.profile or (current_user.profile.__dict__ if current_user and current_user.profile else None),
-        history=thread_history or req.history
+        history=thread_history or req.history,
+        corrections=corrections
     )
 
     # 5. Persistent Save
