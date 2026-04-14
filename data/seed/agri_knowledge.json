@@ -1,0 +1,32 @@
+[
+    {
+        "category": "Fertilizers",
+        "question": "What fertilizer is best for wheat in India?",
+        "answer": "For wheat in India, the recommended NPK (Nitrogen-Phosphorus-Potassium) ratio generally is 120:60:40 kg per hectare. Urea is the main source of Nitrogen, DAP (Diammonium Phosphate) for Phosphorus, and MOP (Muriate of Potash) for Potassium. Half of the Nitrogen and full doses of Phosphorus and Potassium should be applied at the time of sowing. The remaining Nitrogen should be top-dressed in two equal splits: first at the Crown Root Initiation (CRI) stage (20-25 days after sowing) and second at the late jointing stage.",
+        "source": "ICAR Wheat Guidelines"
+    },
+    {
+        "category": "Crop Lifecycle",
+        "question": "What is the optimal sowing time for Paddy in Maharashtra?",
+        "answer": "In Maharashtra, the Kharif paddy sowing usually starts with the onset of the southwest monsoon, typically from the second week of June to the first week of July. Delaying sowing beyond mid-July can significantly reduce yields. The nursery should be prepared about 25-30 days before the expected transplanting date.",
+        "source": "State Agriculture Department, Maharashtra"
+    },
+    {
+        "category": "Schemes",
+        "question": "Am I eligible for PM-KISAN, and how much is the benefit?",
+        "answer": "Under the PM-KISAN scheme, eligible landholding farmer families are provided an income support of ₹6,000 per year, given in three equal installments of ₹2,000 every four months. To be eligible, you must own cultivable land in your name. Institutional landholders, farmer families holding constitutional posts, serving/retired government employees, and income tax payers are excluded. You can register via the PM-KISAN portal or your local Common Service Centre (CSC).",
+        "source": "PM-KISAN Portal"
+    },
+    {
+        "category": "Pest Management",
+        "question": "Why are my tomato leaves turning yellow, and what is the remedy?",
+        "answer": "Yellowing of tomato leaves can be caused by various factors, but in India, common culprits include Nitrogen deficiency, Early Blight (a fungal disease), or Spider Mites. \n1. Nitrogen Deficiency: Starts from older/lower leaves. Remedy: Apply a balanced NPK fertilizer or compost.\n2. Early Blight: Look for target-like spots on leaves. Remedy: Apply a recommended fungicide like Mancozeb at 2.5g per litre of water.\n3. Spider Mites: Yellowing with fine webbing under leaves. Remedy: Use Neem oil spray or permissible miticides. Please show a photo or consult your local Krishi Vigyan Kendra for exact diagnosis.",
+        "source": "Horticulture Advisory, Tamil Nadu"
+    },
+    {
+        "category": "Pest Management",
+        "question": "How to control Fall Armyworm in Maize?",
+        "answer": "To control Fall Armyworm (FAW) in maize, an integrated pest management approach is best. Use seed treatment like Cyantraniliprole 19.8% + Thiamethoxam 19.8% FS before sowing. Install pheromone traps for monitoring. For chemical control when infestation is high, spray Spinetoram 11.7% SC (0.5 ml/litre) or Chlorantraniliprole 18.5% SC (0.4 ml/litre) directing the nozzle towards the whorl. Do NOT use banned chemicals. Always wear protective gear when spraying.",
+        "source": "Central Insecticides Board"
+    }
+]

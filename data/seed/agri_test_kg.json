@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What causes Brown Spot in Rice?",
+    "answer": "Brown Spot in Rice is primarily triggered by high humidity (above 85%) and poor soil nutrition, especially Potassium deficiency. It is treated by applying potash fertilizers and managing water appropriately.",
+    "category": "Diseases",
+    "source": "AgriUniversity_KB"
+  },
+  {
+    "question": "How to treat Tomato Blight?",
+    "answer": "Tomato Blight is a fungal disease that spreads rapidly in cool, wet weather. It is best prevented by using Copper Fungicide sprays and ensuring proper spacing between plants for ventilation.",
+    "category": "Diseases",
+    "source": "AgriUniversity_KB"
+  },
+  {
+    "question": "What is the relationship between Urea and Nitrogen?",
+    "answer": "Urea is the most common nitrogenous fertilizer used in India. It provides essential Nitrogen to crops like Wheat and Rice to promote vegetative growth.",
+    "category": "Fertilizers",
+    "source": "AgriUniversity_KB"
+  },
+  {
+    "question": "Is PM-KISAN available for all farmers?",
+    "answer": "Yes, PM-KISAN (Pradhan Mantri Kisan Samman Nidhi) provides income support of ₹6000 per year to all landholding farmer families in India, regardless of farm size.",
+    "category": "Schemes",
+    "source": "GovIndia_Portal"
+  },
+  {
+    "question": "What weather triggers Pests in Cotton?",
+    "answer": "Warm and humid conditions often lead to an increase in Pink Bollworm attacks in Cotton crops. Monitoring temp and moisture is critical for early intervention.",
+    "category": "Pests",
+    "source": "CottonResearch_Inst"
+  }
+]

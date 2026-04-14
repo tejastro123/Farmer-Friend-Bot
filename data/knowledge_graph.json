@@ -1,0 +1,200 @@
+{
+  "directed": true,
+  "multigraph": true,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "High Humidity",
+      "id": "high humidity"
+    },
+    {
+      "label": "Blight",
+      "id": "blight"
+    },
+    {
+      "label": "Copper Fungicide",
+      "id": "copper fungicide"
+    },
+    {
+      "label": "Tomato",
+      "id": "tomato"
+    },
+    {
+      "label": "Rice",
+      "id": "rice"
+    },
+    {
+      "label": "Brown Spot",
+      "id": "brown spot"
+    },
+    {
+      "label": "Potash Fertilizers",
+      "id": "potash fertilizers"
+    },
+    {
+      "label": "Cool, Wet Weather",
+      "id": "cool, wet weather"
+    },
+    {
+      "label": "Nitrogen",
+      "id": "nitrogen"
+    },
+    {
+      "label": "Urea",
+      "id": "urea"
+    },
+    {
+      "label": "Wheat",
+      "id": "wheat"
+    },
+    {
+      "label": "PM-KISAN",
+      "id": "pm-kisan"
+    },
+    {
+      "label": "Farmers",
+      "id": "farmers"
+    },
+    {
+      "label": "Cotton",
+      "id": "cotton"
+    },
+    {
+      "label": "Pink Bollworm",
+      "id": "pink bollworm"
+    },
+    {
+      "label": "Warm Conditions",
+      "id": "warm conditions"
+    },
+    {
+      "label": "Humid Conditions",
+      "id": "humid conditions"
+    }
+  ],
+  "edges": [
+    {
+      "relationship": "TRIGGERED_BY",
+      "source": "high humidity",
+      "target": "blight",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_BY",
+      "source": "blight",
+      "target": "copper fungicide",
+      "key": 0
+    },
+    {
+      "relationship": "PREVENTED_BY",
+      "source_chunk": "Q: How to treat Tomato Blight?\nA: Tomato Blight is a fungal disease that spreads rapidly in cool, we",
+      "source": "blight",
+      "target": "copper fungicide",
+      "key": 1
+    },
+    {
+      "relationship": "TRIGGERED_BY",
+      "source_chunk": "Q: How to treat Tomato Blight?\nA: Tomato Blight is a fungal disease that spreads rapidly in cool, we",
+      "source": "blight",
+      "target": "cool, wet weather",
+      "key": 0
+    },
+    {
+      "relationship": "SUFFER_FROM",
+      "source": "tomato",
+      "target": "blight",
+      "key": 0
+    },
+    {
+      "relationship": "SUFFER_FROM",
+      "source_chunk": "Q: How to treat Tomato Blight?\nA: Tomato Blight is a fungal disease that spreads rapidly in cool, we",
+      "source": "tomato",
+      "target": "blight",
+      "key": 1
+    },
+    {
+      "relationship": "SUFFER_FROM",
+      "source_chunk": "Q: What causes Brown Spot in Rice?\nA: Brown Spot in Rice is primarily triggered by high humidity (ab",
+      "source": "rice",
+      "target": "brown spot",
+      "key": 0
+    },
+    {
+      "relationship": "TRIGGERED_BY",
+      "source_chunk": "Q: What causes Brown Spot in Rice?\nA: Brown Spot in Rice is primarily triggered by high humidity (ab",
+      "source": "brown spot",
+      "target": "high humidity",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_BY",
+      "source_chunk": "Q: What causes Brown Spot in Rice?\nA: Brown Spot in Rice is primarily triggered by high humidity (ab",
+      "source": "brown spot",
+      "target": "potash fertilizers",
+      "key": 0
+    },
+    {
+      "relationship": "PART_OF",
+      "source_chunk": "Q: What is the relationship between Urea and Nitrogen?\nA: Urea is the most common nitrogenous fertil",
+      "source": "nitrogen",
+      "target": "urea",
+      "key": 0
+    },
+    {
+      "relationship": "RECOMMENDED_FOR",
+      "source_chunk": "Q: What is the relationship between Urea and Nitrogen?\nA: Urea is the most common nitrogenous fertil",
+      "source": "urea",
+      "target": "wheat",
+      "key": 0
+    },
+    {
+      "relationship": "RECOMMENDED_FOR",
+      "source_chunk": "Q: What is the relationship between Urea and Nitrogen?\nA: Urea is the most common nitrogenous fertil",
+      "source": "urea",
+      "target": "rice",
+      "key": 0
+    },
+    {
+      "relationship": "RECOMMENDED_FOR",
+      "source_chunk": "Q: Is PM-KISAN available for all farmers?\nA: Yes, PM-KISAN (Pradhan Mantri Kisan Samman Nidhi) provi",
+      "source": "pm-kisan",
+      "target": "farmers",
+      "key": 0
+    },
+    {
+      "relationship": "SUFFER_FROM",
+      "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
+      "source": "cotton",
+      "target": "pink bollworm",
+      "key": 0
+    },
+    {
+      "relationship": "TRIGGERED_BY",
+      "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
+      "source": "pink bollworm",
+      "target": "warm conditions",
+      "key": 0
+    },
+    {
+      "relationship": "TRIGGERED_BY",
+      "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
+      "source": "pink bollworm",
+      "target": "humid conditions",
+      "key": 0
+    },
+    {
+      "relationship": "INCREASES_RISK_OF",
+      "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
+      "source": "warm conditions",
+      "target": "pink bollworm",
+      "key": 0
+    },
+    {
+      "relationship": "INCREASES_RISK_OF",
+      "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
+      "source": "humid conditions",
+      "target": "pink bollworm",
+      "key": 0
+    }
+  ]
+}
