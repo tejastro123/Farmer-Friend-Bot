@@ -14,11 +14,13 @@ KrishiMitra AI - AI-powered assistant for Indian farmers with multilingual crop 
 - **Embeddings**: Sentence-transformers (`all-MiniLM-L6-v2`)
 - **LLM**: Google Gemini 1.5 Flash
 - **Auth**: JWT with bcrypt
-- **Database**: SQLite with SQLAlchemy 2.0
+- **Database**: SQLite with raw SQL usage (via `backend/db/db_utils.py`)
 
 ## Commands
 
 ### Backend
+
+
 ```bash
 # Activate venv
 .\venv\Scripts\Activate.ps1  # Windows
@@ -35,6 +37,8 @@ python scripts/seed_knowledge.py
 ```
 
 ### Frontend
+
+
 ```bash
 cd frontend
 npm install
@@ -70,8 +74,7 @@ backend/
 │   ├── market.py        # Mandi pricing
 │   ├── hyperlocal.py    # Localized advisory
 │   └── predictions.py   # ML-based crop models
-├── models/              # SQLAlchemy ORM + ML models
-├── db/                  # Database utilities
+├── db/                  # Raw SQL table initialisation and connection logic
 └── utils/               # Auth, language detection, translation
 
 frontend/src/
@@ -91,6 +94,8 @@ frontend/src/
 ## Environment Variables
 
 Set in `.env` (see `.env.example`):
+
 - `GEMINI_API_KEY` - Required for chat
 - `WEATHER_API_KEY` - OpenWeatherMap for weather context
 - `MANDI_API_KEY` - Government mandi pricing data
+
