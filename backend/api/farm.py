@@ -6,9 +6,7 @@ Farm Management API - Crop, Weather, Financial, Inventory, Advisory, Schemes, So
 
 import logging
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
-from typing import Optional, List
-from datetime import date, datetime
+from pydantic import BaseModel, Field
 
 from backend.api.auth import get_current_user
 from backend.db.db_utils import (
@@ -23,16 +21,15 @@ from backend.db.db_utils import (
     add_soil_test, get_soil_tests, get_latest_soil_health
 )
 
-logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/farm", tags=["Farm Management"])
 
 # ── SCHEMAS ──────────────────────────────────────────────────────────────────
 
 class CropCycleCreate(BaseModel):
-    crop_name: str
-    planting_date: str
-    expected_harvest_date: str
-    season: str
+    crop_name: Optional[str] = None
+    planting_date: Optional[str] = None
+    expected_harvest_date: Optional[str] = None
+    season: Optional[str] = None
     notes: Optional[str] = None
 
 class CropCycleUpdate(BaseModel):
@@ -45,32 +42,32 @@ class CropCycleUpdate(BaseModel):
     notes: Optional[str] = None
 
 class YieldRecordCreate(BaseModel):
-    crop_cycle_id: int
-    crop_name: str
-    yield_quintals: float
-    area_hectares: float
-    selling_price_per_quintal: float
+    crop_cycle_id: Optional[int] = None
+    crop_name: Optional[str] = None
+    yield_quintals: Optional[float] = None
+    area_hectares: Optional[float] = None
+    selling_price_per_quintal: Optional[float] = None
     buyer_name: Optional[str] = None
     harvest_date: Optional[str] = None
     quality_grade: Optional[str] = None
     notes: Optional[str] = None
 
 class InputUsageCreate(BaseModel):
-    crop_cycle_id: int
-    input_type: str
-    input_name: str
-    quantity: float
-    unit: str
-    cost: float
-    application_date: str
+    crop_cycle_id: Optional[int] = None
+    input_type: Optional[str] = None
+    input_name: Optional[str] = None
+    quantity: Optional[float] = None
+    unit: Optional[str] = None
+    cost: Optional[float] = None
+    application_date: Optional[str] = None
     notes: Optional[str] = None
 
 class EquipmentCreate(BaseModel):
-    equipment_name: str
-    equipment_type: str
-    purchase_date: str
-    purchase_cost: float
-    condition: str
+    equipment_name: Optional[str] = None
+    equipment_type: Optional[str] = None
+    purchase_date: Optional[str] = None
+    purchase_cost: Optional[float] = None
+    condition: Optional[str] = None
     last_maintenance_date: Optional[str] = None
     next_maintenance_date: Optional[str] = None
     notes: Optional[str] = None
@@ -86,12 +83,12 @@ class EquipmentUpdate(BaseModel):
     notes: Optional[str] = None
 
 class WeatherRecordCreate(BaseModel):
-    date: str
-    temperature_min: float
-    temperature_max: float
-    humidity: float
-    rainfall_mm: float
-    weather_condition: str
+    date: Optional[str] = None
+    temperature_min: Optional[float] = None
+    temperature_max: Optional[float] = None
+    humidity: Optional[float] = None
+    rainfall_mm: Optional[float] = None
+    weather_condition: Optional[str] = None
 
 class WeatherRecordUpdate(BaseModel):
     date: Optional[str] = None
@@ -102,20 +99,20 @@ class WeatherRecordUpdate(BaseModel):
     weather_condition: Optional[str] = None
 
 class WeatherAlertCreate(BaseModel):
-    alert_type: str
-    severity: str
-    start_date: str
-    end_date: str
-    description: str
+    alert_type: Optional[str] = None
+    severity: Optional[str] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
+    description: Optional[str] = None
 
 class ExpenseCreate(BaseModel):
-    expense_type: str
-    category: str
-    amount: float
-    date: str
+    expense_type: Optional[str] = None
+    category: Optional[str] = None
+    amount: Optional[float] = None
+    date: Optional[str] = None
     description: Optional[str] = None
     receipt_image: Optional[str] = None
-    is_recurring: Optional[int] = 0
+    is_recurring: Optional[int] = None
 
 class ExpenseUpdate(BaseModel):
     expense_type: Optional[str] = None
@@ -127,10 +124,10 @@ class ExpenseUpdate(BaseModel):
     is_recurring: Optional[int] = None
 
 class TransactionCreate(BaseModel):
-    transaction_type: str
-    amount: float
-    date: str
-    category: str
+    transaction_type: Optional[str] = None
+    amount: Optional[float] = None
+    date: Optional[str] = None
+    category: Optional[str] = None
     description: Optional[str] = None
     reference_id: Optional[str] = None
     payment_method: Optional[str] = None
@@ -145,13 +142,13 @@ class TransactionUpdate(BaseModel):
     payment_method: Optional[str] = None
 
 class LoanCreate(BaseModel):
-    lender_name: str
-    loan_type: str
-    principal_amount: float
-    interest_rate: float
-    emi_amount: float
-    start_date: str
-    end_date: str
+    lender_name: Optional[str] = None
+    loan_type: Optional[str] = None
+    principal_amount: Optional[float] = None
+    interest_rate: Optional[float] = None
+    emi_amount: Optional[float] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
     notes: Optional[str] = None
 
 class LoanUpdate(BaseModel):
@@ -166,13 +163,13 @@ class LoanUpdate(BaseModel):
     notes: Optional[str] = None
 
 class InsuranceCreate(BaseModel):
-    policy_type: str
-    provider_name: str
-    policy_number: str
-    premium_amount: float
-    coverage_amount: float
-    start_date: str
-    end_date: str
+    policy_type: Optional[str] = None
+    provider_name: Optional[str] = None
+    policy_number: Optional[str] = None
+    premium_amount: Optional[float] = None
+    coverage_amount: Optional[float] = None
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
     notes: Optional[str] = None
 
 class InsuranceUpdate(BaseModel):
@@ -188,11 +185,11 @@ class InsuranceUpdate(BaseModel):
     notes: Optional[str] = None
 
 class SeedInventoryCreate(BaseModel):
-    seed_name: str
-    crop_type: str
-    quantity_kg: float
-    cost: float
-    purchase_date: str
+    seed_name: Optional[str] = None
+    crop_type: Optional[str] = None
+    quantity_kg: Optional[float] = None
+    cost: Optional[float] = None
+    purchase_date: Optional[str] = None
     supplier_name: Optional[str] = None
     expiry_date: Optional[str] = None
     notes: Optional[str] = None
@@ -267,7 +264,15 @@ class SoilTestUpdate(BaseModel):
 @router.post("/crop-cycles")
 def create_crop_cycle(data: CropCycleCreate, user: dict = Depends(get_current_user)):
     try:
-        cycle_id = add_crop_cycle(user["id"], data.crop_name, data.planting_date, data.expected_harvest_date, data.season, data.notes)
+        payload = {k: v for k, v in data.dict().items() if v is not None}
+        cycle_id = add_crop_cycle(
+            user["id"],
+            payload.get("crop_name"),
+            payload.get("planting_date"),
+            payload.get("expected_harvest_date"),
+            payload.get("season"),
+            payload.get("notes")
+        )
         return {"id": cycle_id, "status": "created"}
     except Exception as e:
         logger.error(f"Crop cycle error: {e}")
@@ -327,7 +332,18 @@ def list_input_usage(user: dict = Depends(get_current_user)):
 @router.post("/equipment")
 def create_equipment(data: EquipmentCreate, user: dict = Depends(get_current_user)):
     try:
-        eid = add_equipment(user["id"], data.equipment_name, data.equipment_type, data.purchase_date, data.purchase_cost, data.condition, last_maint=data.last_maintenance_date, next_maint=data.next_maintenance_date, notes=data.notes)
+        payload = {k: v for k, v in data.dict().items() if v is not None}
+        eid = add_equipment(
+            user["id"],
+            payload.get("equipment_name"),
+            payload.get("equipment_type"),
+            payload.get("purchase_date"),
+            payload.get("purchase_cost"),
+            payload.get("condition"),
+            last_maint=payload.get("last_maintenance_date"),
+            next_maint=payload.get("next_maintenance_date"),
+            notes=payload.get("notes")
+        )
         return {"id": eid, "status": "created"}
     except Exception as e:
         logger.error(f"Equipment error: {e}")
@@ -410,7 +426,17 @@ def list_weather_alerts(user: dict = Depends(get_current_user)):
 @router.post("/expenses")
 def create_expense(data: ExpenseCreate, user: dict = Depends(get_current_user)):
     try:
-        eid = add_expense(user["id"], data.expense_type, data.category, data.amount, data.date, data.description, receipt=data.receipt_image, recurring=data.is_recurring)
+        payload = {k: v for k, v in data.dict().items() if v is not None}
+        eid = add_expense(
+            user["id"],
+            payload.get("expense_type"),
+            payload.get("category"),
+            payload.get("amount"),
+            payload.get("date"),
+            payload.get("description"),
+            receipt=payload.get("receipt_image"),
+            recurring=payload.get("is_recurring")
+        )
         return {"id": eid, "status": "created"}
     except Exception as e:
         logger.error(f"Expense error: {e}")
@@ -544,7 +570,18 @@ def delete_insurance_policy(policy_id: int, user: dict = Depends(get_current_use
 @router.post("/seeds")
 def create_seed_inventory(data: SeedInventoryCreate, user: dict = Depends(get_current_user)):
     try:
-        sid = add_seed_inventory(user["id"], data.seed_name, data.crop_type, data.quantity_kg, data.cost, data.purchase_date, supplier=data.supplier_name, expiry=data.expiry_date, notes=data.notes)
+        payload = {k: v for k, v in data.dict().items() if v is not None}
+        sid = add_seed_inventory(
+            user["id"],
+            payload.get("seed_name"),
+            payload.get("crop_type"),
+            payload.get("quantity_kg"),
+            payload.get("cost"),
+            payload.get("purchase_date"),
+            supplier=payload.get("supplier_name"),
+            expiry=payload.get("expiry_date"),
+            notes=payload.get("notes")
+        )
         return {"id": sid, "status": "created"}
     except Exception as e:
         logger.error(f"Seed inventory error: {e}")
@@ -640,7 +677,19 @@ def update_scheme(app_id: int, data: SchemeUpdate, user: dict = Depends(get_curr
 @router.post("/soil-tests")
 def create_soil_test(data: SoilTestCreate, user: dict = Depends(get_current_user)):
     try:
-        tid = add_soil_test(user["id"], data.test_date, data.ph_level, data.nitrogen_ppm, data.phosphorus_ppm, data.potassium_ppm, data.organic_carbon, lab=data.lab_name, location=data.field_location, recommendations=data.recommendations)
+        payload = {k: v for k, v in data.dict().items() if v is not None}
+        tid = add_soil_test(
+            user["id"],
+            payload.get("test_date"),
+            payload.get("ph_level"),
+            payload.get("nitrogen_ppm"),
+            payload.get("phosphorus_ppm"),
+            payload.get("potassium_ppm"),
+            payload.get("organic_carbon"),
+            lab=payload.get("lab_name"),
+            location=payload.get("field_location"),
+            recommendations=payload.get("recommendations")
+        )
         return {"id": tid, "status": "created"}
     except Exception as e:
         logger.error(f"Soil test error: {e}")

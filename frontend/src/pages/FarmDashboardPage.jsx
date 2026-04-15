@@ -352,32 +352,32 @@ const FarmDashboardPage = () => {
                                 {showModal === 'crop' && (
                                     <>
                                         <div className="form-group">
-                                            <label>Crop Name</label>
-                                            <input type="text" name="crop_name" placeholder="e.g., Wheat, Rice" onChange={handleInputChange} />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Variety</label>
-                                            <input type="text" name="variety" placeholder="e.g., HD-2967" onChange={handleInputChange} />
+                                            <label>Crop Name *</label>
+                                            <input type="text" name="crop_name" placeholder="e.g., Wheat, Rice" onChange={handleInputChange} required />
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Area (acres)</label>
-                                                <input type="number" name="area_acres" onChange={handleInputChange} />
+                                                <label>Planting Date *</label>
+                                                <input type="date" name="planting_date" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Sowing Date</label>
-                                                <input type="date" name="sowing_date" onChange={handleInputChange} />
+                                                <label>Expected Harvest *</label>
+                                                <input type="date" name="expected_harvest_date" onChange={handleInputChange} required />
                                             </div>
                                         </div>
                                         <div className="form-group">
-                                            <label>Status</label>
-                                            <select name="status" onChange={handleInputChange}>
-                                                <option value="">Select status</option>
-                                                <option value="planned">Planned</option>
-                                                <option value="sowing">Sowing</option>
-                                                <option value="growing">Growing</option>
-                                                <option value="harvested">Harvested</option>
+                                            <label>Season *</label>
+                                            <select name="season" onChange={handleInputChange} required>
+                                                <option value="">Select season</option>
+                                                <option value="Rabi">Rabi (Oct-Mar)</option>
+                                                <option value="Kharif">Kharif (Jun-Oct)</option>
+                                                <option value="Zaid">Zaid (Mar-Jun)</option>
+                                                <option value="Annual">Annual</option>
                                             </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Notes</label>
+                                            <input type="text" name="notes" placeholder="Additional notes..." onChange={handleInputChange} />
                                         </div>
                                     </>
                                 )}
@@ -385,9 +385,9 @@ const FarmDashboardPage = () => {
                                 {showModal === 'expense' && (
                                     <>
                                         <div className="form-group">
-                                            <label>Category</label>
-                                            <select name="category" onChange={handleInputChange}>
-                                                <option value="">Select category</option>
+                                            <label>Type *</label>
+                                            <select name="expense_type" onChange={handleInputChange} required>
+                                                <option value="">Select type</option>
                                                 <option value="seeds">Seeds</option>
                                                 <option value="fertilizer">Fertilizer</option>
                                                 <option value="pesticide">Pesticide</option>
@@ -398,28 +398,31 @@ const FarmDashboardPage = () => {
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label>Description</label>
-                                            <input type="text" name="description" placeholder="What did you buy?" onChange={handleInputChange} />
+                                            <label>Category *</label>
+                                            <select name="category" onChange={handleInputChange} required>
+                                                <option value="">Select category</option>
+                                                <option value="seeds">Seeds</option>
+                                                <option value="fertilizer">Fertilizer</option>
+                                                <option value="pesticide">Pesticide</option>
+                                                <option value="fuel">Fuel</option>
+                                                <option value="labor">Labor</option>
+                                                <option value="equipment">Equipment</option>
+                                                <option value="other">Other</option>
+                                            </select>
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Amount (₹)</label>
-                                                <input type="number" name="amount" onChange={handleInputChange} />
+                                                <label>Amount (₹) *</label>
+                                                <input type="number" name="amount" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Date</label>
-                                                <input type="date" name="expense_date" onChange={handleInputChange} />
+                                                <label>Date *</label>
+                                                <input type="date" name="date" onChange={handleInputChange} required />
                                             </div>
                                         </div>
                                         <div className="form-group">
-                                            <label>Payment Mode</label>
-                                            <select name="payment_mode" onChange={handleInputChange}>
-                                                <option value="">Select mode</option>
-                                                <option value="cash">Cash</option>
-                                                <option value="upi">UPI</option>
-                                                <option value="bank_transfer">Bank Transfer</option>
-                                                <option value="loan">Loan</option>
-                                            </select>
+                                            <label>Description</label>
+                                            <input type="text" name="description" placeholder="What did you buy?" onChange={handleInputChange} />
                                         </div>
                                     </>
                                 )}
@@ -427,35 +430,35 @@ const FarmDashboardPage = () => {
                                 {showModal === 'equipment' && (
                                     <>
                                         <div className="form-group">
-                                            <label>Equipment Name</label>
-                                            <input type="text" name="equipment_name" placeholder="e.g., Tractor, Harvester" onChange={handleInputChange} />
+                                            <label>Equipment Name *</label>
+                                            <input type="text" name="equipment_name" placeholder="e.g., Tractor, Harvester" onChange={handleInputChange} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Type *</label>
+                                            <select name="equipment_type" onChange={handleInputChange} required>
+                                                <option value="">Select type</option>
+                                                <option value="tractor">Tractor</option>
+                                                <option value="harvester">Harvester</option>
+                                                <option value="sprayer">Sprayer</option>
+                                                <option value="irrigation">Irrigation</option>
+                                                <option value="storage">Storage</option>
+                                                <option value="other">Other</option>
+                                            </select>
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Type</label>
-                                                <select name="equipment_type" onChange={handleInputChange}>
-                                                    <option value="">Select type</option>
-                                                    <option value="tractor">Tractor</option>
-                                                    <option value="harvester">Harvester</option>
-                                                    <option value="sprayer">Sprayer</option>
-                                                    <option value="irrigation">Irrigation</option>
-                                                    <option value="storage">Storage</option>
-                                                    <option value="other">Other</option>
-                                                </select>
+                                                <label>Purchase Date *</label>
+                                                <input type="date" name="purchase_date" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Quantity</label>
-                                                <input type="number" name="quantity" onChange={handleInputChange} />
+                                                <label>Cost (₹) *</label>
+                                                <input type="number" name="purchase_cost" onChange={handleInputChange} required />
                                             </div>
                                         </div>
                                         <div className="form-group">
-                                            <label>Purchase Date</label>
-                                            <input type="date" name="purchase_date" onChange={handleInputChange} />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Status</label>
-                                            <select name="status" onChange={handleInputChange}>
-                                                <option value="">Select status</option>
+                                            <label>Condition *</label>
+                                            <select name="condition" onChange={handleInputChange} required>
+                                                <option value="">Select condition</option>
                                                 <option value="operational">Operational</option>
                                                 <option value="maintenance">Needs Maintenance</option>
                                                 <option value="retired">Retired</option>
@@ -467,26 +470,40 @@ const FarmDashboardPage = () => {
                                 {showModal === 'seed' && (
                                     <>
                                         <div className="form-group">
-                                            <label>Seed Name</label>
-                                            <input type="text" name="seed_name" placeholder="e.g., Wheat HD-2967" onChange={handleInputChange} />
+                                            <label>Seed Name *</label>
+                                            <input type="text" name="seed_name" placeholder="e.g., Wheat HD-2967" onChange={handleInputChange} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Crop Type *</label>
+                                            <select name="crop_type" onChange={handleInputChange} required>
+                                                <option value="">Select crop type</option>
+                                                <option value="wheat">Wheat</option>
+                                                <option value="rice">Rice</option>
+                                                <option value="cotton">Cotton</option>
+                                                <option value="sugarcane">Sugarcane</option>
+                                                <option value="vegetables">Vegetables</option>
+                                                <option value="other">Other</option>
+                                            </select>
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Quantity (kg)</label>
-                                                <input type="number" name="quantity_kg" onChange={handleInputChange} />
+                                                <label>Quantity (kg) *</label>
+                                                <input type="number" name="quantity_kg" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Price (₹)</label>
-                                                <input type="number" name="price" onChange={handleInputChange} />
+                                                <label>Cost (₹) *</label>
+                                                <input type="number" name="cost" onChange={handleInputChange} required />
                                             </div>
                                         </div>
-                                        <div className="form-group">
-                                            <label>Purchase Date</label>
-                                            <input type="date" name="purchase_date" onChange={handleInputChange} />
-                                        </div>
-                                        <div className="form-group">
-                                            <label>Supplier</label>
-                                            <input type="text" name="supplier" placeholder="Seed supplier name" onChange={handleInputChange} />
+                                        <div className="form-row">
+                                            <div className="form-group">
+                                                <label>Purchase Date *</label>
+                                                <input type="date" name="purchase_date" onChange={handleInputChange} required />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>Supplier</label>
+                                                <input type="text" name="supplier_name" placeholder="Supplier name" onChange={handleInputChange} />
+                                            </div>
                                         </div>
                                     </>
                                 )}
@@ -494,45 +511,40 @@ const FarmDashboardPage = () => {
                                 {showModal === 'soil' && (
                                     <>
                                         <div className="form-group">
-                                            <label>Test Date</label>
-                                            <input type="date" name="test_date" onChange={handleInputChange} />
+                                            <label>Test Date *</label>
+                                            <input type="date" name="test_date" onChange={handleInputChange} required />
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>pH Level</label>
-                                                <input type="number" step="0.1" name="ph_level" placeholder="6.5 - 7.5" onChange={handleInputChange} />
+                                                <label>pH Level *</label>
+                                                <input type="number" step="0.1" name="ph_level" placeholder="6.5 - 7.5" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Organic Carbon (%)</label>
-                                                <input type="number" step="0.1" name="organic_carbon_pct" onChange={handleInputChange} />
-                                            </div>
-                                        </div>
-                                        <div className="form-row">
-                                            <div className="form-group">
-                                                <label>Nitrogen (ppm)</label>
-                                                <input type="number" name="nitrogen_ppm" onChange={handleInputChange} />
-                                            </div>
-                                            <div className="form-group">
-                                                <label>Phosphorus (ppm)</label>
-                                                <input type="number" name="phosphorus_ppm" onChange={handleInputChange} />
+                                                <label>Organic Carbon (%) *</label>
+                                                <input type="number" step="0.1" name="organic_carbon" onChange={handleInputChange} required />
                                             </div>
                                         </div>
                                         <div className="form-row">
                                             <div className="form-group">
-                                                <label>Potassium (ppm)</label>
-                                                <input type="number" name="potassium_ppm" onChange={handleInputChange} />
+                                                <label>Nitrogen (ppm) *</label>
+                                                <input type="number" name="nitrogen_ppm" onChange={handleInputChange} required />
                                             </div>
                                             <div className="form-group">
-                                                <label>Soil Type</label>
-                                                <select name="soil_type" onChange={handleInputChange}>
-                                                    <option value="">Select type</option>
-                                                    <option value="clay">Clay</option>
-                                                    <option value="sandy">Sandy</option>
-                                                    <option value="loamy">Loamy</option>
-                                                    <option value="silt">Silt</option>
-                                                    <option value="peaty">Peaty</option>
-                                                </select>
+                                                <label>Phosphorus (ppm) *</label>
+                                                <input type="number" name="phosphorus_ppm" onChange={handleInputChange} required />
                                             </div>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Potassium (ppm) *</label>
+                                            <input type="number" name="potassium_ppm" onChange={handleInputChange} required />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Lab Name</label>
+                                            <input type="text" name="lab_name" placeholder="e.g., Soil Testing Lab" onChange={handleInputChange} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Recommendations</label>
+                                            <input type="text" name="recommendations" placeholder="Lab recommendations..." onChange={handleInputChange} />
                                         </div>
                                     </>
                                 )}
