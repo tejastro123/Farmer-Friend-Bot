@@ -65,9 +65,13 @@ export const mandiService = {
         return api.get('/mandi/summary', { params });
     },
     getDeal: (id) => api.get(`/mandi/deal/${id}`),
+    getAllDeals: () => api.get('/mandi/deals'),
     getHistory: () => api.get('/mandi/analytics'),
     createListing: (data) => api.post('/mandi/listing', data),
     initiateTrade: (data) => api.post('/mandi/trade', data),
+    confirmTrade: (dealId) => api.post(`/mandi/trade/${dealId}/confirm`),
+    recordPayment: (dealId, paymentMethod) => api.post(`/mandi/trade/${dealId}/payment`, { payment_method: paymentMethod }),
+    completeTrade: (dealId) => api.post(`/mandi/trade/${dealId}/complete`),
 };
 
 export const graphService = {

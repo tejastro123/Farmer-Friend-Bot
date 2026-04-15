@@ -20,6 +20,14 @@ const BillPage = () => {
             try {
                 const res = await mandiService.getDeal(dealId);
                 setDeal(res.data);
+                
+                if (res.data.status === 'Paid' && !res.data.completed_at) {
+                    try {
+                        await mandiService.completeTrade(dealId);
+                    } catch (e) {
+                        console.log("Trade already completed or error:", e);
+                    }
+                }
             } catch (err) {
                 console.error("Ledger sync failure:", err);
             } finally {

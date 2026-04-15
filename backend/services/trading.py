@@ -6,6 +6,7 @@ Tracks "Virtual Listings" and "Price Alerts".
 """
 
 import logging
+import random
 from typing import List, Dict, Optional
 import time
 from datetime import datetime
@@ -83,24 +84,38 @@ _state = {
         {
             "id": "DEAL-8892",
             "dealer": "ITC e-Choupal (Pune)",
+            "dealer_id": "itc",
             "commodity": "Wheat",
             "qty_quintals": 45,
             "price_per_quintal": 2410,
             "total": 108450,
             "date": "2026-04-10",
-            "status": "Confirmed",
-            "bill_no": "KM-TRS-9901"
+            "status": "Pending",
+            "bill_no": "KM-TRS-9901",
+            "payment_status": "unpaid",
+            "farmer_name": "Farmer",
+            "created_at": "2026-04-10T10:00:00",
+            "confirmed_at": None,
+            "paid_at": None,
+            "completed_at": None
         },
         {
             "id": "DEAL-8841",
             "dealer": "BigBasket Nashik",
+            "dealer_id": "bb",
             "commodity": "Tomato",
             "qty_quintals": 12,
             "price_per_quintal": 1450,
             "total": 17400,
             "date": "2026-04-05",
             "status": "Completed",
-            "bill_no": "KM-TRS-9752"
+            "bill_no": "KM-TRS-9752",
+            "payment_status": "paid",
+            "farmer_name": "Farmer",
+            "created_at": "2026-04-05T10:00:00",
+            "confirmed_at": "2026-04-05T10:30:00",
+            "paid_at": "2026-04-05T11:00:00",
+            "completed_at": "2026-04-05T14:00:00"
         }
     ]
 }
@@ -183,21 +198,60 @@ def get_deal_by_id(deal_id: str) -> Optional[Dict]:
     return None
 
 def initiate_trade(dealer_id: str, dealer_name: str, commodity: str, qty_quintals: int, price_per_quintal: float) -> Dict:
-    """Creates a new trade/deal and adds it to the ledger."""
+    """Creates a new trade/deal as Pending, ready for confirmation."""
     import random
     deal_id = f"DEAL-{random.randint(1000, 9999)}"
+    now = datetime.now().isoformat()
     
     deal = {
         "id": deal_id,
         "dealer": dealer_name,
+        "dealer_id": dealer_id,
         "commodity": commodity,
         "qty_quintals": qty_quintals,
         "price_per_quintal": price_per_quintal,
         "total": qty_quintals * price_per_quintal,
         "date": str(datetime.now().date()),
-        "status": "Confirmed",
-        "bill_no": f"KM-TRS-{random.randint(1000, 9999)}"
+        "status": "Pending",
+        "bill_no": f"KM-TRS-{random.randint(1000, 9999)}",
+        "payment_status": "unpaid",
+        "farmer_name": "Farmer",
+        "created_at": now,
+        "confirmed_at": None,
+        "paid_at": None,
+        "completed_at": None
     }
     
     _state["deals"].insert(0, deal)
     return deal
+
+def confirm_trade(deal_id: str) -> Optional[Dict]:
+    """Confirms a pending trade, marking it as ready for payment."""
+    deal = get_deal_by_id(deal_id)
+    if deal:
+        deal["status"] = "Confirmed"
+        deal["confirmed_at"] = datetime.now().isoformat()
+    return deal
+
+def record_payment(deal_id: str, payment_method: str = "UPI", transaction_id: str = None) -> Optional[Dict]:
+    """Records payment for a trade and marks it as Paid."""
+    deal = get_deal_by_id(deal_id)
+    if deal and deal["status"] == "Confirmed":
+        deal["payment_status"] = "paid"
+        deal["status"] = "Paid"
+        deal["paid_at"] = datetime.now().isoformat()
+        deal["payment_method"] = payment_method
+        deal["transaction_id"] = transaction_id or f"TXN-{random.randint(100000, 999999)}"
+    return deal
+
+def complete_trade(deal_id: str) -> Optional[Dict]:
+    """Completes a paid trade, generating final bill."""
+    deal = get_deal_by_id(deal_id)
+    if deal and deal["payment_status"] == "paid":
+        deal["status"] = "Completed"
+        deal["completed_at"] = datetime.now().isoformat()
+    return deal
+
+def get_all_deals() -> List[Dict]:
+    """Returns all deals from the ledger."""
+    return _state["deals"]

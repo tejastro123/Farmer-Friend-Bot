@@ -13,6 +13,8 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AccountPage from './pages/AccountPage';
 import MarketPage from './pages/MarketPage';
+import TradeConfirmPage from './pages/TradeConfirmPage';
+import PaymentPage from './pages/PaymentPage';
 import BillPage from './pages/BillPage';
 import YieldPage from './pages/YieldPage';
 import PestForecastPage from './pages/PestForecastPage';
@@ -349,6 +351,22 @@ function App() {
                 element={
                   <PrivateRoute>
                     <BillPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/market/confirm/:dealId"
+                element={
+                  <PrivateRoute>
+                    <TradeConfirmPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/market/payment/:dealId"
+                element={
+                  <PrivateRoute>
+                    <PaymentPage />
                   </PrivateRoute>
                 }
               />
