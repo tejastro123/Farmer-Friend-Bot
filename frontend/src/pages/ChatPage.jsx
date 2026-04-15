@@ -1,50 +1,59 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-    Send, MapPin, Globe, Loader2, Info, Camera, Mic, MicOff, 
-    Volume2, X, AlertCircle, History, Plus, MessageSquare, 
-    User, Bot, ArrowRight, Table, Zap, TrendingUp, 
-    Sprout, Activity, Trash2, Edit3, Download, Share2, FileText,
-    ThumbsUp, ThumbsDown, CheckCircle2, ChevronDown, ChevronUp
+import {
+    Send, MapPin, Globe, Info, Camera,
+    Volume2, X, AlertCircle, History, Plus, MessageSquare,
+    User, Trash2, Edit3, Download, FileText,
+    ThumbsUp, ThumbsDown, CheckCircle2,
+    ChevronLeft, ChevronRight, Paperclip
 } from 'lucide-react';
 import { marked } from 'marked';
 import { authService, chatService } from '../services/api';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import './ChatPage.css';
 
+// Wheat grain SVG for agent avatar
+const WheatGrainIcon = ({ className }) => (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 2v20M12 6c-2-2-4-1-4 2s2 4 4 4M12 6c2-2 4-1 4 2s-2 4-4 4" />
+        <path d="M12 12c-3-2-5-1-5 3s3 5 5 5M12 12c3-2 5-1 5 3s-3 5-5 5" />
+    </svg>
+);
+
+// Wheat wave typing animation
+const WheatWaveTyping = () => (
+    <div className="wheat-wave-typing">
+        <div className="wheat-dot" />
+        <div className="wheat-dot" />
+        <div className="wheat-dot" />
+    </div>
+);
 
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [isTyping, setIsTyping] = useState(false);
     const [language, setLanguage] = useState('en');
-    const [attachments, setAttachments] = useState([]); // Array of { id, data, type, name, preview }
+    const [attachments, setAttachments] = useState([]);
     const [dragActive, setDragActive] = useState(false);
     const [profile, setProfile] = useState(null);
-    
-    // Auto-expand textarea
-    const textareaRef = useRef(null);
-    useEffect(() => {
-        if (textareaRef.current) {
-            textareaRef.current.style.height = 'auto';
-            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-        }
-    }, [input]);
-    
+
     // Session State
     const [sessions, setSessions] = useState([]);
     const [currentSessionId, setCurrentSessionId] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const [isEditingTitle, setIsEditingTitle] = useState(null); // sessionId
+    const [isEditingTitle, setIsEditingTitle] = useState(null);
     const [editValue, setEditValue] = useState('');
 
     const suggestedActions = [
-        { label: "Regional Weather", icon: <Globe size={14} />, query: "What is the detailed weather forecast for my region?" },
-        { label: "Market Trends", icon: <TrendingUp size={14} />, query: "Show me the latest mandi price trends for my crop." },
-        { label: "Pest Alert", icon: <AlertCircle size={14} />, query: "Are there any pest outbreaks reported?" },
-        { label: "Fertilizer Schedule", icon: <Activity size={14} />, query: "What is the recommended fertilizer schedule for my current growth stage?" }
+        { label: "Regional Weather", icon: "🌦", query: "What is the detailed weather forecast for my region?" },
+        { label: "Market Trends", icon: "📈", query: "Show me the latest mandi price trends for my crop." },
+        { label: "Pest Alert", icon: "🐛", query: "Are there any pest outbreaks reported?" },
+        { label: "Fertilizer Guide", icon: "🌿", query: "What is the recommended fertilizer schedule for my current growth stage?" }
     ];
 
     const messagesEndRef = useRef(null);
     const fileInputRef = useRef(null);
+    const textareaRef = useRef(null);
 
     useEffect(() => {
         const init = async () => {
@@ -56,7 +65,6 @@ const ChatPage = () => {
                 }
                 await loadSessions();
             } catch (err) {
-                // If 401 or 404, it's just a guest user or stale session - no need to log as error
                 if (err.response?.status === 401 || err.response?.status === 404) {
                     if (err.response?.status === 401) {
                         localStorage.removeItem('token');
@@ -70,6 +78,14 @@ const ChatPage = () => {
         init();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    // Auto-expand textarea
+    useEffect(() => {
+        if (textareaRef.current) {
+            textareaRef.current.style.height = 'auto';
+            textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+        }
+    }, [input]);
 
     const loadSessions = async () => {
         try {
@@ -93,10 +109,8 @@ const ChatPage = () => {
         setIsTyping(true);
         try {
             const res = await chatService.getSessionMessages(sessionId);
-            // Re-fetch all history interleaved from backend
             const messagePairs = [];
             res.data.forEach(m => {
-                // If we had user queries, we'd interleave them here
                 messagePairs.push({ role: 'agent', ...m });
             });
             setMessages(messagePairs);
@@ -192,7 +206,7 @@ const ChatPage = () => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `KrishiMitra_Consultation_${new Date().toISOString().slice(0,10)}.txt`;
+        a.download = `KrishiMitra_Consultation_${new Date().toISOString().slice(0, 10)}.txt`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -209,11 +223,11 @@ const ChatPage = () => {
     const handleSend = async () => {
         if (!input.trim() && attachments.length === 0) return;
 
-        const userMsg = { 
-            role: 'user', 
-            text: input, 
+        const userMsg = {
+            role: 'user',
+            text: input,
             attachments: [...attachments],
-            answer: input 
+            answer: input
         };
         setMessages(prev => [...prev, userMsg]);
         setInput('');
@@ -224,11 +238,11 @@ const ChatPage = () => {
             const res = await chatService.sendMessage({
                 query: userMsg.text,
                 session_id: currentSessionId,
-                images: userMsg.attachments.map(a => a.data), // Send all previews/data
+                images: userMsg.attachments.map(a => a.data),
                 preferred_language: language,
                 location: profile?.location_name
             });
-            
+
             const agentMsg = {
                 role: 'agent',
                 id: res.data.id,
@@ -242,11 +256,10 @@ const ChatPage = () => {
             };
 
             setMessages(prev => [...prev, agentMsg]);
-            
-            // Update current session or load new one
+
             if (!currentSessionId && res.data.session_id) {
                 setCurrentSessionId(res.data.session_id);
-                loadSessions(); // Refresh sidebar to show new session
+                loadSessions();
             }
         } catch (err) {
             console.error("Chat error:", err);
@@ -287,291 +300,257 @@ const ChatPage = () => {
         window.speechSynthesis.speak(utterance);
     };
 
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const initials = user?.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'FA';
+
     return (
-        <div className="chat-interface">
-            <aside className={`chat-history-sidebar glass ${isSidebarOpen ? '' : 'collapsed'}`}>
-                <button className="new-chat-btn" onClick={startNewChat}>
-                    <Plus size={18} /> New Consultation
+        <div className="chat-interface-v2">
+            {/* Sidebar */}
+            <aside className={`chat-sidebar ${isSidebarOpen ? 'open' : 'closed'}`}>
+                <button className="new-consultation-btn btn btn-ghost" onClick={startNewChat}>
+                    <Plus size={16} /> New Consultation
                 </button>
-                
-                <div className="history-groups">
-                    <div className="history-group">
-                        <label>Your Past Consultations</label>
-                        <div className="session-list">
-                            {sessions.map(session => (
-                                <div 
-                                    key={session.id} 
-                                    className={`history-item ${currentSessionId === session.id ? 'active' : ''}`}
-                                    onClick={() => loadSession(session.id)}
-                                >
-                                    <MessageSquare size={14} className="flex-shrink-0" />
-                                    {isEditingTitle === session.id ? (
-                                        <input 
-                                            autoFocus
-                                            className="edit-session-input"
-                                            value={editValue}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={e => setEditValue(e.target.value)}
-                                            onBlur={e => renameSession(e, session.id)}
-                                            onKeyDown={e => e.key === 'Enter' && renameSession(e, session.id)}
-                                        />
+
+                <div className="sidebar-divider" />
+
+                <div className="session-groups">
+                    <label className="session-group-label">Past Consultations</label>
+                    <div className="session-list">
+                        {sessions.map(session => (
+                            <div
+                                key={session.id}
+                                className={`session-item ${currentSessionId === session.id ? 'active' : ''}`}
+                                onClick={() => loadSession(session.id)}
+                            >
+                                <WheatGrainIcon className="session-icon" />
+                                {isEditingTitle === session.id ? (
+                                    <input
+                                        autoFocus
+                                        className="session-edit-input"
+                                        value={editValue}
+                                        onClick={(e) => e.stopPropagation()}
+                                        onChange={(e) => setEditValue(e.target.value)}
+                                        onBlur={(e) => renameSession(e, session.id)}
+                                        onKeyDown={(e) => e.key === 'Enter' && renameSession(e, session.id)}
+                                    />
+                                ) : (
+                                    <span className="session-title">{session.title}</span>
+                                )}
+                                <div className="session-actions" onClick={(e) => e.stopPropagation()}>
+                                    {deletingSessionId === session.id ? (
+                                        <div className="confirm-delete-group">
+                                            <button className="confirm-btn" onClick={() => confirmDelete(session.id)}>
+                                                <X size={12} />
+                                            </button>
+                                            <button className="cancel-btn" onClick={() => setDeletingSessionId(null)}>
+                                                <CheckCircle2 size={12} />
+                                            </button>
+                                        </div>
                                     ) : (
-                                        <span className="session-title">{session.title}</span>
+                                        <>
+                                            <button onClick={(e) => renameSession(e, session.id)}>
+                                                <Edit3 size={12} />
+                                            </button>
+                                            <button onClick={(e) => deleteSession(e, session.id)}>
+                                                <Trash2 size={12} />
+                                            </button>
+                                        </>
                                     )}
-                                    <div className="session-actions" onClick={(e) => e.stopPropagation()}>
-                                        {deletingSessionId === session.id ? (
-                                            <div className="confirm-delete-group">
-                                                <button className="confirm-btn" onClick={() => confirmDelete(session.id)} title="Confirm Delete">
-                                                    <Trash2 size={12} color="var(--error)" /> 
-                                                </button>
-                                                <button className="cancel-btn" onClick={() => setDeletingSessionId(null)} title="Cancel">
-                                                    <X size={12} />
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button onClick={(e) => renameSession(e, session.id)} title="Rename"><Edit3 size={12} /></button>
-                                                <button onClick={(e) => deleteSession(e, session.id)} title="Delete"><Trash2 size={12} /></button>
-                                            </>
-                                        )}
-                                    </div>
                                 </div>
-                            ))}
-                        </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
                 <div className="sidebar-footer">
-                    <button className="download-all-btn glass-dark" onClick={downloadChat}>
-                        <Download size={14} /> Export Current Chat
-                    </button>
-                    <div className="user-profile-mini">
-                        <User size={18} />
-                        <span>{profile?.full_name || 'Farmer Account'}</span>
+                    <div className="footer-user">
+                        <div className="footer-avatar">{initials}</div>
+                        <span className="footer-name">{profile?.full_name || 'Farmer Account'}</span>
                     </div>
+                    <button className="export-link" onClick={downloadChat}>
+                        <Download size={14} /> Export Chat
+                    </button>
                 </div>
             </aside>
 
-            <main 
-                className={`chat-viewport ${dragActive ? 'drag-active' : ''}`}
-                onDragEnter={handleDrag}
-                onDragOver={handleDrag}
-                onDragLeave={handleDrag}
-                onDrop={handleDrop}
-            >
-                <header className="chat-viewport-header glass">
-                    <button className="toggle-sidebar" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                        <History size={20} />
+            {/* Main Viewport */}
+            <main className="chat-viewport-v2">
+                <header className="viewport-header">
+                    <button className="toggle-sidebar-btn" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+                        {isSidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                     </button>
-                    <div className="model-selector glass-dark">
-                        <Zap size={16} color="var(--secondary)" />
-                        <span>KrishiMitra Agentic v2.5</span>
+                    <div className="model-badge surface">
+                        <span>KrishiMitra Advisor — Gemini Flash</span>
                     </div>
-                    <div className="header-actions">
-                        <Globe size={18} />
-                        <select className="glass-input" style={{ width: 'auto' }} value={language} onChange={e => setLanguage(e.target.value)}>
-                            <option value="en">English</option>
-                            <option value="hi">Hindi</option>
+                    <div className="language-selector">
+                        <Globe size={14} />
+                        <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                            <option value="en">EN</option>
+                            <option value="hi">HI</option>
                         </select>
                     </div>
                 </header>
 
-                <div className="chat-messages-container">
-                    <div className="messages-wrapper">
+                <div className="messages-area">
+                    <div className="messages-inner">
                         <AnimatePresence initial={false}>
                             {messages.map((msg, i) => (
-                                <Motion.div 
+                                <Motion.div
                                     key={i}
-                                    initial={{ opacity: 0, y: 10 }}
+                                    initial={{ opacity: 0, y: 8 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    className={`chat-message-row ${msg.role}`}
+                                    transition={{ duration: 0.4 }}
+                                    className={`message message-${msg.role}`}
                                 >
-                                    <div className="message-content-wrapper">
-                                        <div className="message-icon">
-                                            {msg.role === 'agent' ? <Bot size={20} /> : <User size={20} />}
+                                    {msg.role === 'agent' && (
+                                        <div className="message-avatar agent-avatar">
+                                            <WheatGrainIcon />
                                         </div>
-                                        <div className="message-content">
-                                            {msg.role === 'agent' && msg.agents_used?.length > 0 && (
-                                                <div className="agent-workflow">
-                                                    {msg.agents_used.map(ag => (
-                                                        <span key={ag} className="workflow-badge">
-                                                            <Zap size={10} /> {ag}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            )}
-                                            {msg.role === 'agent' && msg.confidence && (
-                                                <div className="trust-badge glass-dark">
-                                                    <CheckCircle2 size={12} color={msg.confidence > 80 ? 'var(--secondary)' : 'var(--warning)'} />
-                                                    <span>{msg.confidence}% Confidence</span>
-                                                </div>
-                                            )}
-                                            <div 
-                                                className="markdown-body" 
-                                                dangerouslySetInnerHTML={{ __html: marked(msg.answer || msg.text || '') }} 
-                                            />
-                                            
-                                            {msg.role === 'agent' && msg.explanation && (
-                                                <details className="reasoning-expander">
-                                                    <summary><Info size={12} /> Why this recommendation?</summary>
-                                                    <div className="explanation-text">{msg.explanation}</div>
-                                                </details>
-                                            )}
-
-                                            {msg.citations?.length > 0 && (
-                                                <div className="citations-list">
-                                                    <p className="text-xs opacity-60 mt-2 flex items-center gap-1"><FileText size={10}/> Citations:</p>
-                                                    <ul className="text-xs list-disc ml-4 opacity-80">
-                                                        {msg.citations.map((c, ci) => (
-                                                            <li key={ci}>{c.title || c.text}</li>
-                                                        ))}
-                                                    </ul>
-                                                </div>
-                                            )}
-
-                                            {msg.sources?.length > 0 && (
-                                                <div className="message-sources-list">
-                                                    <p><Info size={12} /> Data Sources:</p>
-                                                    <div className="sources-chips">
-                                                        {msg.sources.map((s, si) => <span key={si}>{s.source}</span>)}
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                        {msg.role === 'agent' && (
-                                            <div className="message-actions-column">
-                                                <div className="message-actions">
-                                                    <button onClick={() => speak(msg.answer)} title="Listen"><Volume2 size={16}/></button>
-                                                    <button onClick={() => navigator.clipboard.writeText(msg.answer)} title="Copy"><ArrowRight size={16} className="rotate-90"/></button>
-                                                </div>
-                                                <div className="feedback-actions">
-                                                    <button 
-                                                        className={`feedback-btn ${msg.is_helpful === 1 ? 'active-up' : ''}`}
-                                                        onClick={() => handleFeedback(msg.id, 1, i)}
-                                                        title="Helpful"
-                                                    >
-                                                        <ThumbsUp size={14} />
-                                                    </button>
-                                                    <button 
-                                                        className={`feedback-btn ${msg.is_helpful === -1 ? 'active-down' : ''}`}
-                                                        onClick={() => setCorrectionIndex(i)}
-                                                        title="Not Helpful / Correct Me"
-                                                    >
-                                                        <ThumbsDown size={14} />
-                                                    </button>
-                                                </div>
+                                    )}
+                                    <div className="message-body">
+                                        {msg.role === 'agent' && msg.agents_used?.length > 0 && (
+                                            <div className="workflow-row">
+                                                {msg.agents_used.map(ag => (
+                                                    <span key={ag} className="agent-pill">
+                                                        {ag === 'Weather' ? '🌤' : ag === 'Market' ? '📊' : ag === 'Crop' ? '🌱' : '⚡'} {ag}
+                                                    </span>
+                                                ))}
+                                            </div>
+                                        )}
+                                        {msg.role === 'agent' && msg.confidence && msg.confidence < 70 && (
+                                            <div className="confidence-warning label">
+                                                <AlertCircle size={12} />
+                                                Confidence: {msg.confidence}%
+                                            </div>
+                                        )}
+                                        <div
+                                            className="message-text markdown-body"
+                                            dangerouslySetInnerHTML={{ __html: marked(msg.answer || msg.text || '') }}
+                                        />
+                                        {msg.role === 'user' && (
+                                            <div className="message-timestamp">
+                                                {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                             </div>
                                         )}
                                     </div>
-                                    {correctionIndex === i && (
-                                        <Motion.div 
-                                            initial={{ opacity: 0, height: 0 }}
-                                            animate={{ opacity: 1, height: 'auto' }}
-                                            className="correction-input-area glass-dark"
-                                        >
-                                            <p className="text-xs mb-2">How can I improve this answer? (Proprietary Correction System)</p>
-                                            <textarea 
-                                                value={correctionText}
-                                                onChange={e => setCorrectionText(e.target.value)}
-                                                placeholder="Provide the correct information or outcome..."
-                                                rows={2}
-                                            />
-                                            <div className="correction-actions">
-                                                <button onClick={() => setCorrectionIndex(null)}>Cancel</button>
-                                                <button className="submit-btn" onClick={submitCorrection}>Submit Correction</button>
-                                            </div>
-                                        </Motion.div>
+                                    {msg.role === 'agent' && (
+                                        <div className="message-feedback">
+                                            <button
+                                                className={`feedback-btn ${msg.is_helpful === 1 ? 'active' : ''}`}
+                                                onClick={() => handleFeedback(msg.id, 1, i)}
+                                            >
+                                                <ThumbsUp size={14} />
+                                            </button>
+                                            <button
+                                                className={`feedback-btn ${msg.is_helpful === -1 ? 'active' : ''}`}
+                                                onClick={() => setCorrectionIndex(i)}
+                                            >
+                                                <ThumbsDown size={14} />
+                                            </button>
+                                        </div>
                                     )}
                                 </Motion.div>
                             ))}
                         </AnimatePresence>
+
                         {isTyping && (
-                            <div className="chat-message-row agent">
-                                <div className="message-content-wrapper">
-                                    <div className="message-icon"><Bot size={20} /></div>
-                                    <div className="typing-bubble">
-                                        <div className="typing-dot"></div><div className="typing-dot"></div><div className="typing-dot"></div>
-                                    </div>
+                            <Motion.div
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="message message-agent typing"
+                            >
+                                <div className="message-avatar agent-avatar">
+                                    <WheatGrainIcon />
                                 </div>
-                            </div>
+                                <WheatWaveTyping />
+                            </Motion.div>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
                 </div>
 
-                <footer className="chat-input-viewport">
-                    <Motion.div 
-                        className="suggested-actions"
-                        initial="hidden"
-                        animate="show"
-                        variants={{
-                            hidden: { opacity: 0 },
-                            show: {
-                                opacity: 1,
-                                transition: { staggerChildren: 0.1 }
-                            }
-                        }}
-                    >
+                <footer className="input-area">
+                    <div className="suggested-chips">
                         {suggestedActions.map((action, idx) => (
-                            <Motion.button 
-                                key={idx} 
-                                variants={{
-                                    hidden: { opacity: 0, y: 10 },
-                                    show: { opacity: 1, y: 0 }
-                                }}
-                                whileHover={{ y: -4, backgroundColor: 'rgba(82, 183, 136, 0.15)', borderColor: 'var(--secondary)' }}
-                                className="action-chip" 
+                            <button
+                                key={idx}
+                                className="suggestion-chip"
                                 onClick={() => setInput(action.query)}
                             >
-                                {action.icon} {action.label}
-                            </Motion.button>
+                                <span>{action.icon}</span>
+                                {action.label}
+                            </button>
                         ))}
-                    </Motion.div>
+                    </div>
 
-                    <div className="input-box-container glass">
+                    <div className="input-box surface">
                         {attachments.length > 0 && (
-                            <div className="attachments-preview-bar">
+                            <div className="attachment-thumbs">
                                 {attachments.map(att => (
-                                    <div key={att.id} className="attachment-thumbnail">
+                                    <div key={att.id} className="attachment-thumb">
                                         {att.preview ? (
                                             <img src={att.preview} alt="preview" />
                                         ) : (
-                                            <div className="file-icon">
-                                                <FileText size={24} />
-                                            </div>
+                                            <FileText size={20} />
                                         )}
-                                        <button className="remove-btn" onClick={() => removeAttachment(att.id)}>
+                                        <button onClick={() => removeAttachment(att.id)}>
                                             <X size={12} />
                                         </button>
                                     </div>
                                 ))}
                             </div>
                         )}
-                        <div className="input-row">
-                            <input 
-                                type="file" 
-                                ref={fileInputRef} 
-                                className="hidden" 
+                        <div className="input-row-v2">
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
                                 multiple
-                                onChange={e => handleFileSelect(e.target.files)}
+                                onChange={(e) => handleFileSelect(e.target.files)}
                             />
-                            <button className="input-action" onClick={() => fileInputRef.current.click()} title="Add Attachments (Images/PDFs)">
-                                <Plus size={22} />
+                            <button className="attach-btn" onClick={() => fileInputRef.current.click()}>
+                                <Paperclip size={20} />
                             </button>
-                            <textarea 
+                            <textarea
                                 ref={textareaRef}
                                 value={input}
-                                onChange={e => setInput(e.target.value)}
+                                onChange={(e) => setInput(e.target.value)}
                                 placeholder="Consult KrishiMitra..."
                                 rows={1}
-                                onKeyDown={e => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
+                                onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSend())}
                             />
-                            <button className="send-btn" onClick={handleSend} disabled={isTyping || (!input.trim() && attachments.length === 0)}>
-                                {isTyping ? <Loader2 size={18} className="lucide-spin" /> : <Send size={18} />}
+                            <button className="send-button" onClick={handleSend} disabled={isTyping || (!input.trim() && attachments.length === 0)}>
+                                <Send size={18} />
                             </button>
                         </div>
                     </div>
+                    <p className="input-disclaimer">
+                        KrishiMitra AI may make mistakes. Verify important advice with your local Krishi Kendra.
+                    </p>
                 </footer>
+
+                {correctionIndex !== null && (
+                    <Motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="correction-overlay"
+                        onClick={() => setCorrectionIndex(null)}
+                    >
+                        <div className="correction-panel surface" onClick={(e) => e.stopPropagation()}>
+                            <p className="correction-label">How can I improve this answer?</p>
+                            <textarea
+                                value={correctionText}
+                                onChange={(e) => setCorrectionText(e.target.value)}
+                                placeholder="Provide the correct information or outcome..."
+                                rows={3}
+                            />
+                            <div className="correction-buttons">
+                                <button className="btn btn-secondary" onClick={() => setCorrectionIndex(null)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={submitCorrection}>Submit Correction</button>
+                            </div>
+                        </div>
+                    </Motion.div>
+                )}
             </main>
         </div>
     );
