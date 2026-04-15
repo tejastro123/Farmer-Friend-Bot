@@ -91,7 +91,7 @@ const DropdownItem = ({ to, children }) => (
 function App() {
   const [isLoggedIn, setIsLoggedIn] = React.useState(!!localStorage.getItem('token'));
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [language, setLanguage] = useState('EN');
+  const [language] = useState('EN');
   const location = useLocation();
 
   const logout = () => {

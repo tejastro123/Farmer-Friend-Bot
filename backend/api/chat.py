@@ -334,8 +334,11 @@ def submit_feedback(
                 if req.is_helpful == 1:
                     cursor.execute("UPDATE chunk_feedback SET helpful_count = helpful_count + 1, last_updated = CURRENT_TIMESTAMP WHERE chunk_hash = ?", (chunk_h,))
                     # NEW: Propagate to AI Moat Dataset Builder (in background)
-                    # from backend.services.dataset import curate_interaction
-                    # background_tasks.add_task(curate_interaction, message_id)
+                    try:
+                        from backend.services.dataset import curate_interaction
+                        background_tasks.add_task(curate_interaction, message_id)
+                    except Exception as e:
+                        logger.warning(f"Could not add to moat: {e}")
                 else:
                     cursor.execute("UPDATE chunk_feedback SET unhelpful_count = unhelpful_count + 1, last_updated = CURRENT_TIMESTAMP WHERE chunk_hash = ?", (chunk_h,))
     except Exception as e:

@@ -354,6 +354,98 @@
     {
       "label": "Increase pH",
       "id": "increase ph"
+    },
+    {
+      "label": "Pune",
+      "id": "pune"
+    },
+    {
+      "label": "Weather Advisory (Pune)",
+      "id": "weather advisory (pune)"
+    },
+    {
+      "label": "Current conditions in Pune: Clear sky, 36.19°C. Extreme heat alert. Increase irrigation frequency for young crops.",
+      "id": "current conditions in pune: clear sky, 36.19°c. extreme heat alert. increase irrigation frequency for young crops."
+    },
+    {
+      "label": "Government",
+      "id": "government"
+    },
+    {
+      "label": "MSP for Kharif Crops 2026-27 Announced",
+      "id": "msp for kharif crops 2026-27 announced"
+    },
+    {
+      "label": "New PM-KISAN Installment released",
+      "id": "new pm-kisan installment released"
+    },
+    {
+      "label": "Telangana",
+      "id": "telangana"
+    },
+    {
+      "label": "Punjab",
+      "id": "punjab"
+    },
+    {
+      "label": "Nashik",
+      "id": "nashik"
+    },
+    {
+      "label": "Weather Advisory (Nashik)",
+      "id": "weather advisory (nashik)"
+    },
+    {
+      "label": "Current conditions in Nashik: Clear sky, 33.55°C. Conditions are stable for ongoing cultivation activities.",
+      "id": "current conditions in nashik: clear sky, 33.55°c. conditions are stable for ongoing cultivation activities."
+    },
+    {
+      "label": "Nagpur",
+      "id": "nagpur"
+    },
+    {
+      "label": "Weather Advisory (Nagpur)",
+      "id": "weather advisory (nagpur)"
+    },
+    {
+      "label": "Current conditions in Nagpur: Haze, 40.01°C. Extreme heat alert. Increase irrigation frequency for young crops.",
+      "id": "current conditions in nagpur: haze, 40.01°c. extreme heat alert. increase irrigation frequency for young crops."
+    },
+    {
+      "label": "Hyderabad",
+      "id": "hyderabad"
+    },
+    {
+      "label": "Weather Advisory (Hyderabad)",
+      "id": "weather advisory (hyderabad)"
+    },
+    {
+      "label": "Current conditions in Hyderabad: Scattered clouds, 37.23°C. Extreme heat alert. Increase irrigation frequency for young crops.",
+      "id": "current conditions in hyderabad: scattered clouds, 37.23°c. extreme heat alert. increase irrigation frequency for young crops."
+    },
+    {
+      "label": "Ludhiana",
+      "id": "ludhiana"
+    },
+    {
+      "label": "Weather Advisory (Ludhiana)",
+      "id": "weather advisory (ludhiana)"
+    },
+    {
+      "label": "Current conditions in Ludhiana: Clear sky, 33.82°C. Conditions are stable for ongoing cultivation activities.",
+      "id": "current conditions in ludhiana: clear sky, 33.82°c. conditions are stable for ongoing cultivation activities."
+    },
+    {
+      "label": "Patna",
+      "id": "patna"
+    },
+    {
+      "label": "Weather Advisory (Patna)",
+      "id": "weather advisory (patna)"
+    },
+    {
+      "label": "Current conditions in Patna: Clear sky, 33.96°C. Conditions are stable for ongoing cultivation activities.",
+      "id": "current conditions in patna: clear sky, 33.96°c. conditions are stable for ongoing cultivation activities."
     }
   ],
   "edges": [
@@ -539,6 +631,30 @@
       "key": 0
     },
     {
+      "relationship": "OUTBREAK_IN",
+      "severity": "High",
+      "action": "Install pheromone traps.",
+      "source": "pink bollworm",
+      "target": "telangana",
+      "key": 0
+    },
+    {
+      "relationship": "OUTBREAK_IN",
+      "severity": "High",
+      "action": "Install pheromone traps.",
+      "source": "pink bollworm",
+      "target": "telangana",
+      "key": 1
+    },
+    {
+      "relationship": "OUTBREAK_IN",
+      "severity": "High",
+      "action": "Install pheromone traps.",
+      "source": "pink bollworm",
+      "target": "telangana",
+      "key": 2
+    },
+    {
       "relationship": "INCREASES_RISK_OF",
       "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
       "source": "warm conditions",
@@ -563,6 +679,30 @@
       "source": "yellow rust",
       "target": "propiconazole",
       "key": 0
+    },
+    {
+      "relationship": "OUTBREAK_IN",
+      "severity": "Moderate",
+      "action": "Watch CRI stage for symptoms.",
+      "source": "yellow rust",
+      "target": "punjab",
+      "key": 0
+    },
+    {
+      "relationship": "OUTBREAK_IN",
+      "severity": "Moderate",
+      "action": "Watch CRI stage for symptoms.",
+      "source": "yellow rust",
+      "target": "punjab",
+      "key": 1
+    },
+    {
+      "relationship": "OUTBREAK_IN",
+      "severity": "Moderate",
+      "action": "Watch CRI stage for symptoms.",
+      "source": "yellow rust",
+      "target": "punjab",
+      "key": 2
     },
     {
       "relationship": "TREATED_WITH",
@@ -778,6 +918,120 @@
       "relationship": "USED_TO",
       "source": "lime",
       "target": "increase ph",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "pune",
+      "target": "weather advisory (pune)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (pune)",
+      "target": "current conditions in pune: clear sky, 36.19°c. extreme heat alert. increase irrigation frequency for young crops.",
+      "key": 0
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "msp for kharif crops 2026-27 announced",
+      "key": 0
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "msp for kharif crops 2026-27 announced",
+      "key": 1
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "msp for kharif crops 2026-27 announced",
+      "key": 2
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "new pm-kisan installment released",
+      "key": 0
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "new pm-kisan installment released",
+      "key": 1
+    },
+    {
+      "relationship": "RELEASED_UPDATE",
+      "link": "#",
+      "source": "government",
+      "target": "new pm-kisan installment released",
+      "key": 2
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "nashik",
+      "target": "weather advisory (nashik)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (nashik)",
+      "target": "current conditions in nashik: clear sky, 33.55°c. conditions are stable for ongoing cultivation activities.",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "nagpur",
+      "target": "weather advisory (nagpur)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (nagpur)",
+      "target": "current conditions in nagpur: haze, 40.01°c. extreme heat alert. increase irrigation frequency for young crops.",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "hyderabad",
+      "target": "weather advisory (hyderabad)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (hyderabad)",
+      "target": "current conditions in hyderabad: scattered clouds, 37.23°c. extreme heat alert. increase irrigation frequency for young crops.",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "ludhiana",
+      "target": "weather advisory (ludhiana)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (ludhiana)",
+      "target": "current conditions in ludhiana: clear sky, 33.82°c. conditions are stable for ongoing cultivation activities.",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_CURRENT_ADVISORY",
+      "source": "patna",
+      "target": "weather advisory (patna)",
+      "key": 0
+    },
+    {
+      "relationship": "TELLS_USER",
+      "source": "weather advisory (patna)",
+      "target": "current conditions in patna: clear sky, 33.96°c. conditions are stable for ongoing cultivation activities.",
       "key": 0
     }
   ]

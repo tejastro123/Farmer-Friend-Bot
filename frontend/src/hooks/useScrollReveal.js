@@ -12,7 +12,7 @@ export function useScrollReveal(options = {}) {
           observer.disconnect();
         }
       },
-      { threshold: options.threshold || 0.1, ...options }
+      { threshold: options.threshold || 0.1 }
     );
 
     if (ref.current) {

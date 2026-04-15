@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { authService, mandiService } from '../services/api';
+import { authService } from '../services/api';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
     MapPin, Thermometer, Sprout, Save, AlertCircle, CheckCircle, 
@@ -15,7 +15,6 @@ const AccountPage = () => {
         survey_number: '', khata_number: '',
         bank_name: '', bank_account_number: '', ifsc_code: ''
     });
-    const [mandiData, setMandiData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [syncStatus, setSyncStatus] = useState({ type: '', text: '' });
@@ -31,17 +30,13 @@ const AccountPage = () => {
     useEffect(() => {
         const init = async () => {
             try {
-                const [profRes, mandiRes] = await Promise.all([
-                    authService.getProfile(),
-                    mandiService.getSummary()
-                ]);
+                const profRes = await authService.getProfile();
                 if (profRes.data) {
                     setProfile({
                         ...profRes.data,
                         sowing_date: profRes.data.sowing_date ? profRes.data.sowing_date.split('T')[0] : ''
                     });
                 }
-                setMandiData(mandiRes.data);
             } catch (err) {
                 console.error(err);
             } finally {

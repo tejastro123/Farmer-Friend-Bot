@@ -21,7 +21,6 @@ const MarketPage = () => {
     
     const [coords, setCoords] = useState(null);
     const [syncing, setSyncing] = useState(false);
-    const [syncStatus, setSyncStatus] = useState({ type: 'initial', msg: '' });
     
     const [showListingModal, setShowListingModal] = useState(false);
     const [showTradeModal, setShowTradeModal] = useState(false);
@@ -58,11 +57,10 @@ const MarketPage = () => {
                     const { latitude, longitude } = pos.coords;
                     setCoords({ lat: latitude, lon: longitude });
                     fetchMarket(latitude, longitude);
-                    setSyncStatus({ type: 'success', msg: 'Location synced' });
+                    setSyncing(false);
                 },
                 (err) => {
                     console.error("Location sync failed:", err);
-                    setSyncStatus({ type: 'error', msg: 'Location access denied' });
                     setSyncing(false);
                 }
             );

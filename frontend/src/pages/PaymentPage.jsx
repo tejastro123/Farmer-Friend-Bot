@@ -45,6 +45,7 @@ const PaymentPage = () => {
             }
         };
         fetchDeal();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [dealId]);
 
     const handlePayment = async () => {

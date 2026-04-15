@@ -46,15 +46,6 @@ const PestForecastPage = () => {
     }
   };
 
-  const getRiskColor = (level) => {
-    switch (level) {
-      case 'CRITICAL': return 'var(--danger)';
-      case 'HIGH': return 'var(--warning)';
-      case 'MODERATE': return 'var(--info)';
-      default: return 'var(--sage)';
-    }
-  };
-
   const getRiskLevelClass = (level) => {
     switch (level) {
       case 'CRITICAL': return 'critical';

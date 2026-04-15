@@ -49,15 +49,6 @@ const IrrigationOptimizerPage = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'CRITICAL': return 'var(--danger)';
-      case 'URGENT': return 'var(--warning)';
-      case 'MODERATE': return 'var(--info)';
-      default: return 'var(--sage)';
-    }
-  };
-
   const getStatusLevelClass = (status) => {
     switch (status) {
       case 'CRITICAL': return 'critical';
