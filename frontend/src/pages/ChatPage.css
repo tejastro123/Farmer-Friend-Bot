@@ -396,13 +396,22 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gold-muted);
-  border: 1px solid var(--gold-border);
+  background: rgba(74,124,89,0.2);
+  border: 2px solid var(--sage);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--gold);
+  color: var(--sage);
   flex-shrink: 0;
+}
+
+/* Chat message AI vs User differentiation */
+.message-wrapper-v2.user .message-content-v2 {
+  border-left: 3px solid var(--chat-user);
+}
+
+.message-wrapper-v2:not(.user) .message-content-v2 {
+  border-left: 3px solid var(--chat-ai);
 }
 
 .message-content-v2 {

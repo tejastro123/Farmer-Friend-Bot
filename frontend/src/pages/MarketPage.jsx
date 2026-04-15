@@ -387,7 +387,7 @@ const MarketPage = () => {
                                         <div className="ledger-td">{deal.qty_quintals} Q</div>
                                         <div className="ledger-td ledger-value">₹{deal.total?.toLocaleString()}</div>
                                         <div className="ledger-td">
-                                            <span className={`badge badge-${deal.status === 'Confirmed' ? 'success' : 'warning'}`}>
+                                            <span className={`badge badge-${deal.status}`}>
                                                 {deal.status}
                                             </span>
                                         </div>

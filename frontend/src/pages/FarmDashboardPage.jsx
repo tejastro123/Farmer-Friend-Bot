@@ -132,12 +132,12 @@ const FarmDashboardPage = () => {
             </div>
 
             <div className="farm-stats-grid">
-                <StatCard icon={Sprout} label="Active Crops" value={summary?.active_cycles || 0} subtext="Growing season" color="sage" />
+                <StatCard icon={Sprout} label="Active Crops" value={summary?.active_cycles || 0} subtext="Growing season" color="crops" />
                 <StatCard icon={DollarSign} label="Total Expenses" value={`₹${(summary?.total_expenses || 0).toLocaleString()}`} subtext="This season" color="danger" />
-                <StatCard icon={TrendingUp} label="Total Income" value={`₹${(summary?.total_income || 0).toLocaleString()}`} subtext="From sales" color="success" />
-                <StatCard icon={Tractor} label="Equipment" value={summary?.equipment_count || 0} subtext="In inventory" color="gold" />
-                <StatCard icon={Warehouse} label="Seeds Stock" value={summary?.seed_inventory_count || 0} subtext="Items stored" color="info" />
-                <StatCard icon={CloudRain} label="Weather Alerts" value={summary?.alerts_count || 0} subtext="Active alerts" color="warning" />
+                <StatCard icon={TrendingUp} label="Total Income" value={`₹${(summary?.total_income || 0).toLocaleString()}`} subtext="From sales" color="finance" />
+                <StatCard icon={Tractor} label="Equipment" value={summary?.equipment_count || 0} subtext="In inventory" color="inventory" />
+                <StatCard icon={Warehouse} label="Seeds Stock" value={summary?.seed_inventory_count || 0} subtext="Items stored" color="inventory" />
+                <StatCard icon={CloudRain} label="Weather Alerts" value={summary?.alerts_count || 0} subtext="Active alerts" color="weather" />
             </div>
 
             <div className="farm-tabs">

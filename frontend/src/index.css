@@ -35,6 +35,83 @@
   --text-tertiary: #5C5248;     /* Placeholder, disabled */
   --text-inverse: #0C0A07;      /* On gold backgrounds */
 
+  /* ─── Page-Specific Colors ───────────────────────────────────────────── */
+  
+  /* Landing Page - Gold & Sage */
+  --landing-primary: #C8912B;
+  --landing-secondary: #4A7C59;
+  --landing-accent: #E8A93E;
+
+  /* Chat Page - Sage & Fresh Green */
+  --chat-primary: #4A7C59;
+  --chat-ai: #22C55E;
+  --chat-user: #C8912B;
+
+  /* Market Page - Amber & Red */
+  --market-primary: #F59E0B;
+  --market-price-up: #10B981;
+  --market-price-down: #EF4444;
+  --market-live: #EF4444;
+
+  /* Farm Dashboard - Fresh Green & Blue */
+  --farm-primary: #22C55E;
+  --farm-crops: #22C55E;
+  --farm-soil: #92400E;
+  --farm-weather: #0EA5E9;
+  --farm-finance: #10B981;
+  --farm-inventory: #F59E0B;
+
+  /* Predictions - Violet & Pink */
+  --prediction-primary: #8B5CF6;
+  --prediction-trend-up: #EC4899;
+  --prediction-trend-down: #06B6D4;
+
+  /* Knowledge Map - Cyan & Lime */
+  --knowledge-primary: #06B6D4;
+  --knowledge-node: #84CC16;
+  --knowledge-edge: #4A7C59;
+
+  /* ─── Feature-Specific Colors ───────────────────────────────────────────── */
+
+  /* Crop Status */
+  --crop-active: #22C55E;      /* Growing crops */
+  --crop-harvested: #84CC16;   /* Ready to harvest */
+  --crop-planned: #9E9080;    /* Planned */
+
+  /* Weather */
+  --weather-sunny: #F59E0B;
+  --weather-rainy: #0EA5E9;
+  --weather-cloudy: #6B7280;
+  --weather-storm: #8B5CF6;
+
+  /* Financial */
+  --income: #10B981;
+  --expense: #EF4444;
+  --profit: #22C55E;
+  --loss: #EF4444;
+
+  /* Equipment Status */
+  --equipment-operational: #22C55E;
+  --equipment-maintenance: #F59E0B;
+  --equipment-retired: #6B7280;
+
+  /* Soil Health */
+  --soil-healthy: #22C55E;
+  --soil-low: #F59E0B;
+  --soil-critical: #EF4444;
+
+  /* Government Schemes */
+  --scheme-active: #8B5CF6;
+  --scheme-pending: #F59E0B;
+  --scheme-approved: #22C55E;
+  --scheme-rejected: #EF4444;
+
+  /* Alerts */
+  --alert-critical: #EF4444;
+  --alert-warning: #F97316;
+  --alert-info: #0EA5E9;
+  --alert-success: #22C55E;
+
   /* Semantic Colors */
   --success: #4CAF7D;
   --warning: #E8A93E;           /* Reuse gold-light */
@@ -6596,6 +6673,11 @@ input:focus, textarea:focus, select:focus {
   justify-content: center;
 }
 
+.stat-icon-farm.crops { background: rgba(34,197,94,0.15); color: var(--farm-crops); }
+.stat-icon-farm.weather { background: rgba(14,165,233,0.15); color: var(--farm-weather); }
+.stat-icon-farm.finance { background: rgba(16,185,129,0.15); color: var(--farm-finance); }
+.stat-icon-farm.inventory { background: rgba(245,158,11,0.15); color: var(--farm-inventory); }
+.stat-icon-farm.soil { background: rgba(146,64,14,0.15); color: var(--farm-soil); }
 .stat-icon-farm.sage { background: var(--sage-muted); color: var(--sage); }
 .stat-icon-farm.gold { background: var(--gold-muted); color: var(--gold); }
 .stat-icon-farm.success { background: rgba(76,175,125,0.15); color: var(--success); }
@@ -6941,4 +7023,152 @@ input:focus, textarea:focus, select:focus {
 
 .record-option span {
   font-size: var(--text-sm);
+}
+
+/* ─── Page-Specific Component Styles ────────────────────────────────────────────────── */
+
+/* Chat Page */
+.chat-message-ai {
+  border-left: 3px solid var(--chat-ai);
+}
+
+.chat-message-user {
+  border-left: 3px solid var(--chat-user);
+}
+
+/* Market Page */
+.price-change.positive {
+  color: var(--market-price-up) !important;
+}
+
+.price-change.negative {
+  color: var(--market-price-down) !important;
+}
+
+.badge-live {
+  background: var(--market-live);
+  animation: pulse-live 2s infinite;
+}
+
+.price-card {
+  border-top: 3px solid var(--market-primary);
+}
+
+.listing-item {
+  border-left: 3px solid var(--market-primary);
+}
+
+/* Ledger Status Badges */
+.badge-Confirmed,
+.badge-Completed {
+  background: var(--market-price-up);
+  color: var(--bg-base);
+}
+
+.badge-Pending {
+  background: var(--market-primary);
+}
+
+.badge-Paid {
+  background: var(--scheme-approved);
+}
+
+/* Farm Dashboard - Crop Status Badges */
+.crop-status-active {
+  background: var(--crop-active);
+}
+
+.crop-status-harvested {
+  background: var(--crop-harvested);
+}
+
+.crop-status-planned {
+  background: var(--crop-planned);
+}
+
+/* Farm Dashboard - Equipment */
+.equipment-operational {
+  background: var(--equipment-operational);
+}
+
+.equipment-maintenance {
+  background: var(--equipment-maintenance);
+}
+
+/* Financial Status */
+.income-positive {
+  color: var(--income);
+}
+
+.expense-negative {
+  color: var(--expense);
+}
+
+/* Soil Health Indicators */
+.soil-good {
+  color: var(--soil-healthy);
+}
+
+.soil-warning {
+  color: var(--soil-low);
+}
+
+.soil-critical {
+  color: var(--soil-critical);
+}
+
+/* Weather Indicators */
+.weather-sunny {
+  color: var(--weather-sunny);
+}
+
+.weather-rainy {
+  color: var(--weather-rainy);
+}
+
+/* Scheme Status */
+.scheme-status-approved {
+  color: var(--scheme-approved);
+}
+
+.scheme-status-pending {
+  color: var(--scheme-pending);
+}
+
+.scheme-status-rejected {
+  color: var(--scheme-rejected);
+}
+
+/* Prediction Charts */
+.trend-up {
+  color: var(--prediction-trend-up);
+}
+
+.trend-down {
+  color: var(--prediction-trend-down);
+}
+
+/* Knowledge Graph Nodes */
+.kg-node {
+  fill: var(--knowledge-node);
+  stroke: var(--knowledge-primary);
+}
+
+.kg-node:hover {
+  fill: var(--knowledge-primary);
+  filter: drop-shadow(0 0 8px var(--knowledge-primary));
+}
+
+.kg-edge {
+  stroke: var(--knowledge-edge);
+  stroke-width: 2;
+}
+
+/* Landing Page */
+.hero-gradient {
+  background: linear-gradient(135deg, var(--bg-base) 0%, var(--bg-surface) 50%, var(--sage));
+}
+
+.brand-glow {
+  box-shadow: 0 0 60px rgba(200,145,43,0.3);
 }
