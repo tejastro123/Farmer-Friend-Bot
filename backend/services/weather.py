@@ -113,3 +113,67 @@ def get_raw_weather_data(location: str) -> dict | str:
     except Exception as e:
         logger.warning(f"Unexpected error fetching weather: {e}")
         return f"Failed to fetch weather data internally: {e}"
+
+def auto_log_weather(user_id: int, location: str) -> bool:
+    """
+    Auto-capture weather data to farm database.
+    Returns True if successful, False otherwise.
+    """
+    data = get_raw_weather_data(location)
+    if isinstance(data, str):
+        logger.warning(f"Weather auto-log skipped: {data}")
+        return False
+    
+    try:
+        from backend.db.db_utils import add_weather_record, add_weather_alert
+        from datetime import datetime
+        
+        current = data["current"]
+        main = current["main"]
+        weather = current["weather"][0]
+        
+        # Capture current weather
+        today = str(datetime.now().date())
+        add_weather_record(
+            user_id=user_id,
+            date=today,
+            temp_min=main.get("temp_min", main.get("temp")),
+            temp_max=main.get("temp_max", main.get("temp")),
+            humidity=main.get("humidity", 0),
+            rainfall_mm=current.get("rain", {}).get("1h", 0),
+            condition=weather.get("description", "unknown")
+        )
+        
+        # Auto-create alerts for extreme conditions
+        if main.get("temp", 0) > 35:
+            add_weather_alert(
+                user_id=user_id,
+                alert_type="heatwave",
+                severity="high",
+                start_date=today,
+                end_date=today,
+                description=f"High temperature {main['temp']:.0f}°C in {location}"
+            )
+        elif main.get("temp", 0) < 5:
+            add_weather_alert(
+                user_id=user_id,
+                alert_type="frost",
+                severity="high",
+                start_date=today,
+                end_date=today,
+                description=f"Low temperature {main['temp']:.0f}°C in {location}"
+            )
+        if main.get("humidity", 0) > 85:
+            add_weather_alert(
+                user_id=user_id,
+                alert_type="humidity",
+                severity="medium",
+                start_date=today,
+                end_date=today,
+                description=f"High humidity {main['humidity']}% in {location}"
+            )
+        
+        return True
+    except Exception as e:
+        logger.warning(f"Weather auto-log error: {e}")
+        return False

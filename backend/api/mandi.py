@@ -4,7 +4,8 @@ backend/api/mandi.py
 API endpoints for the Digital Mandi simulated marketplace.
 """
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from backend.api.auth import get_current_user
 from backend.services.trading import (
     get_mandi_summary, get_deal_by_id, create_sale_listing, 
     initiate_trade, confirm_trade, record_payment, complete_trade, get_all_deals,
@@ -74,11 +75,11 @@ def handle_update_trade(deal_id: str, data: dict):
     return deal
 
 @router.post("/mandi/trade/{deal_id}/payment")
-def handle_record_payment(deal_id: str, data: dict = None):
+def handle_record_payment(deal_id: str, data: dict = None, user: dict = Depends(get_current_user)):
     """Records payment for a trade - moves from Confirmed to Paid status."""
     payment_method = data.get("payment_method") if data else "UPI"
     transaction_id = data.get("transaction_id") if data else None
-    deal = record_payment(deal_id, payment_method, transaction_id)
+    deal = record_payment(deal_id, payment_method, transaction_id, user_id=user["id"])
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
     return {"deal": deal, "next_step": "complete"}

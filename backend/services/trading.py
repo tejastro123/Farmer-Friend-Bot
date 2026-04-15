@@ -197,7 +197,7 @@ def get_deal_by_id(deal_id: str) -> Optional[Dict]:
             return deal
     return None
 
-def initiate_trade(dealer_id: str, dealer_name: str, commodity: str, qty_quintals: int, price_per_quintal: float) -> Dict:
+def initiate_trade(dealer_id: str, dealer_name: str, commodity: str, qty_quintals: int, price_per_quintal: float, user_id: int = None, is_purchase: bool = False) -> Dict:
     """Creates a new trade/deal as Pending, ready for confirmation."""
     import random
     deal_id = f"DEAL-{random.randint(1000, 9999)}"
@@ -219,8 +219,24 @@ def initiate_trade(dealer_id: str, dealer_name: str, commodity: str, qty_quintal
         "created_at": now,
         "confirmed_at": None,
         "paid_at": None,
-        "completed_at": None
+        "completed_at": None,
+        "is_purchase": is_purchase  # True if farmer is buying (expense), False if selling (income)
     }
+    
+    # Auto-log expense if this is a purchase
+    if is_purchase and user_id:
+        try:
+            from backend.db.db_utils import add_expense
+            add_expense(
+                user_id=user_id,
+                exp_type="input",
+                category="seeds" if "seed" in commodity.lower() else "other",
+                amount=deal["total"],
+                date=str(datetime.now().date()),
+                description=f"Purchase: {deal['qty_quintals']}q {deal['commodity']} from {deal['dealer']}"
+            )
+        except Exception as e:
+            print(f"Auto-log expense error: {e}")
     
     _state["deals"].insert(0, deal)
     return deal
@@ -233,7 +249,7 @@ def confirm_trade(deal_id: str) -> Optional[Dict]:
         deal["confirmed_at"] = datetime.now().isoformat()
     return deal
 
-def record_payment(deal_id: str, payment_method: str = "UPI", transaction_id: str = None) -> Optional[Dict]:
+def record_payment(deal_id: str, payment_method: str = "UPI", transaction_id: str = None, user_id: int = None) -> Optional[Dict]:
     """Records payment for a trade and marks it as Paid."""
     deal = get_deal_by_id(deal_id)
     if deal and deal["status"] == "Confirmed":
@@ -242,6 +258,23 @@ def record_payment(deal_id: str, payment_method: str = "UPI", transaction_id: st
         deal["paid_at"] = datetime.now().isoformat()
         deal["payment_method"] = payment_method
         deal["transaction_id"] = transaction_id or f"TXN-{random.randint(100000, 999999)}"
+        
+        # Auto-log to farm database - Income transaction
+        if user_id:
+            try:
+                from backend.db.db_utils import add_transaction
+                add_transaction(
+                    user_id=user_id,
+                    txn_type="income",
+                    amount=deal["total"],
+                    date=str(datetime.now().date()),
+                    category="crop_sale",
+                    description=f"Sale of {deal['qty_quintals']}q {deal['commodity']} to {deal['dealer']}",
+                    ref_id=deal_id,
+                    payment_method=payment_method
+                )
+            except Exception as e:
+                print(f"Auto-log error: {e}")
     return deal
 
 def complete_trade(deal_id: str) -> Optional[Dict]:

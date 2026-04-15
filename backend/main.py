@@ -19,7 +19,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from backend.api import chat, health, ingest, graph, mandi, auth, prediction, moat, pipelines
+from backend.api import chat, health, ingest, graph, mandi, auth, prediction, moat, pipelines, farm
 from backend.config import settings
 from backend.db.db_utils import init_db_raw
 
@@ -60,6 +60,7 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(prediction.router, prefix="/api")
 app.include_router(moat.router, prefix="/api")
 app.include_router(pipelines.router, prefix="/api")
+app.include_router(farm.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():

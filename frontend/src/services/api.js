@@ -95,4 +95,75 @@ export const moatService = {
     exportDataset: () => api.get('/moat/export', { responseType: 'blob' }),
 };
 
+export const farmService = {
+    // Crop Management
+    getCropCycles: () => api.get('/farm/crop-cycles'),
+    addCropCycle: (data) => api.post('/farm/crop-cycles', data),
+    updateCropCycle: (id, data) => api.put(`/farm/crop-cycles/${id}`, data),
+    deleteCropCycle: (id) => api.delete(`/farm/crop-cycles/${id}`),
+    getYieldRecords: () => api.get('/farm/yield-records'),
+    addYieldRecord: (data) => api.post('/farm/yield-records', data),
+    getInputUsage: () => api.get('/farm/input-usage'),
+    addInputUsage: (data) => api.post('/farm/input-usage', data),
+    getEquipment: () => api.get('/farm/equipment'),
+    addEquipment: (data) => api.post('/farm/equipment', data),
+    updateEquipment: (id, data) => api.put(`/farm/equipment/${id}`, data),
+    deleteEquipment: (id) => api.delete(`/farm/equipment/${id}`),
+    
+    // Weather
+    getWeatherHistory: (limit) => api.get(`/farm/weather?limit=${limit || 30}`),
+    addWeatherRecord: (data) => api.post('/farm/weather', data),
+    updateWeatherRecord: (id, data) => api.put(`/farm/weather/${id}`, data),
+    deleteWeatherRecord: (id) => api.delete(`/farm/weather/${id}`),
+    getWeatherAlerts: () => api.get('/farm/weather/alerts'),
+    addWeatherAlert: (data) => api.post('/farm/weather/alerts', data),
+    
+    // Finance
+    getExpenses: (category) => api.get(category ? `/farm/expenses?category=${category}` : '/farm/expenses'),
+    addExpense: (data) => api.post('/farm/expenses', data),
+    updateExpense: (id, data) => api.put(`/farm/expenses/${id}`, data),
+    deleteExpense: (id) => api.delete(`/farm/expenses/${id}`),
+    getTransactions: () => api.get('/farm/transactions'),
+    addTransaction: (data) => api.post('/farm/transactions', data),
+    updateTransaction: (id, data) => api.put(`/farm/transactions/${id}`, data),
+    deleteTransaction: (id) => api.delete(`/farm/transactions/${id}`),
+    getLoans: () => api.get('/farm/loans'),
+    addLoan: (data) => api.post('/farm/loans', data),
+    updateLoan: (id, data) => api.put(`/farm/loans/${id}`, data),
+    deleteLoan: (id) => api.delete(`/farm/loans/${id}`),
+    getInsurance: () => api.get('/farm/insurance'),
+    addInsurance: (data) => api.post('/farm/insurance', data),
+    updateInsurance: (id, data) => api.put(`/farm/insurance/${id}`, data),
+    deleteInsurance: (id) => api.delete(`/farm/insurance/${id}`),
+    
+    // Inventory
+    getSeedInventory: () => api.get('/farm/seeds'),
+    addSeedInventory: (data) => api.post('/farm/seeds', data),
+    updateSeedInventory: (id, data) => api.put(`/farm/seeds/${id}`, data),
+    deleteSeedInventory: (id) => api.delete(`/farm/seeds/${id}`),
+    getAgrochemicalStock: () => api.get('/farm/agrochemicals'),
+    addAgrochemicalStock: (data) => api.post('/farm/agrochemicals', data),
+    
+    // Advisory
+    getAdvisory: () => api.get('/farm/advisory'),
+    addAdvisory: (data) => api.post('/farm/advisory', data),
+    updateAdvisory: (id, data) => api.put(`/farm/advisory/${id}`, data),
+    
+    // Schemes
+    getSchemeApplications: () => api.get('/farm/schemes'),
+    addSchemeApplication: (data) => api.post('/farm/schemes', data),
+    updateScheme: (id, data) => api.put(`/farm/schemes/${id}`, data),
+    
+    // Soil
+    getSoilTests: () => api.get('/farm/soil-tests'),
+    addSoilTest: (data) => api.post('/farm/soil-tests', data),
+    updateSoilTest: (id, data) => api.put(`/farm/soil-tests/${id}`, data),
+    deleteSoilTest: (id) => api.delete(`/farm/soil-tests/${id}`),
+    getLatestSoil: () => api.get('/farm/soil-health/latest'),
+    
+    // Dashboard
+    getDashboardSummary: () => api.get('/farm/dashboard-summary'),
+    syncWeather: () => api.post('/farm/sync-weather'),
+};
+
 export default api;

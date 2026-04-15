@@ -22,6 +22,7 @@ import IrrigationOptimizerPage from './pages/IrrigationOptimizerPage';
 import MoatDashboardPage from './pages/MoatDashboardPage';
 import KnowledgeGraphPage from './pages/KnowledgeGraphPage';
 import DataCenterPage from './pages/DataCenterPage';
+import FarmDashboardPage from './pages/FarmDashboardPage';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -145,6 +146,10 @@ function App() {
           <NavDropdown label="Intelligence">
             <DropdownItem to="/moat">AI Moat</DropdownItem>
             <DropdownItem to="/knowledge-map">Knowledge Map</DropdownItem>
+          </NavDropdown>
+
+          <NavDropdown label="Farm">
+            <DropdownItem to="/farm">Dashboard</DropdownItem>
           </NavDropdown>
         </div>
 
@@ -278,6 +283,14 @@ function App() {
                 >
                   Knowledge Map
                 </NavLink>
+                <div className="mobile-group-label">Farm</div>
+                <NavLink
+                  to="/farm"
+                  className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Dashboard
+                </NavLink>
 
                 <div className="mobile-divider" />
 
@@ -330,6 +343,14 @@ function App() {
               <Route path="/moat" element={<PrivateRoute><MoatDashboardPage /></PrivateRoute>} />
               <Route path="/knowledge-map" element={<PrivateRoute><KnowledgeGraphPage /></PrivateRoute>} />
               <Route path="/data-center" element={<PrivateRoute><DataCenterPage /></PrivateRoute>} />
+              <Route
+                path="/farm"
+                element={
+                  <PrivateRoute>
+                    <FarmDashboardPage />
+                  </PrivateRoute>
+                }
+              />
               <Route
                 path="/profile"
                 element={
