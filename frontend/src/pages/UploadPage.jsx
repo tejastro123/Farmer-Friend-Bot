@@ -1,11 +1,11 @@
 import React, { useState, useCallback } from 'react';
-import { UploadCloud, File, CheckCircle, AlertCircle, Loader2, Database, Search, FileText, Trash2, Zap } from 'lucide-react';
+import { UploadCloud, File, CheckCircle, AlertCircle, Loader2, Database, Search, FileText, Trash2, Zap, BookOpen } from 'lucide-react';
 import { ingestService } from '../services/api';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const UploadPage = () => {
   const [dragActive, setDragActive] = useState(false);
-  const [queue, setQueue] = useState([]); // List of { file, status, message }
+  const [queue, setQueue] = useState([]);
   const [kbStats, setKbStats] = useState({ totalDocs: 12, totalChunks: 450 });
 
   const handleDrag = useCallback((e) => {
@@ -34,7 +34,7 @@ const UploadPage = () => {
       setQueue(prev => prev.map(q => q.id === item.id ? { 
         ...q, 
         status: 'success', 
-        message: `Added ${res.data.chunks_added} chunks` 
+        message: `${res.data.chunks_added} chunks added` 
       } : q));
       setKbStats(prev => ({ ...prev, totalDocs: prev.totalDocs + 1, totalChunks: prev.totalChunks + (res.data.chunks_added || 0) }));
     } catch (err) {
@@ -48,154 +48,143 @@ const UploadPage = () => {
 
   const removeFromQueue = (id) => setQueue(prev => prev.filter(q => q.id !== id));
 
+  const mockDocs = [
+    { name: "Government_Mandi_Policy_2024.pdf", size: "1.2 MB", chunks: 45, date: "2h ago", type: 'gov' },
+    { name: "Pest_Control_Cotton_V3.pdf", size: "3.4 MB", chunks: 120, date: "1d ago", type: 'research' },
+    { name: "Soil_Health_Card_Schemes.pdf", size: "0.8 MB", chunks: 22, date: "3d ago", type: 'guidelines' },
+    { name: "Irrigation_Guidelines_Pune.pdf", size: "2.1 MB", chunks: 56, date: "1w ago", type: 'gov' }
+  ];
+
   return (
-    <div className="main-content-pushed">
-      <div className="upload-knowledge-header">
-        <div>
-          <h1 className="text-3xl font-bold">Knowledge Center</h1>
-          <p className="text-muted">Managed Intelligence & Document Synchronization</p>
-        </div>
-        <div className="knowledge-stats">
-          <div className="k-stat">
-            <div>{kbStats.totalDocs}</div>
-            <label>Documents</label>
+    <div className="upload-page">
+      <div>
+        <div className="upload-header">
+          <div className="upload-title">
+            <h1>Knowledge Vault</h1>
+            <p>Feed your AI with expertise</p>
           </div>
-          <div className="k-stat">
-            <div>{kbStats.totalChunks}</div>
-            <label>Neural Chunks</label>
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="upload-workflow">
-          <div 
-            className={`upload-box glass ${dragActive ? 'drag-active' : ''}`}
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-          >
-            <UploadCloud size={60} className={queue.some(q => q.status === 'uploading') ? 'ingest-pulse-icon' : 'text-secondary'} />
-            <h3 className="mt-6 text-xl">Deposit Knowledge</h3>
-            <p className="text-muted mt-2 mb-6 text-sm">Drag specialized Agri-PDFs, policies, or manuals here.</p>
-            
-            <input 
-              type="file" 
-              multiple
-              accept="application/pdf"
-              id="file-upload" 
-              style={{ display: 'none' }} 
-              onChange={(e) => addFilesToQueue(e.target.files)}
-            />
-            <label htmlFor="file-upload" className="btn btn-secondary">
-              Browse Local Files
-            </label>
-          </div>
-
-          <div className="file-queue-container mt-8">
-            <h4 className="flex items-center gap-2 mb-4 font-semibold">
-              <Database size={18} /> Ingestion Queue
-            </h4>
-            <div className="file-queue">
-              <AnimatePresence>
-                {queue.map((item) => (
-                  <Motion.div 
-                    key={item.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    whileHover={{ scale: 1.01, borderColor: "rgba(82,183,136,0.3)" }}
-                    className="queue-item glass transition-colors"
-                  >
-                    <FileText size={28} className="text-secondary" />
-                    <div className="file-info">
-                      <div className="file-name">{item.file.name}</div>
-                      <div className="file-meta">
-                        {(item.file.size / 1024 / 1024).toFixed(2)} MB • {item.status.toUpperCase()}
-                      </div>
-                      {item.message && <div className={`text-xs mt-1 ${item.status === 'success' ? 'text-success' : 'text-danger'}`}>{item.message}</div>}
-                    </div>
-                    {item.status === 'idle' && (
-                      <Motion.button 
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        className="btn btn-primary btn-sm" 
-                        onClick={() => processFile(item)}
-                      >
-                        Ingest
-                      </Motion.button>
-                    )}
-                    {item.status === 'uploading' && <Loader2 size={18} className="lucide-spin text-secondary" />}
-                    {item.status === 'success' && <CheckCircle size={20} className="text-success" />}
-                    {item.status !== 'uploading' && (
-                      <button className="p-2 text-muted hover:text-danger" onClick={() => removeFromQueue(item.id)}><Trash2 size={16} /></button>
-                    )}
-                  </Motion.div>
-                ))}
-                {queue.length === 0 && (
-                  <Motion.p 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 0.5 }}
-                    className="text-muted text-center py-8 glass rounded-xl text-sm italic"
-                  >
-                    Queue is currently empty. Drop files to begin neural indexing.
-                  </Motion.p>
-                )}
-              </AnimatePresence>
+          <div className="upload-stats">
+            <div className="upload-stat">
+              <span className="upload-stat-value">{kbStats.totalDocs}</span>
+              <span className="upload-stat-label">Documents</span>
+            </div>
+            <div className="upload-stats-divider"></div>
+            <div className="upload-stat">
+              <span className="upload-stat-value">{kbStats.totalChunks}</span>
+              <span className="upload-stat-label">Chunks</span>
             </div>
           </div>
         </div>
 
-        <div className="document-explorer">
-          <div className="glass p-6 rounded-2xl h-full">
-            <div className="flex justify-between items-center mb-6">
-              <h4 className="font-semibold flex items-center gap-2"><Database size={18}/> Neural Registry</h4>
-              <div className="relative">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
-                <input type="text" placeholder="Search knowledge..." className="glass-input text-xs pl-8 py-1" />
-              </div>
-            </div>
-            
-            <Motion.div 
-              className="doc-list-mock space-y-4"
-              initial="hidden"
-              animate="show"
-              variants={{
-                hidden: { opacity: 0 },
-                show: {
-                  opacity: 1,
-                  transition: { staggerChildren: 0.1 }
-                }
-              }}
-            >
-              {[
-                { name: "Government_Mandi_Policy_2024.pdf", size: "1.2 MB", chunks: 45, date: "2h ago" },
-                { name: "Pest_Control_Cotton_V3.pdf", size: "3.4 MB", chunks: 120, date: "1d ago" },
-                { name: "Soil_Health_Card_Schemes.pdf", size: "0.8 MB", chunks: 22, date: "3d ago" },
-                { name: "Irrigation_Guidelines_Pune.pdf", size: "2.1 MB", chunks: 56, date: "1w ago" }
-              ].map((doc, idx) => (
-                <Motion.div 
-                  key={idx} 
-                  variants={{
-                    hidden: { opacity: 0, x: -10 },
-                    show: { opacity: 1, x: 0 }
-                  }}
-                  whileHover={{ x: 5, backgroundColor: "rgba(255,255,255,0.05)" }}
-                  className="flex items-center gap-4 p-3 rounded-xl transition border border-white/5"
-                >
-                  <div className="p-2 bg-secondary/10 rounded-lg"><File size={18} className="text-secondary" /></div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{doc.name}</div>
-                    <div className="text-[10px] text-muted">{doc.size} • {doc.chunks} Chunks</div>
+        <div 
+          className={`upload-dropzone ${dragActive ? 'drag-active' : ''}`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <div className="dropzone-icons">
+            <div className="dropzone-icon"><FileText size={24} /></div>
+            <div className="dropzone-icon"><FileText size={24} /></div>
+            <div className="dropzone-icon"><FileText size={24} /></div>
+          </div>
+          <h3 className="dropzone-title">
+            {dragActive ? 'Release to upload' : 'Drop government PDFs, crop guides, or research papers'}
+          </h3>
+          <p className="dropzone-subtitle">Supports PDF files only</p>
+          <p className="dropzone-divider">or</p>
+          <label htmlFor="file-upload" className="dropzone-browse">
+            Browse Files
+          </label>
+          <input 
+            type="file" 
+            multiple
+            accept="application/pdf"
+            id="file-upload" 
+            style={{ display: 'none' }} 
+            onChange={(e) => addFilesToQueue(e.target.files)}
+          />
+        </div>
+
+        <div className="file-queue">
+          <div className="queue-header">
+            <Database size={18} />
+            <span>Ingestion Queue</span>
+          </div>
+          <AnimatePresence>
+            {queue.map((item) => (
+              <Motion.div 
+                key={item.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="queue-item"
+              >
+                <div className="queue-item-icon">
+                  <FileText size={20} />
+                </div>
+                <div className="queue-item-info">
+                  <div className="queue-item-name">{item.file.name}</div>
+                  <div className="queue-item-meta">
+                    {(item.file.size / 1024 / 1024).toFixed(2)} MB
                   </div>
-                  <div className="text-[10px] text-muted">{doc.date}</div>
-                </Motion.div>
-              ))}
-            </Motion.div>
-          </div>
+                  {item.status === 'success' && (
+                    <div className="queue-item-success"><CheckCircle size={12} className="inline mr-1" />{item.message}</div>
+                  )}
+                  {item.status === 'error' && (
+                    <div className="queue-item-error"><AlertCircle size={12} className="inline mr-1" />{item.message}</div>
+                  )}
+                </div>
+                {item.status === 'idle' && (
+                  <button className="btn btn-ghost" onClick={() => processFile(item)}>
+                    Ingest →
+                  </button>
+                )}
+                {item.status === 'uploading' && (
+                  <div className="queue-progress" style={{ flex: 1 }}>
+                    <div className="queue-progress-fill"></div>
+                  </div>
+                )}
+                {item.status !== 'uploading' && (
+                  <button className="btn btn-icon" style={{ padding: '8px' }} onClick={() => removeFromQueue(item.id)}>
+                    <Trash2 size={16} />
+                  </button>
+                )}
+              </Motion.div>
+            ))}
+            {queue.length === 0 && (
+              <div className="surface p-lg text-center" style={{ opacity: 0.5 }}>
+                <p className="italic">Queue is currently empty. Drop files to begin neural indexing.</p>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
+
+      <aside className="document-registry">
+        <h3 className="registry-header">Neural Registry</h3>
+        <div className="registry-search">
+          <Search size={14} className="registry-search-icon" />
+          <input type="text" placeholder="Search documents..." />
+        </div>
+        <div className="registry-list">
+          {mockDocs.map((doc, idx) => (
+            <div key={idx} className="registry-item">
+              <div className={`registry-item-stripe ${doc.type}`}></div>
+              <div className="registry-item-icon">
+                {doc.name.substring(0, 2).toUpperCase()}
+              </div>
+              <div className="registry-item-info">
+                <div className="registry-item-name">{doc.name}</div>
+                <div className="registry-item-meta">{doc.chunks} chunks · {doc.size} · {doc.date}</div>
+              </div>
+              <button className="registry-item-action btn btn-icon" style={{ padding: '4px' }}>
+                <Search size={14} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </aside>
     </div>
   );
 };

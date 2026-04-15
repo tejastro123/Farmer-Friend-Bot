@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { motion as Motion, useAnimation } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowRight, MessageSquare, ShoppingBag, TrendingUp, Bug,
   Droplets, Shield, Network, WifiOff, Play, Star, MapPin,
-  Wheat, Sprout, Leaf, CloudSun, CheckCircle, Eye, BarChart3
+  Wheat, Sprout, Leaf, CloudSun, CheckCircle, Eye, BarChart3, Zap
 } from 'lucide-react';
 import './LandingPage.css';
 

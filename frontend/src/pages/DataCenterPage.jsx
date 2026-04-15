@@ -16,7 +16,6 @@ const DataCenterPage = () => {
 
   useEffect(() => {
     fetchData();
-    // Simulate connectivity check
     const interval = setInterval(() => {
         setEdgeStatus(Math.random() > 0.1 ? "Online" : "Edge-Active (Offline)");
     }, 15000);
@@ -50,176 +49,150 @@ const DataCenterPage = () => {
 
   if (loading) {
     return (
-      <div className="main-content-pushed h-[70vh] flex flex-col items-center justify-center">
-        <Server size={60} className="text-secondary animate-pulse opacity-20 mb-4" />
-        <h2 className="text-xl font-bold text-muted animate-pulse">Initializing Data Pipelines...</h2>
+      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - var(--nav-height))' }}>
+        <div className="loader-grain">
+          <div className="loader-grain-bar"></div>
+          <div className="loader-grain-bar"></div>
+          <div className="loader-grain-bar"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="main-content-pushed pb-20">
-      
-      {/* Header with Connectivity Status */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-        <div>
-          <div className="flex items-center gap-4 mb-2">
-            <div className="p-3 rounded-2xl bg-secondary/10 text-secondary">
-               <Database size={32} />
-            </div>
-            <h1 className="text-4xl font-black">Data Command Center</h1>
+    <div className="data-center-page">
+      <div className="dc-header">
+        <div className="dc-title">
+          <h1>DATA COMMAND<span>CENTER</span></h1>
+          <p className="dc-subtitle">Orchestrating 10+ expert ingestion pipelines</p>
+        </div>
+
+        <div className="dc-status-card">
+          <div className="dc-status-section">
+            <span className="dc-status-label">Mode</span>
+            <span className="dc-status-value online">
+              <Signal size={14} />
+              {edgeStatus}
+              <span className="dc-status-dot" style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--success)', display: 'inline-block', marginLeft: '4px' }}></span>
+            </span>
           </div>
-          <p className="text-muted max-w-xl">
-            Centralized orchestration for 10+ expert data ingestion pipelines. Powered by Prefect and KrishiMitra Edge AI.
-          </p>
-        </div>
-
-        <div className={`glass p-4 rounded-[32px] border flex items-center gap-6 px-8 ${
-            edgeStatus === "Online" ? "border-secondary/20" : "border-amber-400/30"
-        }`}>
-            <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-black text-muted tracking-widest">Connectivity Mode</span>
-                <span className={`font-black flex items-center gap-2 ${
-                    edgeStatus === "Online" ? "text-secondary" : "text-amber-400 animate-pulse"
-                }`}>
-                    {edgeStatus === "Online" ? <Signal size={16} /> : <SignalLow size={16} />}
-                    {edgeStatus}
-                </span>
-            </div>
-            <div className="h-10 w-[2px] bg-white/5" />
-            <div className="flex flex-col">
-                <span className="text-[10px] uppercase font-black text-muted tracking-widest">Edge Logic</span>
-                <span className="font-black text-white flex items-center gap-2">
-                    <Cpu size={16} /> Local Expert v2.1
-                </span>
-            </div>
+          <div className="dc-status-divider"></div>
+          <div className="dc-status-section">
+            <span className="dc-status-label">Edge AI</span>
+            <span className="dc-status-value edge">
+              <Cpu size={14} />
+              KrishiMitra v2.1
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Stats Cluster */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-         <div className="glass p-8 rounded-[40px] border border-white/10 relative overflow-hidden group">
-            <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                    <Zap className="text-secondary" size={24} />
-                    <span className="text-xs font-bold text-secondary bg-secondary/10 px-3 py-1 rounded-full">+12% Today</span>
-                </div>
-                <div className="text-4xl font-black mb-1">1.8k</div>
-                <div className="text-muted text-sm font-bold uppercase tracking-widest">Records Ingested</div>
-            </div>
-            <BarChart3 className="absolute -right-4 -bottom-4 text-white/5 w-32 h-32 group-hover:text-secondary/5 transition-colors" />
-         </div>
+      <div className="dc-stats-row">
+        <div className="dc-stat-card">
+          <div className="dc-stat-header">
+            <BarChart3 size={24} className="dc-stat-icon" />
+            <span className="dc-stat-badge">+12% today</span>
+          </div>
+          <div className="dc-column-chart">
+            {[40, 65, 45, 80, 55, 70, 90, 60].map((h, i) => (
+              <div 
+                key={i} 
+                className="dc-column-bar" 
+                style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}
+              ></div>
+            ))}
+          </div>
+          <div className="dc-stat-value">1.8k</div>
+          <div className="dc-stat-label">Records Ingested</div>
+        </div>
 
-         <div className="glass p-8 rounded-[40px] border border-white/10 relative overflow-hidden group">
-            <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                    <Activity className="text-sky-400" size={24} />
-                    <span className="text-xs font-bold text-sky-400 bg-sky-400/10 px-3 py-1 rounded-full">Healthy</span>
-                </div>
-                <div className="text-4xl font-black mb-1">10/10</div>
-                <div className="text-muted text-sm font-bold uppercase tracking-widest">Active Pipelines</div>
-            </div>
-            <Activity className="absolute -right-4 -bottom-4 text-white/5 w-32 h-32 group-hover:text-sky-400/5 transition-colors" />
-         </div>
+        <div className="dc-stat-card">
+          <div className="dc-stat-header">
+            <Activity size={24} className="dc-stat-icon" style={{ color: 'var(--info)' }} />
+            <span className="dc-stat-badge" style={{ background: 'rgba(91,155,213,0.15)', color: 'var(--info)' }}>Healthy</span>
+          </div>
+          <div className="dc-arc-gauge">
+            <svg viewBox="0 0 36 36" width="80" height="80">
+              <path className="dc-arc-seg dc-arc-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+              <path className="dc-arc-seg dc-arc-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+            </svg>
+          </div>
+          <div className="dc-stat-value" style={{ textAlign: 'center' }}>10/10</div>
+          <div className="dc-stat-label">Active Pipelines</div>
+        </div>
 
-         <div className="glass p-8 rounded-[40px] border border-white/10 relative overflow-hidden group">
-            <div className="relative z-10">
-                <div className="flex justify-between items-center mb-6">
-                    <HardDrive className="text-amber-400" size={24} />
-                    <span className="text-xs font-bold text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full">340 MB</span>
-                </div>
-                <div className="text-4xl font-black mb-1">98%</div>
-                <div className="text-muted text-sm font-bold uppercase tracking-widest">Local Knowledge Sync</div>
-            </div>
-            <Database className="absolute -right-4 -bottom-4 text-white/5 w-32 h-32 group-hover:text-amber-400/5 transition-colors" />
-         </div>
+        <div className="dc-stat-card">
+          <div className="dc-stat-header">
+            <HardDrive size={24} className="dc-stat-icon" style={{ color: 'var(--warning)' }} />
+            <span className="dc-stat-badge" style={{ background: 'rgba(232,169,62,0.15)', color: 'var(--warning)' }}>340 MB</span>
+          </div>
+          <div className="dc-cylinder">
+            <div className="dc-cylinder-top"></div>
+            <div className="dc-cylinder-body"></div>
+          </div>
+          <div className="dc-stat-value" style={{ textAlign: 'center' }}>98%</div>
+          <div className="dc-stat-label">Storage Synced</div>
+        </div>
       </div>
 
-      {/* Pipelines Table */}
-      <div className="glass rounded-[40px] border border-white/10 overflow-hidden shadow-2xl">
-        <div className="p-8 border-b border-white/5 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-                <Settings2 className="text-secondary" size={20} />
-                <h3 className="text-xl font-bold">Expert Pipeline Orchestration</h3>
+      <div className="dc-pipeline-table">
+        <div className="dc-pipeline-header">
+          <div className="dc-pipeline-title">
+            <div className="dc-terminal-bar">
+              <span className="dc-terminal-dot red"></span>
+              <span className="dc-terminal-dot yellow"></span>
+              <span className="dc-terminal-dot green"></span>
             </div>
-            <button 
-                onClick={fetchData} 
-                className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-muted transition-all"
+            <h3>Pipeline Orchestration</h3>
+          </div>
+          <span className="dc-pipeline-filename">pipeline_orchestrator.py</span>
+        </div>
+
+        <div className="dc-table-header">
+          <span>Pipeline</span>
+          <span>Status</span>
+          <span>Records</span>
+          <span>Last Run</span>
+          <span>Execute</span>
+        </div>
+
+        {pipelines.map((p, i) => (
+          <Motion.div 
+            key={p.id}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="dc-pipeline-row"
+          >
+            <div className="dc-pipeline-info">
+              <div className="dc-pipeline-icon">
+                <Globe size={18} />
+              </div>
+              <div>
+                <div className="dc-pipeline-name">{p.name}</div>
+                <div className="dc-pipeline-category">{p.category || 'Data Pipeline'}</div>
+              </div>
+            </div>
+            <div className="dc-pipeline-status">
+              <span className="dc-status-dot"></span>
+              <span style={{ color: 'var(--success)', fontSize: '12px', fontWeight: 600 }}>Healthy</span>
+            </div>
+            <div className="dc-pipeline-records">{p.records.toLocaleString()}</div>
+            <div className="dc-pipeline-time">{p.last_run || '2h ago'}</div>
+            <button
+              onClick={() => handleRun(p.id)}
+              disabled={runningId === p.id}
+              className={`dc-pipeline-run-btn ${runningId === p.id ? 'running' : ''}`}
             >
-                <RefreshCw size={20} className={loading ? "animate-spin" : ""} />
+              {runningId === p.id ? (
+                <><RefreshCw size={12} className="animate-spin" /> Syncing...</>
+              ) : (
+                <><Play size={12} /> Run</>
+              )}
             </button>
-        </div>
-
-        <div className="overflow-x-auto">
-            <table className="w-full text-left">
-                <thead className="bg-white/5 text-[10px] uppercase font-black tracking-widest text-muted">
-                    <tr>
-                        <th className="p-6 pl-10">Pipeline Domain</th>
-                        <th className="p-6">Health Status</th>
-                        <th className="p-6">Records Total</th>
-                        <th className="p-6 text-right pr-10">Execution Control</th>
-                    </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                    {pipelines.map((p, i) => (
-                        <Motion.tr 
-                            initial={{ y: 20, opacity: 0 }}
-                            animate={{ y: 0, opacity: 1 }}
-                            transition={{ delay: i * 0.05 }}
-                            key={p.id} 
-                            className="hover:bg-white/[0.02] group transition-all"
-                        >
-                            <td className="p-6 pl-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-muted group-hover:text-secondary group-hover:bg-secondary/10 transition-all">
-                                        <Globe size={18} />
-                                    </div>
-                                    <div>
-                                        <div className="font-bold text-white">{p.name}</div>
-                                        <div className="flex items-center gap-2 text-xs text-muted">
-                                            <Clock size={12} /> Last run: {p.last_run}
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                            <td className="p-6">
-                                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-bold border border-emerald-500/20">
-                                    <CheckCircle2 size={14} /> Healthy
-                                </span>
-                            </td>
-                            <td className="p-6">
-                                <span className="font-black text-white">{p.records.toLocaleString()}</span>
-                            </td>
-                            <td className="p-6 text-right pr-10">
-                                <button
-                                    onClick={() => handleRun(p.id)}
-                                    disabled={runningId === p.id}
-                                    className={`px-6 py-3 rounded-2xl font-black text-sm transition-all flex items-center gap-2 ml-auto ${
-                                        runningId === p.id 
-                                        ? 'bg-amber-400 text-black cursor-wait' 
-                                        : 'bg-secondary text-black hover:scale-105 active:scale-95'
-                                    }`}
-                                >
-                                    {runningId === p.id ? (
-                                        <>
-                                            <RefreshCw size={16} className="animate-spin" />
-                                            Syncing...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Play size={16} fill="currentColor" />
-                                            Run Pipeline
-                                        </>
-                                    )}
-                                </button>
-                            </td>
-                        </Motion.tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+          </Motion.div>
+        ))}
       </div>
-
     </div>
   );
 };
