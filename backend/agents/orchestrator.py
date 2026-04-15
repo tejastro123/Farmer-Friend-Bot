@@ -48,7 +48,10 @@ class OrchestratorAgent:
     def generate(self, query: str, language: str = "en", location_context: str = "", 
                  image_data: str = None, images: List[str] = None, 
                  profile: dict = None, history: list = None,
-                 corrections: list = None) -> AgentResponse:
+                 corrections: list = None, model: str = "gemini-2.0-flash-exp") -> AgentResponse:
+        
+        # Use selected model or default
+        model_name = model if model else "gemini-flash"
         
         # Format history for Gemini
         gemini_history = []
@@ -173,6 +176,10 @@ class OrchestratorAgent:
 
         # Build prompt
         prompt = f"User Query: {query}"
+        soil_type = "General"
+        soil_info = "General agricultural soil"
+        state_val = ""
+        
         if location_context:
             prompt += f"\n\n(Context: User location is {location_context})"
             
@@ -238,7 +245,7 @@ class OrchestratorAgent:
         # 5. Execution Step
         try:
             chat = self.client.chats.create(
-                model="gemini-flash-latest",
+                model=model_name,  # Use selected model
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
                     tools=[

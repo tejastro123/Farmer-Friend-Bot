@@ -82,6 +82,7 @@ class SubAgent:
             # Use images list if provided, else fallback to backward-compatible image_data
             all_images = images if images else ([image_data] if image_data else [])
             
+            has_images = False
             for img in all_images:
                 if not img: continue
                 try:
@@ -89,11 +90,26 @@ class SubAgent:
                     mime_type = header.split(";")[0].split(":")[1]
                     image_bytes = base64.b64decode(b64)
                     payload.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
+                    has_images = True
                     logger.info(f"Attached multimodal part ({mime_type}) to {self.name} payload.")
                 except Exception as ex:
                     logger.warning(f"Failed to parse base64 part in {self.name}: {ex}")
 
-            response = chat.send_message(payload)
+            # If images present but model doesn't support vision, handle gracefully
+            if has_images:
+                try:
+                    response = chat.send_message(payload)
+                except Exception as img_err:
+                    if "does not support image input" in str(img_err).lower() or "image" in str(img_err).lower():
+                        logger.warning(f"Vision not supported for {self.name}, falling back to text-only")
+                        # Remove image parts and retry with just text
+                        payload = [prompt]
+                        response = chat.send_message(payload)
+                    else:
+                        raise
+            else:
+                response = chat.send_message(payload)
+                
             return response.text
         except Exception as e:
             # If it's a 429, tenacity will retry. If it's a final failure, we catch it here.

@@ -83,6 +83,7 @@ class ChatRequest(BaseModel):
     attachments: Optional[List[dict]] = None # Placeholder for complex files
     profile: Optional[dict] = None # Farm profile constraints
     history: Optional[List[dict]] = None # Optional fallback history
+    model: Optional[str] = "gemini-2.0-flash-exp" # Model selection
 
 class SessionResponse(BaseModel):
     id: int
@@ -187,7 +188,8 @@ def handle_chat_query(
         images=req.images,
         profile=req.profile or user_profile,
         history=thread_history or req.history,
-        corrections=corrections
+        corrections=corrections,
+        model=req.model
     )
 
     # 5. Persistent Save

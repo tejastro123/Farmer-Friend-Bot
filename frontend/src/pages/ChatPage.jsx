@@ -1,14 +1,21 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
     Send, MapPin, Globe, Info, Camera,
-    Volume2, X, AlertCircle, History, Plus, MessageSquare,
-    User, Trash2, Edit3, Download, FileText,
+    Volume2, VolumeX, X, AlertCircle, History, Plus, MessageSquare,
+    User, Trash2, Edit3, Download, FileText, Copy, Check,
     ThumbsUp, ThumbsDown, CheckCircle2, ChevronLeft, ChevronRight, 
-    Paperclip, Sparkles, Bot, Wifi, WifiOff
+    Paperclip, Sparkles, Bot, Wifi, WifiOff, Settings, Cpu
 } from 'lucide-react';
 import { marked } from 'marked';
 import { authService, chatService } from '../services/api';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
+import './ChatPage.css';
+
+const MODELS = [
+    { id: 'gemini-2.0-flash-exp', name: 'Gemini 2.0 Flash', desc: 'Latest, fastest, vision capable' },
+    { id: 'gemini-flash-latest', name: 'Gemini Flash Latest', desc: 'Latest, Reliable, good performance' },
+    { id: 'gemini-pro', name: 'Gemini Pro', desc: 'Most capable, complex tasks' }
+];
 
 const WheatGrainIcon = ({ className, size = 20 }) => (
     <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -40,6 +47,10 @@ const ChatPage = () => {
     const [editValue, setEditValue] = useState('');
     const [showSources, setShowSources] = useState(null);
     const [connectionError, setConnectionError] = useState(false);
+    const [selectedModel, setSelectedModel] = useState(MODELS[0].id);
+    const [showModelSelector, setShowModelSelector] = useState(false);
+    const [speakingMsgId, setSpeakingMsgId] = useState(null);
+    const [copiedMsgId, setCopiedMsgId] = useState(null);
 
     const suggestedActions = [
         { label: "Regional Weather", icon: "🌦", query: "What is the detailed weather forecast for my region?" },
@@ -222,7 +233,8 @@ const ChatPage = () => {
                 session_id: currentSessionId,
                 images: userMsg.attachments.map(a => a.data),
                 preferred_language: language,
-                location: profile?.location_name
+                location: profile?.location_name,
+                model: selectedModel
             });
 
             const agentMsg = {
@@ -278,6 +290,28 @@ const ChatPage = () => {
         } catch (err) {
             console.error("Correction error:", err);
         }
+    };
+
+    const handleSpeak = (msg) => {
+        if (speakingMsgId === msg.id) {
+            window.speechSynthesis.cancel();
+            setSpeakingMsgId(null);
+        } else {
+            window.speechSynthesis.cancel();
+            const text = msg.answer?.replace(/[*#_]/g, '') || '';
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = language === 'hi' ? 'hi-IN' : 'en-IN';
+            utterance.onend = () => setSpeakingMsgId(null);
+            setSpeakingMsgId(msg.id);
+            window.speechSynthesis.speak(utterance);
+        }
+    };
+
+    const handleCopy = (msg) => {
+        const text = msg.answer || msg.text || '';
+        navigator.clipboard.writeText(text);
+        setCopiedMsgId(msg.id);
+        setTimeout(() => setCopiedMsgId(null), 2000);
     };
 
     const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -361,8 +395,25 @@ const ChatPage = () => {
                         <Bot size={18} className="model-icon-v2" />
                         <div className="model-text-v2">
                             <span className="model-name-v2">KrishiMitra Advisor</span>
-                            <span className="model-type-v2">Powered by Gemini Flash</span>
+                            <button className="model-type-v2" onClick={() => setShowModelSelector(!showModelSelector)}>
+                                <Cpu size={12} />
+                                {MODELS.find(m => m.id === selectedModel)?.name || 'Select Model'}
+                            </button>
                         </div>
+                        {showModelSelector && (
+                            <div className="model-selector-dropdown">
+                                {MODELS.map(m => (
+                                    <button
+                                        key={m.id}
+                                        className={`model-option ${selectedModel === m.id ? 'active' : ''}`}
+                                        onClick={() => { setSelectedModel(m.id); setShowModelSelector(false); }}
+                                    >
+                                        <div className="model-option-name">{m.name}</div>
+                                        <div className="model-option-desc">{m.desc}</div>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="header-actions-v2">
                         <div className="language-picker-v2">
@@ -447,6 +498,20 @@ const ChatPage = () => {
                                     </div>
                                     {msg.role === 'agent' && (
                                         <div className="message-actions-v2">
+                                            <button
+                                                className={`action-btn-v2 ${speakingMsgId === msg.id ? 'active' : ''}`}
+                                                onClick={() => handleSpeak(msg)}
+                                                title={speakingMsgId === msg.id ? 'Stop' : 'Speak'}
+                                            >
+                                                {speakingMsgId === msg.id ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                                            </button>
+                                            <button
+                                                className={`action-btn-v2 ${copiedMsgId === msg.id ? 'active' : ''}`}
+                                                onClick={() => handleCopy(msg)}
+                                                title="Copy"
+                                            >
+                                                {copiedMsgId === msg.id ? <Check size={14} /> : <Copy size={14} />}
+                                            </button>
                                             <button
                                                 className={`action-btn-v2 ${msg.is_helpful === 1 ? 'active' : ''}`}
                                                 onClick={() => handleFeedback(msg.id, 1, i)}
