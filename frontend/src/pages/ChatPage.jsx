@@ -282,6 +282,11 @@ const ChatPage = () => {
 
     const submitCorrection = async () => {
         const msg = messages[correctionIndex];
+        if (!msg?.id) {
+            setCorrectionIndex(null);
+            setCorrectionText('');
+            return;
+        }
         try {
             await chatService.submitFeedback(msg.id, { is_helpful: -1, feedback_text: correctionText });
             setMessages(prev => prev.map((m, i) => i === correctionIndex ? { ...m, is_helpful: -1, feedback_text: correctionText } : m));

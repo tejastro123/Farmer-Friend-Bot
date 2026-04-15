@@ -12,111 +12,142 @@
    CSS CUSTOM PROPERTIES — Design Tokens
    ---------------------------------------------------------------------- */
 :root {
-  /* Earth Palette — Dominant 60% */
-  --bg-base: #0C0A07;           /* Charred earth — page background */
-  --bg-surface: #131008;        /* Slightly lighter for cards */
-  --bg-raised: #1A1610;         /* Hover states, elevated cards */
-  --bg-overlay: rgba(12,10,7,0.92);
-
-  /* Harvest Gold — Accent 10% (replaces all --secondary uses) */
-  --gold: #C8912B;              /* Primary brand accent */
-  --gold-light: #E8A93E;        /* Hover states */
-  --gold-muted: rgba(200, 145, 43, 0.15); /* Subtle fills */
-  --gold-border: rgba(200, 145, 43, 0.3);
-
-  /* Sage Green — Secondary 30% */
-  --sage: #4A7C59;              /* Secondary actions */
-  --sage-light: #5E9E72;
-  --sage-muted: rgba(74, 124, 89, 0.15);
-
-  /* Text Hierarchy */
-  --text-primary: #F5F0E8;      /* Warm white — main content */
-  --text-secondary: #9E9080;    /* Muted captions */
-  --text-tertiary: #5C5248;     /* Placeholder, disabled */
-  --text-inverse: #0C0A07;      /* On gold backgrounds */
-
-  /* ─── Page-Specific Colors ───────────────────────────────────────────── */
+  /* ═══════════════════════════════════════════════════════════════════════
+     KRISHIMITRA AI — STUNNING COLOR PALETTE
+     ═════════════════════════════════════════════════════════════════════ */
   
-  /* Landing Page - Gold & Sage */
-  --landing-primary: #C8912B;
-  --landing-secondary: #4A7C59;
-  --landing-accent: #E8A93E;
+  /* ═══ BACKGROUNDS — Rich Earth Tones ═══ */
+  --bg-base: #0A0B0D;           /* Deep night soil */
+  --bg-surface: #12151A;        /* Rich dark earth */
+  --bg-raised: #1A1F26;        /* Elevated dark */
+  --bg-overlay: rgba(10,11,13,0.95);
 
-  /* Chat Page - Sage & Fresh Green */
-  --chat-primary: #4A7C59;
-  --chat-ai: #22C55E;
-  --chat-user: #C8912B;
+  /* ═══ PRIMARY ACCENT — Luminous Gold ═══ */
+  --gold: #FFD54F;              /* Radiant gold - Main CTAs */
+  --gold-light: #FFECB3;         /* Golden glow - Hover */
+  --gold-muted: rgba(255,213,79,0.15); /* Golden aura */
+  --gold-border: rgba(255,213,79,0.4); /* Golden edge */
+  --gold-glow: rgba(255,213,79,0.5); /* Golden glow for effects */
 
-  /* Market Page - Amber & Red */
-  --market-primary: #F59E0B;
-  --market-price-up: #10B981;
-  --market-price-down: #EF4444;
-  --market-live: #EF4444;
+  /* ═══ SECONDARY — Emerald Fresh ═══ */
+  --sage: #4CAF50;              /* Fresh emerald */
+  --sage-light: #81C784;       /* Light emerald */
+  --sage-muted: rgba(76,175,80,0.15);
+  --sage-glow: rgba(76,175,80,0.4);
 
-  /* Farm Dashboard - Fresh Green & Blue */
-  --farm-primary: #22C55E;
-  --farm-crops: #22C55E;
-  --farm-soil: #92400E;
-  --farm-weather: #0EA5E9;
-  --farm-finance: #10B981;
-  --farm-inventory: #F59E0B;
+  /* ═══ TERTIARY — Electric Violet ═══ */
+  --violet: #9C27B0;           /* Royal purple */
+  --violet-light: #BA68C8;
+  --violet-muted: rgba(156,39,176,0.15);
 
-  /* Predictions - Violet & Pink */
-  --prediction-primary: #8B5CF6;
-  --prediction-trend-up: #EC4899;
-  --prediction-trend-down: #06B6D4;
+  /* ═══ TEXT — Crisp Hierarchy ═══ */
+  --text-primary: #FAFAFA;     /* Pure white */
+  --text-secondary: #B0B0B0;  /* Soft silver */
+  --text-tertiary: #606060;    /* Muted gray */
+  --text-inverse: #0A0B0D;    /* On bright backgrounds */
+
+  /* ═══ PAGE-SPECIFIC COLORS ═══ */
+  
+  /* Landing - Premium Gold & Emerald */
+  --landing-primary: #FFD54F;
+  --landing-secondary: #4CAF50;
+  --landing-accent: #FFECB3;
+  --landing-gradient-1: linear-gradient(135deg, #FFD54F 0%, #F57C00 100%);
+  --landing-gradient-2: linear-gradient(135deg, #4CAF50 0%, #1B5E20 100%);
+
+  /* Chat - Emerald & Electric Green */
+  --chat-primary: #4CAF50;
+  --chat-ai: #00E676;        /* Neon green for AI */
+  --chat-user: #FFD54F;       /* Gold for user */
+  --chat-ai-glow: rgba(0,230,118,0.4);
+
+  /* Market - Electric Amber & Crimson */
+  --market-primary: #FF9800;
+  --market-price-up: #00E676;  /* Neon green - price up */
+  --market-price-down: #FF5252; /* Neon red - price down */
+  --market-live: #FF1744;     /* Electric red - LIVE */
+  --market-gradient: linear-gradient(135deg, #FF9800 0%, #FF5722 100%);
+
+  /* Farm Dashboard - Vibrant Greens & Blues */
+  --farm-primary: #00E676;     /* Neon green - primary */
+  --farm-crops: #00E676;      /* Growing */
+  --farm-soil: #8D6E63;      /* Earth brown */
+  --farm-weather: #00B0FF;    /* Electric blue */
+  --farm-finance: #FFD54F;   /* Gold for money */
+  --farm-inventory: #FF9800;   /* Amber for inventory */
+  --farm-sky: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+
+  /* Predictions - Electric Violet & Hot Pink */
+  --prediction-primary: #E040FB;
+  --prediction-trend-up: #FF4081;  /* Hot pink */
+  --prediction-trend-down: #00E5FF; /* Cyan */
+  --prediction-gradient: linear-gradient(135deg, #E040FB 0%, #FF4081 100%);
 
   /* Knowledge Map - Cyan & Lime */
-  --knowledge-primary: #06B6D4;
-  --knowledge-node: #84CC16;
-  --knowledge-edge: #4A7C59;
+  --knowledge-primary: #00E5FF;
+  --knowledge-node: #C6FF00;   /* Lime green */
+  --knowledge-edge: #4CAF50;
+  --knowledge-gradient: linear-gradient(135deg, #00E5FF 0%, #C6FF00 100%);
 
-  /* ─── Feature-Specific Colors ───────────────────────────────────────────── */
+  /* ═══ FEATURE COLORS ═══ */
 
-  /* Crop Status */
-  --crop-active: #22C55E;      /* Growing crops */
-  --crop-harvested: #84CC16;   /* Ready to harvest */
-  --crop-planned: #9E9080;    /* Planned */
+  /* Crop Status - Neon Greens */
+  --crop-active: #00E676;      /* Neon green */
+  --crop-harvested: #C6FF00;    /* Lime */
+  --crop-planned: #90A4AE;    /* Steel */
 
-  /* Weather */
-  --weather-sunny: #F59E0B;
-  --weather-rainy: #0EA5E9;
-  --weather-cloudy: #6B7280;
-  --weather-storm: #8B5CF6;
+  /* Weather - Vivid */
+  --weather-sunny: #FFD54F;   /* Gold sun */
+  --weather-rainy: #00B0FF; /* Electric blue */
+  --weather-cloudy: #78909C;
+  --weather-storm: #E040FB;   /* Electric purple */
 
-  /* Financial */
-  --income: #10B981;
-  --expense: #EF4444;
-  --profit: #22C55E;
-  --loss: #EF4444;
+  /* Financial - Gold & Red */
+  --income: #00E676;         /* Neon green */
+  --expense: #FF5252;        /* Neon red */
+  --profit: #FFD54F;         /* Gold */
+  --loss: #FF1744;          /* Electric red */
 
-  /* Equipment Status */
-  --equipment-operational: #22C55E;
-  --equipment-maintenance: #F59E0B;
-  --equipment-retired: #6B7280;
+  /* Equipment - Amber & Blue */
+  --equipment-operational: #00E676;
+  --equipment-maintenance: #FFD54F;
+  --equipment-retired: #546E7A;
 
-  /* Soil Health */
-  --soil-healthy: #22C55E;
-  --soil-low: #F59E0B;
-  --soil-critical: #EF4444;
+  /* Soil - Rich Browns */
+  --soil-healthy: #7CB342;
+  --soil-low: #FFB300;
+  --soil-critical: #FF5252;
 
-  /* Government Schemes */
-  --scheme-active: #8B5CF6;
-  --scheme-pending: #F59E0B;
-  --scheme-approved: #22C55E;
-  --scheme-rejected: #EF4444;
+  /* Government Schemes - Purple & Gold */
+  --scheme-active: #E040FB;
+  --scheme-pending: #FFD54F;
+  --scheme-approved: #00E676;
+  --scheme-rejected: #FF5252;
 
-  /* Alerts */
-  --alert-critical: #EF4444;
-  --alert-warning: #F97316;
-  --alert-info: #0EA5E9;
-  --alert-success: #22C55E;
+  /* Alerts - High Visibility */
+  --alert-critical: #FF1744;
+  --alert-warning: #FF9100;
+  --alert-info: #00B0FF;
+  --alert-success: #00E676;
+
+  /* ═══ GRADIENT VARIANTS ═══ */
+  --gradient-premium: linear-gradient(135deg, #FFD54F 0%, #FF9800 50%, #E040FB 100%);
+  --gradient-fresh: linear-gradient(135deg, #00E676 0%, #00B0FF 100%);
+  --gradient-sunset: linear-gradient(135deg, #FF6D00 0%, #FF1744 100%);
+  --gradient-midnight: linear-gradient(135deg, #1A1F26 0%, #0A0B0D 100%);
+
+  /* ═══ GLOW EFFECTS ═══ */
+  --glow-gold: 0 0 20px rgba(255,213,79,0.4);
+  --glow-sage: 0 0 20px rgba(76,175,80,0.4);
+  --glow-violet: 0 0 20px rgba(224,64,251,0.4);
+  --glow-cyan: 0 0 20px rgba(0,229,255,0.4);
+  --glow-green: 0 0 20px rgba(0,230,118,0.4);
 
   /* Semantic Colors */
-  --success: #4CAF7D;
-  --warning: #E8A93E;           /* Reuse gold-light */
-  --danger: #E05252;
-  --info: #5B9BD5;
+  --success: #00E676;
+  --warning: #FFD54F;
+  --danger: #FF5252;
+  --info: #00B0FF;
 
   /* Spacing Scale */
   --space-xs: 4px;
@@ -259,9 +290,15 @@ a:hover {
 /* .surface — replaces .glass */
 .surface {
   background: var(--bg-surface);
-  border: 1px solid rgba(245,240,232,0.06);
-  border-radius: var(--radius-lg);
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius-md);
+  transition: all 0.3s ease;
+}
+
+.surface:hover {
+  background: var(--bg-raised);
+  border-color: rgba(255,213,79,0.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 .surface:hover {
@@ -315,18 +352,21 @@ a:hover {
 
 .btn-primary {
   background: var(--gold);
-  color: var(--text-inverse);
-  box-shadow: 0 4px 14px rgba(200,145,43,0.35);
+  color: var(--bg-base);
+  font-weight: 700;
+  box-shadow: var(--glow-gold);
+  transition: all 0.3s ease;
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--gold-light);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(200,145,43,0.45);
+  box-shadow: 0 8px 30px rgba(255,213,79,0.5);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0);
+  box-shadow: 0 4px 15px rgba(255,213,79,0.3);
 }
 
 .btn-secondary {
@@ -629,14 +669,14 @@ textarea:focus-visible {
 }
 
 .brand-logo {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--gold-muted);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--gold-border);
+  border: 2px solid var(--gold);
+  box-shadow: var(--glow-gold);
 }
 
 .wheat-icon {
