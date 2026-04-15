@@ -7,7 +7,8 @@ import {
     TrendingUp, Users, FileText, ShoppingBag, Search, 
     ChevronRight, ArrowUpRight, Scale, Clock, ShieldCheck, 
     X, Printer, Download, MapPin, Star, Activity, Zap, 
-    AlertCircle, CheckCircle, QrCode, FileCheck, Loader2
+    AlertCircle, CheckCircle, QrCode, FileCheck, Loader2,
+    ChevronUp, ChevronDown
 } from 'lucide-react';
 
 const MarketPage = () => {
@@ -16,7 +17,6 @@ const MarketPage = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     
-    // Geolocation State
     const [coords, setCoords] = useState(null);
     const [syncing, setSyncing] = useState(false);
     const [syncStatus, setSyncStatus] = useState({ type: 'initial', msg: '' });
@@ -60,7 +60,6 @@ const MarketPage = () => {
     const handleInitTrade = (dealer) => {
         setTradingId(dealer.id);
         
-        // Simulated network oscillation for authenticity
         setTimeout(() => {
             const newDeal = {
                 id: `TXN-${Math.floor(Math.random() * 90000) + 10000}`,
@@ -79,18 +78,18 @@ const MarketPage = () => {
             
             setTradingId(null);
             
-            // Auto-scroll to ledger
-            const ledger = document.querySelector('.table-premium');
+            const ledger = document.querySelector('.ledger-container');
             if (ledger) ledger.scrollIntoView({ behavior: 'smooth' });
         }, 1500);
     };
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-vh-100 bg-main overflow-hidden">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="w-16 h-16 border-4 border-secondary/30 border-t-secondary rounded-full animate-spin"></div>
-                    <div className="text-secondary animate-pulse text-xl font-bold tracking-widest uppercase">Initializing Digital Mandi Hub...</div>
+            <div className="flex items-center justify-center" style={{ height: 'calc(100vh - var(--nav-height))' }}>
+                <div className="loader-grain">
+                    <div className="loader-grain-bar"></div>
+                    <div className="loader-grain-bar"></div>
+                    <div className="loader-grain-bar"></div>
                 </div>
             </div>
         );
@@ -98,333 +97,235 @@ const MarketPage = () => {
 
     if (!marketData || !marketData.prices) {
         return (
-            <div className="flex items-center justify-center min-vh-100 bg-main p-8">
-                <div className="glass p-12 rounded-3xl border border-danger/20 text-center max-w-lg">
-                    <X size={64} className="text-danger mx-auto mb-6 opacity-50" />
-                    <h2 className="text-2xl font-black mb-3">Core Connectivity Lost</h2>
-                    <p className="text-muted text-sm mb-8 leading-relaxed">The regional mandi oracle is currently unreachable. Please verify your satellite uplink or retry synchronization.</p>
-                    <button onClick={() => window.location.reload()} className="btn btn-primary w-full">Re-establish Uplink</button>
+            <div className="flex items-center justify-center" style={{ height: 'calc(100vh - var(--nav-height))' }}>
+                <div className="surface p-xl text-center" style={{ maxWidth: '400px' }}>
+                    <X size={64} className="text-danger mx-auto mb-6" style={{ opacity: 0.5 }} />
+                    <h2 className="mb-3">Core Connectivity Lost</h2>
+                    <p className="text-sm mb-8">The regional mandi oracle is currently unreachable. Please verify your satellite uplink or retry synchronization.</p>
+                    <button onClick={() => window.location.reload()} className="btn btn-primary btn-block">Re-establish Uplink</button>
                 </div>
             </div>
         );
     }
 
+    const priceEntries = Object.entries(marketData.prices || {});
+    const filteredDealers = marketData.dealers?.filter(d => 
+        d.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        d.location.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
+
     return (
-        <div className="dashboard-container">
-            <main className="dashboard-main p-8 overflow-y-auto">
-                {/* Header with Geolocation */}
-                <header className="flex justify-between items-start mb-12">
-                    <Motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                    >
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-secondary uppercase tracking-[0.3em] mb-2">
-                             <div className="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></div> Localized Intelligence Hub
-                        </div>
-                        <h1 className="text-5xl font-black tracking-tighter">Digital Mandi Hub</h1>
-                        
-                        <div className="mt-4 flex items-center gap-3">
-                            <button 
-                                onClick={handleSyncLocation}
-                                disabled={syncing}
-                                className="btn btn-glass px-4 py-2 !rounded-full !text-[10px] font-black uppercase"
-                            >
-                                <Activity size={14} className={syncing ? 'sync-btn-active' : ''}/>
-                                {syncing ? 'Syncing...' : 'Link Live Location'}
-                            </button>
-                            
-                            {syncStatus.type === 'error' && (
-                                <div className="location-warning">
-                                    <AlertCircle size={14}/> {syncStatus.msg}
-                                </div>
-                            )}
-                            
-                            {coords && (
-                                <div className="location-coord-chip">
-                                    <MapPin size={14}/> {coords.lat.toFixed(4)}, {coords.lon.toFixed(4)}
-                                </div>
-                            )}
-                        </div>
-                    </Motion.div>
-                    
-                    <Motion.div 
-                        className="flex items-center gap-8 text-right"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                    >
-                        <div>
-                            <div className="text-[10px] font-bold text-muted uppercase mb-1">Regional Core</div>
-                            <div className="text-sm font-bold">{coords ? 'Nearby Station Active' : 'Pune-Nashik Node v4.2'}</div>
-                        </div>
-                        <div className="h-10 w-[1px] bg-white/10"></div>
-                        <div>
-                            <div className="text-[10px] font-bold text-muted uppercase mb-1">Network Latency</div>
-                            <div className="text-sm font-bold text-secondary">12ms - Stable</div>
-                        </div>
-                    </Motion.div>
-                </header>
-
-                <div className="mandi-layout">
-                    
-                    {/* LEFT PANEL: Market Pulse */}
-                    <aside className="space-y-6">
-                        <div className="mandi-panel-header"><TrendingUp size={14}/> Market Pulse (State Avg)</div>
-                        
-                        <div className="pulse-card">
-                            <h4 className="text-xs font-bold text-secondary mb-6 flex justify-between">
-                                COMPONENT TICKER <span>Live</span>
-                            </h4>
-                            <div className="space-y-1">
-                                {Object.entries(marketData.prices || {}).map(([crop, data], idx) => (
-                                    <Motion.div 
-                                        key={crop} 
-                                        initial={{ opacity: 0, x: -10 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.05 }}
-                                        className="pulse-item group cursor-pointer"
-                                    >
-                                        <div>
-                                            <div className="text-[10px] font-bold text-muted uppercase group-hover:text-main transition-colors">{crop}</div>
-                                            <div className="text-lg font-black tracking-tighter">₹{data?.price || 'N/A'}</div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className={`text-[10px] font-bold ${data?.trend === 'up' ? 'text-success' : 'text-danger'}`}>
-                                                {data?.trend === 'up' ? '+' : '-'}{Math.floor(Math.random() * 5) + 1}.{Math.floor(Math.random() * 9)}%
-                                            </div>
-                                            <div className="sparkline-view mt-1">
-                                                {[1,2,3,4,5,6].map(i => (
-                                                    <div 
-                                                        key={i} 
-                                                        className={`spark-bar ${i > 3 ? 'active' : ''}`} 
-                                                        style={{ height: `${Math.random() * 100}%`, animationDelay: `${i * 0.1}s` }}
-                                                    ></div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </Motion.div>
-                                ))}
-                            </div>
-                        </div>
-                    </aside>
-
-                    {/* CENTER PANEL: Core Operations */}
-                    <div className="space-y-8">
-                        
-                        {/* Quick Assets */}
-                        <section>
-                            <div className="mandi-panel-header"><ShoppingBag size={14}/> Active Inventory Matrix</div>
-                            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                                {marketData.active_listings.map((listing, lIdx) => (
-                                    <Motion.div 
-                                        key={listing.id} 
-                                        initial={{ opacity: 0, y: 10 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: lIdx * 0.1 }}
-                                        whileHover={{ y: -5, borderColor: 'var(--secondary)' }}
-                                        className="inventory-chip glass min-w-[240px]"
-                                    >
-                                        <div className="p-3 bg-secondary/10 rounded-xl text-secondary">
-                                            <Zap size={20}/>
-                                        </div>
-                                        <div>
-                                            <div className="text-[10px] font-bold text-muted uppercase">{listing.commodity}</div>
-                                            <div className="text-base font-black">{listing.weight} KG Active</div>
-                                            <div className="text-[9px] font-bold text-secondary mt-0.5">ASK: ₹{listing.price}/Q</div>
-                                        </div>
-                                    </Motion.div>
-                                ))}
-                                <button className="inventory-chip border-dashed border-white/20 hover:border-secondary/50 transition bg-transparent group">
-                                    <div className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center group-hover:bg-secondary/10 transition">
-                                        <Scale size={18} className="text-muted group-hover:text-secondary"/>
-                                    </div>
-                                    <div className="text-left">
-                                         <div className="text-xs font-bold">Inbound Listing</div>
-                                         <div className="text-[10px] text-muted">Register New Crop</div>
-                                    </div>
-                                </button>
-                            </div>
-                        </section>
-
-                        {/* Dealer Directory */}
-                        <section>
-                            <div className="flex justify-between items-end mb-6">
-                                <div className="mandi-panel-header">
-                                    <Users size={14}/> {coords ? 'Nearest Buyers Found' : 'Trusted Aggregator Node'}
-                                </div>
-                                <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={14}/>
-                                    <input 
-                                        type="text" 
-                                        placeholder="Filter Entity..." 
-                                        className="glass-input pl-10 py-2 text-xs w-48 bg-black/40"
-                                        value={searchTerm}
-                                        onChange={e => setSearchTerm(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            
-                            <Motion.div 
-                                className="space-y-3"
-                                initial="hidden"
-                                animate="show"
-                                variants={{
-                                    hidden: { opacity: 0 },
-                                    show: {
-                                        opacity: 1,
-                                        transition: { staggerChildren: 0.1 }
-                                    }
-                                }}
-                            >
-                                {marketData.dealers.map(dealer => (
-                                    <Motion.div 
-                                        key={dealer.id}
-                                        variants={{
-                                            hidden: { opacity: 0, x: -20 },
-                                            show: { opacity: 1, x: 0 }
-                                        }}
-                                        whileHover={{ x: 10, backgroundColor: 'rgba(255,255,255,0.02)' }}
-                                        className="dealer-row glass"
-                                    >
-                                        <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-secondary">
-                                            <ShoppingBag size={24}/>
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex items-center gap-3">
-                                                <h4 className="font-bold text-base">{dealer.name}</h4>
-                                                {dealer.distance_km && (
-                                                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 text-[9px] font-bold rounded uppercase">
-                                                        {dealer.distance_km} KM Away
-                                                    </span>
-                                                )}
-                                                <span className="pill-success status-pill">Verified</span>
-                                            </div>
-                                            <div className="flex items-center gap-4 mt-1">
-                                                <div className="text-[10px] text-muted flex items-center gap-1"><MapPin size={10}/> {dealer.location}</div>
-                                                <div className="text-[10px] text-warning flex items-center gap-1"><Star size={10} fill="currentColor"/> {dealer.rating} Market Score</div>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <div className="text-right mr-4">
-                                                <div className="text-[9px] font-bold text-muted uppercase">Premium</div>
-                                                <div className="text-sm font-black text-secondary">{((dealer.premium - 1) * 100).toFixed(1)}%</div>
-                                            </div>
-                                            <div className="hidden md:flex gap-1">
-                                                {dealer.focus.slice(0, 1).map(f => (
-                                                    <div key={f} className="px-2 py-1 bg-white/5 rounded text-[9px] font-bold text-muted flex items-center">{f}</div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        <button 
-                                            onClick={() => handleInitTrade(dealer)}
-                                            disabled={tradingId === dealer.id}
-                                            className="btn btn-primary px-6 py-2.5 !text-[11px] !font-black !tracking-tighter uppercase !rounded-xl"
-                                        >
-                                            {tradingId === dealer.id ? (
-                                                <div className="flex items-center gap-2">
-                                                    <Loader2 size={12} className="animate-spin" /> Syncing...
-                                                </div>
-                                            ) : 'Init Trade'}
-                                        </button>
-                                    </Motion.div>
-                                ))}
-                            </Motion.div>
-                        </section>
-
-                        {/* Trade Ledger */}
-                        <section>
-                            <div className="mandi-panel-header"><FileText size={14}/> Comprehensive Settlement Ledger</div>
-                            <Motion.div 
-                                className="glass rounded-2xl overflow-hidden border border-white/5"
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                whileInView={{ opacity: 1, scale: 1 }}
-                            >
-                                <table className="table-premium">
-                                    <thead>
-                                        <tr>
-                                            <th>Transaction ID</th>
-                                            <th>Counterparty</th>
-                                            <th>Commodity</th>
-                                            <th>Metric</th>
-                                            <th>Value</th>
-                                            <th>Status</th>
-                                            <th></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="text-sm font-medium">
-                                        <AnimatePresence>
-                                            {marketData.deals.map((deal, dIdx) => (
-                                                <Motion.tr 
-                                                    key={deal.id}
-                                                    initial={{ opacity: 0, height: 0 }}
-                                                    animate={{ opacity: 1, height: 'auto' }}
-                                                    exit={{ opacity: 0, x: -100 }}
-                                                    transition={{ delay: dIdx * 0.05 }}
-                                                >
-                                                    <td className="font-mono text-[10px] font-bold text-secondary">{deal.id}</td>
-                                                    <td className="font-bold">{deal.dealer}</td>
-                                                    <td className="text-muted">{deal.commodity}</td>
-                                                    <td>{deal.qty_quintals} Q</td>
-                                                    <td className="font-black">₹{deal.total.toLocaleString()}</td>
-                                                    <td>
-                                                        <span className={`status-pill ${deal.status === 'Confirmed' ? 'pill-info' : 'pill-success'}`}>
-                                                            {deal.status}
-                                                        </span>
-                                                    </td>
-                                                    <td className="text-right">
-                                                        <button 
-                                                            onClick={() => navigate(`/market/bill/${deal.id}`)}
-                                                            className="btn btn-secondary !p-2 !rounded-lg"
-                                                        >
-                                                            <ArrowUpRight size={16}/>
-                                                        </button>
-                                                    </td>
-                                                </Motion.tr>
-                                            ))}
-                                        </AnimatePresence>
-                                    </tbody>
-                                </table>
-                            </Motion.div>
-                        </section>
-                    </div>
-
-                    {/* RIGHT PANEL: Intelligence */}
-                    <aside className="space-y-6 right-sidebar">
-                        <div className="mandi-panel-header"><Zap size={14}/> Network Intelligence</div>
-                        
-                        <Motion.div 
-                            className="pulse-card"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                        >
-                            <h5 className="text-[10px] font-bold text-muted uppercase mb-4">Sentiment Index</h5>
-                            <div className="sentiment-gauge">
-                                <div className="gauge-seg bg-danger opacity-20"></div>
-                                <div className="gauge-seg bg-warning opacity-20"></div>
-                                <div className="gauge-seg bg-secondary active"></div>
-                                <div className="gauge-seg bg-secondary opacity-60"></div>
-                                <div className="gauge-seg bg-success opacity-80"></div>
-                            </div>
-                            <div className="flex justify-between mt-2 text-[9px] font-bold uppercase tracking-widest">
-                                <span>Bearish</span>
-                                <span className="text-secondary">Bullish (0.84)</span>
-                                <span>Strong</span>
-                            </div>
-                        </Motion.div>
-
-                        <Motion.div 
-                            className="pulse-card bg-accent/5 border-accent/20"
-                            whileHover={{ scale: 1.05 }}
-                        >
-                             <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase mb-3 text-warning">
-                                <Star size={12}/> Market Insight
-                             </div>
-                             <p className="text-xs text-muted leading-relaxed italic">
-                                "{marketData.prices.tomato?.forecast || 'Market fluctuations expected. Monitor local rates.'}"
-                             </p>
-                        </Motion.div>
-                    </aside>
+        <div className="market-page">
+            {/* LEFT PANEL: Market Pulse */}
+            <aside className="market-ticker">
+                <div className="ticker-header">
+                    <span className="ticker-label">AGRI TICKER</span>
+                    <div className="ticker-live-dot"></div>
                 </div>
-            </main>
+                
+                <div className="space-y-0">
+                    {priceEntries.map(([crop, data], idx) => (
+                        <Motion.div 
+                            key={crop}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: idx * 0.05 }}
+                            className="ticker-row"
+                        >
+                            <div>
+                                <div className="ticker-crop">{crop}</div>
+                            </div>
+                            <div className="text-right">
+                                <div className="ticker-price">₹{data?.price || 'N/A'}</div>
+                                <div className="ticker-sparkline">
+                                    {[1,2,3,4,5,6].map(i => (
+                                        <div 
+                                            key={i} 
+                                            className="spark-bar-mini"
+                                            style={{ height: `${30 + Math.random() * 70}%` }}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className={`ticker-change ${data?.trend === 'up' ? 'positive' : 'negative'}`}>
+                                {data?.trend === 'up' ? <ChevronUp size={12} className="inline" /> : <ChevronDown size={12} className="inline" />}
+                                {Math.floor(Math.random() * 5) + 1}.{Math.floor(Math.random() * 9)}%
+                            </div>
+                        </Motion.div>
+                    ))}
+                </div>
+            </aside>
+
+            {/* CENTER PANEL: Main Operations */}
+            <div className="market-main">
+                {/* Active Listings */}
+                <section>
+                    <div className="section-header mb-md">
+                        <div className="section-title flex items-center gap-sm">
+                            <ShoppingBag size={14} /> Active Inventory Matrix
+                        </div>
+                    </div>
+                    <div className="listings-scroll">
+                        {marketData.active_listings?.map((listing, lIdx) => (
+                            <Motion.div 
+                                key={listing.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: lIdx * 0.1 }}
+                                className="listing-card"
+                            >
+                                <div className="listing-crop">{listing.commodity}</div>
+                                <div className="listing-weight">{listing.weight} KG Active</div>
+                                <div className="listing-price">ASK: ₹{listing.price}/Q</div>
+                                <span className="listing-status">Listed</span>
+                            </Motion.div>
+                        ))}
+                        <button className="listing-card border-dashed flex items-center justify-center" style={{ minWidth: '220px', borderStyle: 'dashed', opacity: 0.7 }}>
+                            <div className="text-center">
+                                <Scale size={24} className="mx-auto mb-sm" style={{ color: 'var(--text-tertiary)' }} />
+                                <div className="text-sm">Inbound Listing</div>
+                                <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Register New Crop</div>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                {/* Dealer Directory */}
+                <section>
+                    <div className="section-header mb-md">
+                        <div className="section-title flex items-center gap-sm">
+                            <Users size={14} /> {coords ? 'Nearest Buyers Found' : 'Trusted Aggregator Node'}
+                        </div>
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2" style={{ transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} size={14}/>
+                            <input 
+                                type="text" 
+                                placeholder="Filter Entity..." 
+                                className="input pl-10"
+                                style={{ width: '200px', padding: '8px 12px', fontSize: '12px' }}
+                                value={searchTerm}
+                                onChange={e => setSearchTerm(e.target.value)}
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="dealer-list">
+                        <AnimatePresence>
+                            {filteredDealers.map((dealer, dIdx) => (
+                                <Motion.div 
+                                    key={dealer.id}
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ delay: dIdx * 0.05 }}
+                                    className="dealer-row"
+                                >
+                                    <div className="dealer-avatar">
+                                        {dealer.name.substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <div className="dealer-info">
+                                        <div className="dealer-name">{dealer.name}</div>
+                                        <div className="dealer-location">
+                                            <MapPin size={10} /> {dealer.location}
+                                        </div>
+                                    </div>
+                                    <div className="dealer-rating">
+                                        <Star size={12} className="inline mr-1" style={{ color: 'var(--warning)' }} />
+                                        {dealer.rating}
+                                    </div>
+                                    <div className="dealer-premium">+{((dealer.premium - 1) * 100).toFixed(1)}%</div>
+                                    <button 
+                                        onClick={() => handleInitTrade(dealer)}
+                                        disabled={tradingId === dealer.id}
+                                        className="btn btn-primary dealer-cta"
+                                    >
+                                        {tradingId === dealer.id ? (
+                                            <Loader2 size={14} className="animate-spin" />
+                                        ) : 'Trade →'}
+                                    </button>
+                                </Motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </section>
+
+                {/* Settlement Ledger */}
+                <section className="ledger-container">
+                    <div className="ledger-header">
+                        <div className="ledger-title">
+                            <FileText size={14} />
+                            <span>Ledger</span>
+                        </div>
+                        <div className="ledger-timestamp">Updated 2s ago</div>
+                    </div>
+                    <div className="ledger-rows">
+                        <AnimatePresence>
+                            {marketData.deals?.map((deal, dIdx) => (
+                                <Motion.div 
+                                    key={deal.id}
+                                    initial={{ opacity: 0, y: -10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, x: -100 }}
+                                    transition={{ delay: dIdx * 0.05 }}
+                                    className="ledger-row"
+                                >
+                                    <div className="ledger-txn">{deal.id}</div>
+                                    <div className="ledger-counterparty">{deal.dealer}</div>
+                                    <div className="ledger-commodity">{deal.commodity}</div>
+                                    <div className="ledger-qty">{deal.qty_quintals} Q</div>
+                                    <div className="ledger-value">₹{deal.total.toLocaleString()}</div>
+                                    <div>
+                                        <span className={`ledger-status ${deal.status === 'Confirmed' ? 'confirmed' : 'completed'}`}>
+                                            {deal.status}
+                                        </span>
+                                    </div>
+                                    <button 
+                                        onClick={() => navigate(`/market/bill/${deal.id}`)}
+                                        className="btn btn-secondary btn-icon"
+                                        style={{ width: '32px', height: '32px', padding: '0' }}
+                                    >
+                                        <ArrowUpRight size={16}/>
+                                    </button>
+                                </Motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </section>
+            </div>
+
+            {/* RIGHT PANEL: Intelligence */}
+            <aside className="market-intelligence">
+                <div className="intelligence-card">
+                    <div className="intelligence-header flex items-center gap-sm">
+                        <Zap size={14} /> Market Intelligence
+                    </div>
+                </div>
+
+                <div className="intelligence-card">
+                    <h5 className="intelligence-header">Sentiment Index</h5>
+                    <div className="sentiment-gauge">
+                        <div className="gauge-segment danger"></div>
+                        <div className="gauge-segment warning"></div>
+                        <div className="gauge-segment sage active"></div>
+                        <div className="gauge-segment gold"></div>
+                        <div className="gauge-segment success"></div>
+                    </div>
+                    <div className="sentiment-label">BULLISH 0.84</div>
+                </div>
+
+                <Motion.div 
+                    className="intelligence-card"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                >
+                    <div className="market-insight">
+                        <div className="quote-mark">"</div>
+                        <p className="insight-text">
+                            {marketData.prices.tomato?.forecast || 'Market fluctuations expected. Monitor local rates for optimal selling timing.'}
+                        </p>
+                    </div>
+                </Motion.div>
+            </aside>
         </div>
     );
 };

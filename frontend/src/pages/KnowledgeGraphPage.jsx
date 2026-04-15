@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
   Network, Search, Compass, BookOpen, 
   ChevronRight, Activity, Filter, Info,
-  ExternalLink, Maximize2, Zap, ShieldCheck
+  ExternalLink, Maximize2, Zap, ShieldCheck,
+  Plus, Minus, RotateCcw
 } from 'lucide-react';
 import { graphService } from '../services/api';
 
@@ -12,6 +13,8 @@ const KnowledgeGraphPage = () => {
   const [loading, setLoading] = useState(true);
   const [selectedNode, setSelectedNode] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [zoom, setZoom] = useState(1);
+  const svgRef = useRef(null);
 
   useEffect(() => {
     fetchGraph();
@@ -32,192 +35,201 @@ const KnowledgeGraphPage = () => {
     n.label.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const _getRelationships = (nodeId) => {
+  const getNodeColor = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('crop')) return 'var(--sage)';
+    if (t.includes('disease') || t.includes('pest')) return 'var(--danger)';
+    if (t.includes('fertilizer')) return 'var(--gold)';
+    if (t.includes('chemical')) return 'var(--info)';
+    if (t.includes('weather')) return '#8B9CD5';
+    return 'rgba(245,240,232,0.2)';
+  };
+
+  const getNodeClass = (type) => {
+    const t = (type || '').toLowerCase();
+    if (t.includes('crop')) return 'crops';
+    if (t.includes('disease') || t.includes('pest')) return 'diseases';
+    if (t.includes('fertilizer')) return 'fertilizers';
+    if (t.includes('chemical')) return 'chemicals';
+    if (t.includes('weather')) return 'weather';
+    return '';
+  };
+
+  const getRelationships = (nodeId) => {
     if (!data.links) return [];
     return data.links.filter(l => l.source === nodeId || l.target === nodeId);
   };
 
+  const handleZoom = (delta) => {
+    setZoom(prev => Math.max(0.5, Math.min(2, prev + delta)));
+  };
+
+  const handleReset = () => {
+    setZoom(1);
+    setSelectedNode(null);
+  };
+
   if (loading) {
     return (
-      <div className="main-content-pushed h-[70vh] flex flex-col items-center justify-center">
-        <Network size={60} className="text-secondary animate-pulse opacity-20 mb-4" />
-        <h2 className="text-xl font-bold text-muted animate-pulse">Initializing Expert Relationships...</h2>
+      <div className="flex items-center justify-center" style={{ height: 'calc(100vh - var(--nav-height))' }}>
+        <div className="loader-grain">
+          <div className="loader-grain-bar"></div>
+          <div className="loader-grain-bar"></div>
+          <div className="loader-grain-bar"></div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="main-content-pushed pb-20">
-      
-      {/* Header */}
-      <div className="mb-10">
-        <div className="flex items-center gap-4 mb-2">
-          <div className="p-3 rounded-2xl bg-secondary/10 text-secondary">
-             <Network size={32} />
-          </div>
-          <h1 className="text-4xl font-black">Expert Knowledge Map</h1>
-        </div>
-        <p className="text-muted max-w-2xl">
-          Visualizing the proprietary web of agricultural relationships. Our AI uses this graph to perform "Hybrid Reasoning" by tracing causal chains across 10+ expert domains.
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-[700px]">
+    <div className="knowledge-graph-page">
+      <aside className="graph-sidebar">
+        <h2 className="graph-header">Expert Knowledge Map</h2>
         
-        {/* Sidebar Explorer */}
-        <div className="lg:col-span-4 flex flex-col gap-6 h-full overflow-hidden">
-          <div className="glass p-6 rounded-3xl border border-white/10 flex-shrink-0">
-             <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
-                <input 
-                  type="text" 
-                  placeholder="Search entities (e.g. Rice, Urea)..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 focus:border-secondary outline-none transition-all"
+        <div className="graph-search">
+          <Search size={16} className="search-icon" />
+          <input 
+            type="text" 
+            placeholder="Search entities..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+
+        <div className="node-list">
+          {filteredNodes.map(node => (
+            <button
+              key={node.id}
+              onClick={() => setSelectedNode(node)}
+              className={`node-item ${selectedNode?.id === node.id ? 'selected' : ''}`}
+            >
+              <div className="node-icon">
+                {node.label.substring(0, 2).toUpperCase()}
+              </div>
+              <div>
+                <div className="node-label">{node.label}</div>
+                <div className="node-type">{node.type || 'Entity'}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <AnimatePresence>
+          {selectedNode && (
+            <Motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="node-detail-panel"
+            >
+              <div className="node-detail-name">{selectedNode.label}</div>
+              <div className="node-detail-type">{selectedNode.type || 'Entity'}</div>
+              <div className="node-connections">
+                {getRelationships(selectedNode.id).length} connections
+              </div>
+            </Motion.div>
+          )}
+        </AnimatePresence>
+      </aside>
+
+      <div className="graph-canvas">
+        <svg ref={svgRef} viewBox={`0 0 800 600`} style={{ transform: `scale(${zoom})`, transformOrigin: 'center' }}>
+          <defs>
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(245,240,232,0.03)" strokeWidth="1"/>
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          
+          {data.links?.map((link, i) => {
+            const sourceNode = data.nodes.find(n => n.id === link.source);
+            const targetNode = data.nodes.find(n => n.id === link.target);
+            if (!sourceNode || !targetNode) return null;
+            
+            const isHighlighted = selectedNode && 
+              (link.source === selectedNode.id || link.target === selectedNode.id);
+            
+            return (
+              <path
+                key={i}
+                className={`graph-edge ${isHighlighted ? 'highlighted' : ''}`}
+                d={`M ${sourceNode.x || 100 + i * 50},${sourceNode.y || 100 + i * 30} Q ${(sourceNode.x + targetNode.x)/2 || 200 + i * 25},${(sourceNode.y + targetNode.y)/2 || 150 + i * 35} ${targetNode.x || 300 + i * 50},${targetNode.y || 200 + i * 30}`}
+                style={{ opacity: selectedNode && !isHighlighted ? 0.2 : 1 }}
+              />
+            );
+          })}
+
+          {data.nodes?.map((node, i) => {
+            const x = node.x || 100 + (i % 5) * 120 + 50;
+            const y = node.y || 100 + Math.floor(i / 5) * 100 + 50;
+            const isSelected = selectedNode?.id === node.id;
+            const isDimmed = selectedNode && !isSelected && 
+              !data.links?.some(l => l.source === selectedNode.id && (l.source === node.id || l.target === node.id)) &&
+              !data.links?.some(l => l.target === selectedNode.id && (l.source === node.id || l.target === node.id));
+            
+            return (
+              <g 
+                key={node.id} 
+                className={`graph-node ${getNodeClass(node.type)}`}
+                style={{ opacity: isDimmed ? 0.2 : 1 }}
+                onClick={() => setSelectedNode(node)}
+              >
+                <circle 
+                  cx={x} 
+                  cy={y} 
+                  r={isSelected ? 14 : 8}
+                  style={{ 
+                    stroke: isSelected ? 'var(--gold)' : getNodeColor(node.type),
+                    fill: isSelected ? 'var(--gold-muted)' : 'var(--bg-raised)'
+                  }}
                 />
-             </div>
-          </div>
-
-          <div className="glass flex-grow rounded-3xl border border-white/10 overflow-y-auto custom-scrollbar p-2">
-            <div className="p-4 space-y-2">
-              {filteredNodes.map(node => (
-                <button
-                  key={node.id}
-                  onClick={() => setSelectedNode(node)}
-                  className={`w-full text-left p-4 rounded-2xl transition-all border flex items-center justify-between group ${
-                    selectedNode?.id === node.id 
-                    ? 'bg-secondary text-black border-secondary' 
-                    : 'bg-white/5 border-transparent hover:bg-white/10'
-                  }`}
+                {isSelected && (
+                  <circle 
+                    cx={x} 
+                    cy={y} 
+                    r={20}
+                    fill="none"
+                    stroke="var(--gold)"
+                    strokeWidth="1"
+                    style={{ opacity: 0.3 }}
+                  >
+                    <animate attributeName="r" values="14;18;14" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.3;0.1;0.3" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                )}
+                <text 
+                  x={x} 
+                  y={y + 25}
+                  textAnchor="middle"
+                  className="graph-node-label"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-lg ${selectedNode?.id === node.id ? 'bg-black/10' : 'bg-secondary/10 text-secondary'}`}>
-                      <Compass size={16} />
-                    </div>
-                    <div>
-                      <div className="font-bold text-sm">{node.label}</div>
-                      <div className={`text-[10px] uppercase tracking-widest ${selectedNode?.id === node.id ? 'text-black/50' : 'opacity-40'}`}>
-                        {node.type || 'Entity'}
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight size={16} className={selectedNode?.id === node.id ? 'text-black' : 'opacity-0 group-hover:opacity-40'} />
-                </button>
-              ))}
-            </div>
-          </div>
+                  {node.label}
+                </text>
+              </g>
+            );
+          })}
+        </svg>
+
+        <div className="graph-controls">
+          <button className="graph-control-btn" onClick={() => handleZoom(0.1)}>
+            <Plus size={16} />
+          </button>
+          <button className="graph-control-btn" onClick={() => handleZoom(-0.1)}>
+            <Minus size={16} />
+          </button>
+          <button className="graph-control-btn" onClick={handleReset}>
+            <RotateCcw size={16} />
+          </button>
         </div>
 
-        {/* Visualizer Canvas */}
-        <div className="lg:col-span-8 glass rounded-[40px] border border-white/10 relative overflow-hidden bg-[radial-gradient(circle_at_center,_rgba(82,183,136,0.05)_0%,_transparent_70%)]">
-           <AnimatePresence mode="wait">
-              {selectedNode ? (
-                <Motion.div 
-                  key={selectedNode.id}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 1.05 }}
-                  className="absolute inset-0 p-10 flex flex-col"
-                >
-                  {/* Node Header */}
-                  <div className="flex justify-between items-start mb-12">
-                     <div>
-                        <div className="flex items-center gap-3 mb-2">
-                           <span className="px-3 py-1 bg-secondary text-black text-[10px] font-black rounded-lg uppercase tracking-tighter">
-                              {selectedNode.type || 'Global Entity'}
-                           </span>
-                           <span className="text-secondary flex items-center gap-2 text-xs font-bold">
-                              <Activity size={12} /> Active in Reasoning
-                           </span>
-                        </div>
-                        <h2 className="text-5xl font-black">{selectedNode.label}</h2>
-                     </div>
-                     <div className="p-4 rounded-3xl bg-secondary/10 border border-secondary/20">
-                        <ShieldCheck className="text-secondary" size={32} />
-                     </div>
-                  </div>
-
-                  {/* Relationship Spider Web (SVG-less List implementation) */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 flex-grow overflow-y-auto custom-scrollbar pr-4">
-                    
-                    {/* Outgoing relationships */}
-                    <div>
-                      <h4 className="text-[10px] uppercase font-black text-secondary tracking-[0.2em] mb-6 flex items-center gap-2">
-                        <Zap size={12} /> Deterministic Impacts
-                      </h4>
-                      <div className="space-y-4">
-                        {data.links.filter(l => l.source === selectedNode.id).map((link, i) => (
-                          <Motion.div 
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            key={i}
-                            className="p-5 rounded-3xl bg-white/5 border border-white/10 hover:border-secondary/30 transition-all flex items-center justify-between group"
-                          >
-                             <div className="flex flex-col">
-                                <span className="text-[10px] font-bold text-muted mb-1 uppercase italic tracking-widest">{link.relationship}</span>
-                                <span className="text-xl font-bold">{data.nodes.find(n => n.id === link.target)?.label || link.target}</span>
-                             </div>
-                             <div className="p-2 rounded-xl bg-secondary/10 group-hover:bg-secondary text-secondary group-hover:text-black transition-all">
-                                <ChevronRight size={18} />
-                             </div>
-                          </Motion.div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Incoming relationships */}
-                    <div>
-                       <h4 className="text-[10px] uppercase font-black text-sky-400 tracking-[0.2em] mb-6 flex items-center gap-2">
-                         <Compass size={12} /> Origin Influences
-                       </h4>
-                       <div className="space-y-4">
-                        {data.links.filter(l => l.target === selectedNode.id).map((link, i) => (
-                           <Motion.div 
-                             initial={{ x: 20, opacity: 0 }}
-                             animate={{ x: 0, opacity: 1 }}
-                             transition={{ delay: i * 0.1 }}
-                             key={i}
-                             className="p-5 rounded-3xl bg-white/5 border border-white/10 hover:border-sky-400/30 transition-all flex items-center gap-6"
-                           >
-                             <div className="p-2 rounded-xl bg-sky-400/10 text-sky-400">
-                                <Maximize2 size={18} rotate={180} />
-                             </div>
-                             <div className="flex flex-col">
-                                <span className="text-[10px] font-bold text-muted mb-1 uppercase italic tracking-widest">{link.relationship}</span>
-                                <span className="text-xl font-bold">{data.nodes.find(n => n.id === link.source)?.label || link.source}</span>
-                             </div>
-                           </Motion.div>
-                        ))}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Summary Box */}
-                  <div className="mt-10 p-6 rounded-3xl bg-white/5 border border-white/10 flex items-center gap-6">
-                    <Info className="text-secondary flex-shrink-0" size={24} />
-                    <p className="text-sm text-muted">
-                      This node represents a core atomic unit in our agricultural ontology. Every connection here acts as a "Trust Path" that weights RAG search results and guides the Hybrid Reasoning Engine.
-                    </p>
-                  </div>
-
-                </Motion.div>
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-20 text-center opacity-40">
-                   <Network size={120} className="stroke-[0.5px] mb-8 animate-pulse text-secondary" />
-                   <h3 className="text-2xl font-black mb-4 uppercase tracking-tighter italic">Select an Expertise Node</h3>
-                   <p className="max-w-md text-sm leading-relaxed">
-                     Navigate through the knowledge repository on the left to visualize the causal chains used by KrishiMitra's advanced reasoning core.
-                   </p>
-                </div>
-              )}
-           </AnimatePresence>
-        </div>
-
+        {!selectedNode && (
+          <div className="graph-empty">
+            <Network size={80} style={{ opacity: 0.3, marginBottom: 'var(--space-md)' }} />
+            <h3>Select an Expertise Node</h3>
+            <p>Navigate through the knowledge repository to visualize causal chains.</p>
+          </div>
+        )}
       </div>
-
     </div>
   );
 };

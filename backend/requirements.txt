@@ -1,16 +1,17 @@
 fastapi
 uvicorn
 python-dotenv
-pydantic-settings
+pydantic-settings>=2.4.0
 python-multipart
-websockets
+websockets>=15.0
 # ── RAG / Embeddings ─────────────────────────────────────────
 faiss-cpu
 sentence-transformers
 pypdf
 
 # ── LLM ──────────────────────────────────────────────────────
-google-genai
+google-genai>=1.73.1
+prefect>=3.6.26
 
 # ── Language ─────────────────────────────────────────────────
 langdetect

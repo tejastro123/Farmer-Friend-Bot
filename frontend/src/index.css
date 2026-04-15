@@ -463,6 +463,7 @@ textarea:focus-visible {
 .mt-md { margin-top: var(--space-md); }
 .mt-lg { margin-top: var(--space-lg); }
 .mt-xl { margin-top: var(--space-xl); }
+.mt-2xl { margin-top: var(--space-2xl); }
 
 .mb-xs { margin-bottom: var(--space-xs); }
 .mb-sm { margin-bottom: var(--space-sm); }
@@ -989,19 +990,2472 @@ textarea:focus-visible {
 }
 
 /* ----------------------------------------------------------------------
-   GLASS DEPRECATED — Keep for backward compatibility during migration
-   ---------------------------------------------------------------------- */
+    MARKET PAGE — Bloomberg Terminal Aesthetic
+    ---------------------------------------------------------------------- */
+.market-page {
+  display: grid;
+  grid-template-columns: 280px 1fr 280px;
+  gap: var(--space-lg);
+  height: calc(100vh - var(--nav-height));
+  padding: var(--space-lg);
+}
+
+@media (max-width: 1400px) {
+  .market-page {
+    grid-template-columns: 280px 1fr;
+  }
+  .market-intelligence {
+    display: none;
+  }
+}
+
+/* Left Panel — Market Pulse */
+.market-ticker {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  height: fit-content;
+}
+
+.ticker-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.ticker-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.ticker-live-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+.ticker-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid rgba(245,240,232,0.04);
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.ticker-row:hover {
+  background: var(--bg-raised);
+}
+
+.ticker-crop {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ticker-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.ticker-change {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  text-align: right;
+}
+
+.ticker-change.positive {
+  color: var(--success);
+}
+
+.ticker-change.negative {
+  color: var(--danger);
+}
+
+.ticker-sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+
+.spark-bar-mini {
+  width: 3px;
+  background: var(--gold);
+  border-radius: 1px;
+  opacity: 0.6;
+}
+
+/* Center — Main Operations */
+.market-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  overflow-y: auto;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Active Listings — Horizontal Scroll */
+.listings-scroll {
+  display: flex;
+  gap: var(--space-md);
+  overflow-x: auto;
+  padding-bottom: var(--space-sm);
+  scrollbar-width: none;
+}
+
+.listings-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.listing-card {
+  min-width: 220px;
+  background: var(--bg-raised);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.listing-card:hover {
+  transform: scale(1.02);
+  border-color: var(--gold);
+  box-shadow: var(--shadow-gold);
+}
+
+.listing-crop {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.listing-weight {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.listing-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  color: var(--gold);
+  margin: var(--space-sm) 0;
+}
+
+.listing-status {
+  display: inline-flex;
+  padding: 4px 8px;
+  background: var(--sage-muted);
+  color: var(--sage);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Dealer Directory */
+.dealer-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.dealer-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-md);
+  padding: 0 var(--space-lg);
+  height: 72px;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.dealer-row:hover {
+  border-left: 2px solid var(--gold);
+  background: var(--bg-raised);
+  transform: translateX(6px);
+}
+
+.dealer-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gold-muted);
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.dealer-info {
+  flex: 1;
+}
+
+.dealer-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dealer-location {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.dealer-rating {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  color: var(--warning);
+}
+
+.dealer-premium {
+  padding: 4px 10px;
+  background: var(--sage-muted);
+  color: var(--sage);
+  border-radius: var(--radius-pill);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.dealer-cta {
+  height: 32px;
+  width: 80px;
+  padding: 0 var(--space-md);
+}
+
+/* Settlement Ledger */
+.ledger-container {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.ledger-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  background: var(--bg-raised);
+  border-bottom: 1px solid rgba(245,240,232,0.06);
+}
+
+.ledger-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.ledger-title span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.ledger-timestamp {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.ledger-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+}
+
+.ledger-row {
+  display: grid;
+  grid-template-columns: 100px 1fr 1fr 100px 120px 100px 60px;
+  align-items: center;
+  gap: var(--space-md);
+  background: var(--bg-surface);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  height: 56px;
+  transition: all var(--transition-fast);
+}
+
+.ledger-row:hover {
+  background: var(--bg-raised);
+}
+
+.ledger-txn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--gold);
+}
+
+.ledger-counterparty {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ledger-commodity {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.ledger-qty {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.ledger-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.ledger-status {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+.ledger-status.confirmed {
+  background: var(--sage-muted);
+  color: var(--sage);
+}
+
+.ledger-status.completed {
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+}
+
+/* Right Panel — Intelligence */
+.market-intelligence {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.intelligence-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.intelligence-header {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Sentiment Gauge */
+.sentiment-gauge {
+  display: flex;
+  gap: 4px;
+  height: 12px;
+  margin-bottom: var(--space-sm);
+}
+
+.gauge-segment {
+  flex: 1;
+  border-radius: 2px;
+  opacity: 0.2;
+  transition: all var(--transition-base);
+}
+
+.gauge-segment.danger { background: var(--danger); }
+.gauge-segment.warning { background: var(--warning); }
+.gauge-segment.sage { background: var(--sage); }
+.gauge-segment.gold { background: var(--gold); }
+.gauge-segment.success { background: var(--success); }
+
+.gauge-segment.active {
+  opacity: 1;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.sentiment-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-h3);
+  color: var(--gold);
+  text-align: center;
+  margin-top: var(--space-md);
+}
+
+/* Market Insight */
+.market-insight {
+  position: relative;
+  padding-left: var(--space-xl);
+}
+
+.quote-mark {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 72px;
+  color: var(--gold);
+  opacity: 0.3;
+  line-height: 1;
+}
+
+.insight-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ----------------------------------------------------------------------
+    ACCOUNT PAGE — Premium Farmer's Digital Khaata
+    ---------------------------------------------------------------------- */
+.account-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* Sidebar */
+.account-sidebar {
+  background: var(--bg-surface);
+  border-right: 1px solid rgba(245,240,232,0.06);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sidebar-profile {
+  text-align: center;
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--gold-border);
+}
+
+.profile-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #8B6520);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-inverse);
+}
+
+.profile-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: var(--space-xs);
+}
+
+/* Sidebar Navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+  background: var(--bg-raised);
+}
+
+.nav-item.active {
+  background: var(--gold-muted);
+  border-left-color: var(--gold);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item.active svg {
+  color: var(--gold);
+}
+
+/* Main Content */
+.account-main {
+  padding: var(--space-xl);
+  overflow-y: auto;
+}
+
+/* Stats Row */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.farm-health-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.circular-progress {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: var(--space-lg);
+}
+
+.circular-progress svg {
+  transform: rotate(-90deg);
+}
+
+.circular-progress .bg {
+  fill: none;
+  stroke: rgba(245,240,232,0.06);
+  stroke-width: 8;
+}
+
+.circular-progress .progress {
+  fill: none;
+  stroke: var(--gold);
+  stroke-width: 8;
+  stroke-linecap: round;
+  stroke-dasharray: 440;
+  stroke-dashoffset: 440;
+  animation: draw-progress 1.5s var(--ease-out-expo) forwards;
+}
+
+@keyframes draw-progress {
+  to { stroke-dashoffset: 66; }
+}
+
+.progress-value {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.progress-value .number {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.progress-value .label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.health-recommendation {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--sage);
+}
+
+/* Season Timeline */
+.season-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.season-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-lg);
+}
+
+.season-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.season-progress-pill {
+  padding: 4px 12px;
+  background: var(--gold-muted);
+  color: var(--gold);
+  border-radius: var(--radius-pill);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.season-progress-track {
+  height: 6px;
+  background: rgba(245,240,232,0.08);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+}
+
+.season-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: var(--radius-pill);
+  transition: width 1.5s var(--ease-out-expo);
+}
+
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.timeline-labels span.active {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.timeline-labels span.past {
+  color: var(--sage);
+}
+
+.crop-age {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+  text-align: center;
+}
+
+/* Intelligence Cards */
+.intelligence-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.intel-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.intel-card h3 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.alert-item {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-sm);
+}
+
+.alert-item.success {
+  background: var(--sage-muted);
+  border: 1px solid rgba(74,124,89,0.3);
+}
+
+.alert-item.warn {
+  background: var(--gold-muted);
+  border: 1px solid var(--gold-border);
+}
+
+.alert-item strong {
+  display: block;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-xs);
+}
+
+/* Task List */
+.task-list {
+  list-style: none;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.task-item.completed {
+  color: var(--text-primary);
+}
+
+.task-item.completed svg {
+  color: var(--gold);
+}
+
+.task-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid rgba(245,240,232,0.2);
+}
+
+/* Farm Form Grid */
+.farm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.farm-form-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.form-card-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+
+/* Soil Type Selector */
+.soil-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.soil-card {
+  background: var(--bg-raised);
+  border: 1px solid rgba(245,240,232,0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.soil-card:hover {
+  border-color: var(--gold-border);
+}
+
+.soil-card.selected {
+  border: 2px solid var(--gold);
+  background: var(--gold-muted);
+}
+
+.soil-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.soil-alluvial { background: linear-gradient(135deg, #8B7355, #C4A97D); }
+.soil-black { background: linear-gradient(135deg, #2C2417, #4A3728); }
+.soil-red { background: linear-gradient(135deg, #8B3A2A, #C45A3A); }
+.soil-laterite { background: linear-gradient(135deg, #C17A3A, #8B5E2A); }
+
+.soil-info {
+  flex: 1;
+}
+
+.soil-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.soil-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+/* Section Divider */
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-xl) 0;
+}
+
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(245,240,232,0.1);
+}
+
+.section-divider-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Sensitive Data Fields */
+.sensitive-field {
+  position: relative;
+}
+
+.sensitive-field .lock-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+  cursor: pointer;
+}
+
+.sensitive-field input {
+  padding-right: 40px;
+}
+
+/* Toggle Switch */
+.toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+}
+
+.toggle-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(245,240,232,0.1);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggle-switch.active {
+  background: var(--gold);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.toggle-switch.active::after {
+  left: 22px;
+}
+
+/* ----------------------------------------------------------------------
+    PREDICTION PAGES — Shared Layout System
+    ---------------------------------------------------------------------- */
+.prediction-page {
+  display: grid;
+  grid-template-columns: 7fr 5fr;
+  gap: var(--space-xl);
+  padding: var(--space-xl);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+.prediction-params {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.prediction-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid rgba(245,240,232,0.06);
+}
+
+.prediction-header-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.prediction-header-desc {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: var(--text-sm);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+/* Custom Sliders */
+.custom-slider {
+  margin-bottom: var(--space-lg);
+}
+
+.slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.slider-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.slider-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-sm);
+  color: var(--gold);
+}
+
+.slider-track {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  background: rgba(245,240,232,0.08);
+  border-radius: var(--radius-pill);
+  outline: none;
+  cursor: pointer;
+}
+
+.slider-track::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: var(--gold);
+  border: 2px solid var(--bg-base);
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(200,145,43,0.5);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.slider-track::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 0 12px rgba(200,145,43,0.7);
+}
+
+.slider-track.gold { accent-color: var(--gold); }
+.slider-track.sage { accent-color: var(--sage); }
+.slider-track.warning { accent-color: var(--warning); }
+.slider-track.danger { accent-color: var(--danger); }
+.slider-track.info { accent-color: var(--info); }
+
+/* Prediction Results */
+.prediction-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.result-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  text-align: center;
+}
+
+.result-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-3xl);
+  opacity: 0.5;
+}
+
+.result-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-3xl);
+}
+
+/* ----------------------------------------------------------------------
+    YIELD PAGE — Golden Harvest Theme
+    ---------------------------------------------------------------------- */
+.yield-page .prediction-header svg {
+  color: var(--gold);
+}
+
+/* Harvest Field Visualization */
+.harvest-field {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  gap: 4px;
+  width: 100%;
+  height: 160px;
+  margin: var(--space-lg) 0;
+}
+
+.harvest-cell {
+  background: var(--gold-muted);
+  border-radius: 2px;
+  transition: all var(--transition-base);
+}
+
+.harvest-cell.filled {
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(200,145,43,0.3);
+}
+
+.yield-number {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(32px, 5vw, 48px);
+  color: var(--gold);
+  line-height: 1;
+}
+
+.yield-unit {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-body);
+  color: var(--text-secondary);
+}
+
+.yield-explanation {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: var(--text-body);
+  font-style: italic;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* Wheat Growing Animation */
+@keyframes wheat-grow {
+  0% { transform: scaleY(0); transform-origin: bottom; }
+  100% { transform: scaleY(1); transform-origin: bottom; }
+}
+
+.loading-wheat {
+  position: relative;
+  width: 40px;
+  height: 60px;
+}
+
+.loading-wheat::before,
+.loading-wheat::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  background: var(--gold);
+  border-radius: 2px;
+}
+
+.loading-wheat::before {
+  height: 40px;
+  animation: wheat-grow 1s var(--ease-out-expo) infinite;
+}
+
+.loading-wheat::after {
+  height: 30px;
+  left: calc(50% - 6px);
+  animation: wheat-grow 1s var(--ease-out-expo) 0.3s infinite;
+}
+
+/* ----------------------------------------------------------------------
+    PEST PAGE — Danger Signal Theme
+    ---------------------------------------------------------------------- */
+.pest-page .prediction-header svg {
+  color: var(--danger);
+}
+
+/* Thermometer Risk Gauge */
+.risk-gauge {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+  margin: var(--space-xl) 0;
+}
+
+.thermometer {
+  width: 32px;
+  height: 240px;
+  background: var(--bg-raised);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.thermometer-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, var(--sage), var(--warning), var(--danger));
+  border-radius: var(--radius-lg);
+  transition: height 1s var(--ease-out-expo);
+}
+
+.thermometer-indicator {
+  position: absolute;
+  left: -8px;
+  width: 48px;
+  height: 4px;
+  background: var(--text-primary);
+  border-radius: 2px;
+  transition: bottom 1s var(--ease-out-expo);
+  box-shadow: 0 0 8px rgba(0,0,0,0.5);
+}
+
+.risk-level-badge {
+  display: inline-flex;
+  padding: var(--space-sm) var(--space-lg);
+  border-radius: var(--radius-pill);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+.risk-level-badge.critical {
+  background: var(--danger);
+  color: var(--text-inverse);
+}
+
+.risk-level-badge.high {
+  background: var(--warning);
+  color: var(--text-inverse);
+}
+
+.risk-level-badge.moderate {
+  background: var(--info);
+  color: var(--text-inverse);
+}
+
+.risk-level-badge.low {
+  background: var(--sage);
+  color: var(--text-inverse);
+}
+
+/* Shake Animation for High Risk */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+.risk-high .prediction-header svg {
+  animation: shake 0.5s ease infinite;
+}
+
+/* Magnifying Glass Animation */
+@keyframes magnify {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.loading-magnify {
+  animation: magnify 1s var(--ease-out-expo) infinite;
+}
+
+/* ----------------------------------------------------------------------
+    IRRIGATION PAGE — Water Flow Theme
+    ---------------------------------------------------------------------- */
+.irrigation-page .prediction-header svg {
+  color: var(--info);
+}
+
+/* Water Source Selector */
+.water-source-selector {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-xl);
+  padding: var(--space-sm);
+  background: var(--bg-raised);
+  border-radius: var(--radius-md);
+}
+
+.water-source-btn {
+  flex: 1;
+  padding: var(--space-md);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+}
+
+.water-source-btn:hover {
+  background: var(--bg-surface);
+}
+
+.water-source-btn.active {
+  background: var(--info);
+  color: var(--text-inverse);
+  border-color: var(--info);
+}
+
+/* Water Level Visualization */
+.water-level-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: var(--space-lg) auto;
+}
+
+.water-circle {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--bg-raised);
+  border: 3px solid var(--info);
+  overflow: hidden;
+  position: relative;
+}
+
+.water-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 70%;
+  background: linear-gradient(180deg, rgba(91,155,213,0.8), var(--info));
+  border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%;
+  animation: wave 3s ease-in-out infinite;
+}
+
+@keyframes wave {
+  0%, 100% { border-radius: 40% 60% 60% 40% / 60% 30% 70% 40%; }
+  50% { border-radius: 60% 40% 40% 60% / 30% 70% 30% 70%; }
+}
+
+.water-level-percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-h2);
+  color: var(--text-primary);
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Water Drop Animation */
+@keyframes drop-fall {
+  0% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(40px); }
+}
+
+.loading-drops {
+  position: relative;
+  width: 30px;
+  height: 50px;
+}
+
+.loading-drops::before,
+.loading-drops::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--info);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+}
+
+.loading-drops::before {
+  left: 5px;
+  animation: drop-fall 1s ease-in-out infinite;
+}
+
+.loading-drops::after {
+  right: 5px;
+  animation: drop-fall 1s ease-in-out 0.5s infinite;
+}
+
+/* Run Button - Full Width */
+.run-btn {
+  width: 100%;
+  height: 56px;
+  margin-top: var(--space-xl);
+  font-size: var(--text-body);
+}
+
+/* ----------------------------------------------------------------------
+    ACCOUNT PAGE STYLES (referenced in AccountPage.jsx)
+    ---------------------------------------------------------------------- */
+.account-dashboard {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: calc(100vh - var(--nav-height));
+}
+
+.account-sidebar {
+  background: var(--bg-surface);
+  border-right: 1px solid rgba(245,240,232,0.06);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.sidebar-profile {
+  text-align: center;
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--gold-border);
+}
+
+.profile-avatar-large {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #8B6520);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-inverse);
+}
+
+.profile-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-badge {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-top: var(--space-xs);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  background: transparent;
+  border: none;
+  border-left: 2px solid transparent;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.nav-item:hover {
+  color: var(--text-primary);
+  background: var(--bg-raised);
+}
+
+.nav-item.active {
+  background: var(--gold-muted);
+  border-left-color: var(--gold);
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+}
+
+.nav-item.active svg {
+  color: var(--gold);
+}
+
+.account-main {
+  padding: var(--space-xl);
+  overflow-y: auto;
+}
+
+.farm-health-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--gold-border);
+  box-shadow: var(--shadow-gold);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.season-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.season-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.season-progress-pill {
+  padding: 4px 12px;
+  background: var(--gold-muted);
+  color: var(--gold);
+  border-radius: var(--radius-pill);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.season-progress-track {
+  height: 6px;
+  background: rgba(245,240,232,0.08);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+}
+
+.season-progress-fill {
+  height: 100%;
+  background: var(--gold);
+  border-radius: var(--radius-pill);
+  transition: width 1.5s var(--ease-out-expo);
+}
+
+.timeline-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.timeline-labels span.active {
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.timeline-labels span.past {
+  color: var(--sage);
+}
+
+.crop-age {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+  text-align: center;
+}
+
+.intelligence-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.intel-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.farm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.farm-form-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.soil-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-sm);
+}
+
+.soil-card {
+  background: var(--bg-raised);
+  border: 1px solid rgba(245,240,232,0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.soil-card:hover {
+  border-color: var(--gold-border);
+}
+
+.soil-card.selected {
+  border: 2px solid var(--gold);
+  background: var(--gold-muted);
+}
+
+.soil-swatch {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.soil-alluvial { background: linear-gradient(135deg, #8B7355, #C4A97D); }
+.soil-black { background: linear-gradient(135deg, #2C2417, #4A3728); }
+.soil-red { background: linear-gradient(135deg, #8B3A2A, #C45A3A); }
+.soil-laterite { background: linear-gradient(135deg, #C17A3A, #8B5E2A); }
+
+.soil-info {
+  flex: 1;
+}
+
+.soil-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.soil-desc {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  color: var(--text-tertiary);
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-xl) 0;
+}
+
+.section-divider-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(245,240,232,0.1);
+}
+
+.section-divider-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 16px;
+  font-style: italic;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.toggle-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) 0;
+}
+
+.toggle-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.toggle-desc {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.toggle-switch {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: rgba(245,240,232,0.1);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.toggle-switch.active {
+  background: var(--gold);
+}
+
+.toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: var(--text-primary);
+  border-radius: 50%;
+  transition: all var(--transition-fast);
+}
+
+.toggle-switch.active::after {
+  left: 22px;
+}
+
+.settings-group {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+.settings-card-full {
+  grid-column: 1 / -1;
+}
+
+/* ----------------------------------------------------------------------
+    KNOWLEDGE GRAPH PAGE — Interactive Force Graph
+    ---------------------------------------------------------------------- */
+.knowledge-graph-page {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  height: calc(100vh - var(--nav-height));
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+}
+
+/* Left Sidebar */
+.graph-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+}
+
+.graph-header {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.graph-search {
+  position: relative;
+}
+
+.graph-search input {
+  width: 100%;
+  padding: var(--space-md) var(--space-md) var(--space-md) 44px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(245,240,232,0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+}
+
+.graph-search input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-muted);
+}
+
+.graph-search .search-icon {
+  position: absolute;
+  left: var(--space-md);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-tertiary);
+}
+
+.node-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.node-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.node-item:hover {
+  background: var(--bg-raised);
+}
+
+.node-item.selected {
+  background: var(--gold-muted);
+  border-color: var(--gold);
+}
+
+.node-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  font-size: 12px;
+}
+
+.node-item.selected .node-icon {
+  background: var(--gold);
+  color: var(--text-inverse);
+}
+
+.node-label {
+  flex: 1;
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.node-type {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+}
+
+/* Selected Node Detail Panel */
+.node-detail-panel {
+  background: var(--bg-raised);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-top: var(--space-md);
+}
+
+.node-detail-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-xs);
+}
+
+.node-detail-type {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: var(--space-md);
+}
+
+.node-connections {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* Main Canvas */
+.graph-canvas {
+  position: relative;
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.graph-canvas svg {
+  width: 100%;
+  height: 100%;
+}
+
+.graph-grid-pattern {
+  stroke: rgba(245,240,232,0.03);
+  stroke-width: 1;
+}
+
+.graph-node {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.graph-node circle {
+  fill: var(--bg-raised);
+  stroke: rgba(245,240,232,0.2);
+  stroke-width: 1.5;
+}
+
+.graph-node:hover circle {
+  stroke-width: 2;
+}
+
+.graph-node.selected circle {
+  stroke: var(--gold);
+  stroke-width: 2;
+}
+
+.graph-node.crops circle { stroke: var(--sage); }
+.graph-node.diseases circle { stroke: var(--danger); }
+.graph-node.fertilizers circle { stroke: var(--gold); }
+.graph-node.chemicals circle { stroke: var(--info); }
+.graph-node.weather circle { stroke: #8B9CD5; }
+
+.graph-node-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  fill: var(--text-primary);
+  pointer-events: none;
+}
+
+.graph-edge {
+  stroke: rgba(245,240,232,0.08);
+  stroke-width: 1;
+  fill: none;
+}
+
+.graph-edge.highlighted {
+  stroke: var(--gold);
+  stroke-width: 1.5;
+}
+
+/* Graph Controls */
+.graph-controls {
+  position: absolute;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.graph-control-btn {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(245,240,232,0.1);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.graph-control-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Graph Empty State */
+.graph-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: var(--space-3xl);
+  opacity: 0.5;
+}
+
+.graph-empty h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+/* ----------------------------------------------------------------------
+    DATA CENTER PAGE — Mission Control Aesthetic
+    ---------------------------------------------------------------------- */
+.data-center-page {
+  padding: var(--space-xl);
+  min-height: calc(100vh - var(--nav-height));
+}
+
+/* Page Header */
+.dc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-xl);
+  gap: var(--space-lg);
+}
+
+.dc-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.dc-title h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.dc-title span {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px;
+  color: var(--gold);
+}
+
+.dc-subtitle {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-top: var(--space-sm);
+}
+
+/* Connection Status Card */
+.dc-status-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  background: var(--bg-raised);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md) var(--space-xl);
+}
+
+.dc-status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dc-status-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.dc-status-value {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dc-status-value.online {
+  color: var(--success);
+}
+
+.dc-status-value.edge {
+  color: var(--gold);
+}
+
+.dc-status-divider {
+  width: 1px;
+  height: 32px;
+  background: rgba(245,240,232,0.1);
+}
+
+/* Stat Cards */
+.dc-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.dc-stat-card {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  position: relative;
+  overflow: hidden;
+}
+
+.dc-stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.dc-stat-icon {
+  color: var(--gold);
+}
+
+.dc-stat-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--success);
+  padding: 4px 10px;
+  background: rgba(76,175,125,0.15);
+  border-radius: var(--radius-pill);
+}
+
+.dc-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(32px, 5vw, 40px);
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.dc-stat-label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+/* Column Chart for Records */
+.dc-column-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 48px;
+  margin-bottom: var(--space-md);
+}
+
+.dc-column-bar {
+  flex: 1;
+  background: var(--gold);
+  border-radius: 2px 2px 0 0;
+  transform-origin: bottom;
+  animation: grow-up 0.8s var(--ease-out-expo) forwards;
+}
+
+@keyframes grow-up {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Arc Gauge for Pipelines */
+.dc-arc-gauge {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--space-md);
+}
+
+.dc-arc-gauge svg {
+  transform: rotate(-135deg);
+}
+
+.dc-arc-seg {
+  fill: none;
+  stroke-width: 6;
+}
+
+.dc-arc-bg {
+  stroke: rgba(245,240,232,0.08);
+}
+
+.dc-arc-fill {
+  stroke: var(--success);
+  stroke-dasharray: 157;
+  stroke-dashoffset: 0;
+}
+
+/* Cylinder for Storage */
+.dc-cylinder {
+  width: 60px;
+  height: 80px;
+  margin: 0 auto var(--space-md);
+  position: relative;
+}
+
+.dc-cylinder-body {
+  width: 100%;
+  height: 60px;
+  background: var(--gold-muted);
+  border-radius: 0 0 8px 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.dc-cylinder-body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+}
+
+.dc-cylinder-top {
+  width: 60px;
+  height: 20px;
+  background: var(--gold);
+  border-radius: 50%;
+  position: absolute;
+  top: -10px;
+}
+
+/* Pipeline Table */
+.dc-pipeline-table {
+  background: var(--bg-surface);
+  border: 1px solid rgba(245,240,232,0.06);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.dc-pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg) var(--space-xl);
+  background: var(--bg-raised);
+  border-bottom: 1px solid rgba(245,240,232,0.06);
+}
+
+.dc-pipeline-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dc-pipeline-title h3 {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.dc-terminal-bar {
+  display: flex;
+  gap: 6px;
+}
+
+.dc-terminal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.dc-terminal-dot.red { background: #ff5f56; }
+.dc-terminal-dot.yellow { background: #ffbd2e; }
+.dc-terminal-dot.green { background: #27ca40; }
+
+.dc-pipeline-filename {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.dc-table-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+  padding: var(--space-md) var(--space-xl);
+  background: var(--bg-raised);
+  border-bottom: 1px solid rgba(245,240,232,0.06);
+}
+
+.dc-table-header span {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+.dc-pipeline-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 120px;
+  align-items: center;
+  padding: var(--space-lg) var(--space-xl);
+  border-bottom: 1px solid rgba(245,240,232,0.04);
+  transition: all var(--transition-fast);
+}
+
+.dc-pipeline-row:hover {
+  border-left: 2px solid var(--gold);
+  background: var(--bg-raised);
+  box-shadow: inset 0 0 0 1px rgba(200,145,43,0.1);
+}
+
+.dc-pipeline-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.dc-pipeline-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--bg-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+}
+
+.dc-pipeline-name {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dc-pipeline-category {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+.dc-pipeline-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.dc-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.dc-pipeline-records {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-body);
+  color: var(--gold);
+}
+
+.dc-pipeline-time {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+.dc-pipeline-run-btn {
+  height: 32px;
+  padding: 0 var(--space-md);
+  background: var(--gold-muted);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-sm);
+  color: var(--gold);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.dc-pipeline-run-btn:hover {
+  background: var(--gold);
+  color: var(--text-inverse);
+}
+
+.dc-pipeline-run-btn.running {
+  background: var(--warning);
+  color: var(--text-inverse);
+  cursor: wait;
+}
+
+/* ----------------------------------------------------------------------
+    GLASS DEPRECATED
+    ---------------------------------------------------------------------- */
 .glass {
   background: rgba(13,22,16,0.8);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(60,110,80,0.3);
   border-radius: var(--radius-md);
-  /* Will be removed after migration */
 }
 
 .glass-dark {
   background: rgba(5,12,8,0.95);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(82,183,136,0.15);
-  /* Will be removed after migration */
 }
