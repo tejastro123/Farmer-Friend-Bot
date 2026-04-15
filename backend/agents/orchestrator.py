@@ -67,10 +67,10 @@ class OrchestratorAgent:
     def generate(self, query: str, language: str = "en", location_context: str = "", 
                  image_data: str = None, images: List[str] = None, 
                  profile: dict = None, history: list = None,
-                 corrections: list = None, model: str = "gemini-2.0-flash-exp") -> AgentResponse:
+                 corrections: list = None, model: str = "gemini-flash-latest") -> AgentResponse:
         
         # Use selected model or default
-        model_name = model if model else "gemini-flash"
+        model_name = model if model else "gemini-flash-latest"
         
         # Format history for Gemini - use proper dict format
         gemini_history = []
@@ -281,7 +281,6 @@ class OrchestratorAgent:
                 avg_conf = sum(sub_agent_confidences) / len(sub_agent_confidences)
                 final_query += f"\n\n(Internal Note: Sub-agents reported an average confidence of {avg_conf:.1f}%)"
 
-            from google.genai import types
             response = chat.send_message([types.Part(text=final_query)])
             full_text = response.text
             
