@@ -18,10 +18,10 @@ class Settings(BaseSettings):
     )
 
     # ── LLM ──────────────────────────────────────────────────
-    gemini_api_key: str = ""
+    gemini_api_key: str = "AIzaSyAsW5RhUsgO1ACwdxEt4rL0dFaG0QMnF_M"
 
     # ── External Data APIs ────────────────────────────────────
-    weather_api_key: str = ""
+    weather_api_key: str = "04373f2d3b6265b1849a8d944a06f486"
     mandi_api_key: str = ""
     mandi_resource_id: str = "9ef84268-d588-465a-a308-a864a43d0070" 
     news_api_key: str = ""

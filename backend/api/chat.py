@@ -31,7 +31,7 @@ from backend.db.db_utils import (
     create_chat_session, get_chat_sessions, get_session_messages, 
     save_chat_message, get_farmer_profile
 )
-from backend.api.auth import get_current_user
+from backend.api.auth import get_current_user, get_optional_current_user
 
 logger = logging.getLogger(__name__)
 
@@ -248,8 +248,10 @@ def handle_chat_query(
     )
 
 @router.get("/sessions", response_model=List[SessionResponse])
-def list_sessions(current_user: dict = Depends(get_current_user)):
-    """List all chat sessions for the current user."""
+def list_sessions(current_user: Optional[dict] = Depends(get_optional_current_user)):
+    """List all chat sessions for the current user. Returns empty list if not authenticated."""
+    if current_user is None:
+        return []
     return get_chat_sessions(current_user["id"])
 
 @router.get("/sessions/{session_id}/messages", response_model=List[ChatResponse])

@@ -12,6 +12,7 @@ from pydantic import BaseModel, EmailStr
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="api/auth/login", auto_error=False)
 
 # ── Schemas ──────────────────────────────────────────────────────────────────
 
@@ -54,31 +55,40 @@ class ProfileUpdate(BaseModel):
 # ── Dependencies ─────────────────────────────────────────────────────────────
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
-    payload = decode_access_token(token)
-    if payload is None:
+    try:
+        payload = decode_access_token(token)
+        if payload is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        email: str = payload.get("sub")
+        if email is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Could not validate credentials",
+            )
+        
+        # Raw SQL Lookup
+        user = get_user_by_email(email)
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail="Authentication failed",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    email: str = payload.get("sub")
-    if email is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-        )
-    
-    # Raw SQL Lookup
-    user = get_user_by_email(email)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-    return user
 
-async def get_optional_current_user(token: str = Depends(oauth2_scheme)):
+async def get_optional_current_user(token: Optional[str] = Depends(oauth2_scheme_optional)):
     if not token:
         return None
     try:

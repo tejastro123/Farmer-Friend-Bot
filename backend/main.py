@@ -36,8 +36,16 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# CORS configuration
-origins = settings.origins_list if settings.origins_list else ["http://localhost:5173", "http://127.0.0.1:5173"]
+# CORS configuration - explicitly include all dev origins
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "http://localhost:3000", 
+    "http://127.0.0.1:3000",
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+]
+logger.info(f"Setting CORS origins: {origins}")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
