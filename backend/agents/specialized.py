@@ -77,7 +77,7 @@ class SubAgent:
                 )
             )
             
-            payload = [prompt]
+            payload = [types.Part(text=prompt)]
             
             # Use images list if provided, else fallback to backward-compatible image_data
             all_images = images if images else ([image_data] if image_data else [])
@@ -103,7 +103,7 @@ class SubAgent:
                     if "does not support image input" in str(img_err).lower() or "image" in str(img_err).lower():
                         logger.warning(f"Vision not supported for {self.name}, falling back to text-only")
                         # Remove image parts and retry with just text
-                        payload = [prompt]
+                        payload = [types.Part(text=prompt)]
                         response = chat.send_message(payload)
                     else:
                         raise

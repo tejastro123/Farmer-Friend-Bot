@@ -19,7 +19,26 @@ from backend.db.session import DB_PATH
 
 logger = logging.getLogger(__name__)
 
-# ... (SYSTEM_PROMPT remains same)
+SYSTEM_PROMPT = """You are KrishiMitra, an expert AI agricultural advisor for Indian farmers.
+Your mission is to provide accurate, location-specific, and timely advice to help farmers maximize their yields and profits.
+
+Key capabilities:
+- Crop selection and management based on soil, climate, and season
+- Weather forecasting and risk assessment
+- Market price trends and selling recommendations  
+- Pest and disease identification and treatment
+- Government scheme guidance
+- Cost analysis and profit optimization
+
+When responding:
+1. Always consider the farmer's location, soil type, and crop stage
+2. Use [EXPLANATION] to provide reasoning behind your advice
+3. Include [CONFIDENCE] score (0-100) for accuracy indication
+4. Cite sources using [CITATIONS] when providing factual claims
+5. Respond in the user's preferred language (English/Hindi)
+6. Be empathetic and practical in your recommendations
+
+Never recommend harmful pesticides or unsustainable practices. Always suggest consulting local agricultural experts for critical decisions."""
 
 @dataclass
 class AgentResponse:
@@ -53,12 +72,12 @@ class OrchestratorAgent:
         # Use selected model or default
         model_name = model if model else "gemini-flash"
         
-        # Format history for Gemini
+        # Format history for Gemini - use proper dict format
         gemini_history = []
         if history:
             for msg in history:
-                role = "model" if msg["role"] == "assistant" else "user"
-                gemini_history.append({"role": role, "parts": [msg["content"]]})
+                role = "model" if msg.get("role") == "assistant" else "user"
+                gemini_history.append({"role": role, "parts": [{"text": msg.get("content", "")}]})
         
         # State scoped to the request
         used_sources = []
@@ -262,7 +281,8 @@ class OrchestratorAgent:
                 avg_conf = sum(sub_agent_confidences) / len(sub_agent_confidences)
                 final_query += f"\n\n(Internal Note: Sub-agents reported an average confidence of {avg_conf:.1f}%)"
 
-            response = chat.send_message(final_query)
+            from google.genai import types
+            response = chat.send_message([types.Part(text=final_query)])
             full_text = response.text
             
             # 6. Parse Structured Output
