@@ -4982,6 +4982,60 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* ----------------------------------------------------------------------
+    FORM COMPONENTS
+    ---------------------------------------------------------------------- */
+.form-group {
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+/* Input Styles */
+.input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(245,240,232,0.1);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  transition: all var(--transition-fast);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-muted);
+}
+
+.input::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Label Styles */
+.label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.mb-xs { margin-bottom: var(--space-xs); }
+.mb-md { margin-bottom: var(--space-md); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+.mt-xl { margin-top: var(--space-xl); }
+
+/* ----------------------------------------------------------------------
     GLASS DEPRECATED
     ---------------------------------------------------------------------- */
 .glass {
