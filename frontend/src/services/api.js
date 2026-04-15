@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://127.0.0.1:8000/api';
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -14,13 +14,23 @@ api.interceptors.request.use((config) => {
     return config;
 });
 
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('token');
+        }
+        return Promise.reject(error);
+    }
+);
+
 export const authService = {
     register: (userData) => api.post('/auth/register', userData),
     login: (credentials) => {
-        const formData = new FormData();
-        formData.append('username', credentials.email);
-        formData.append('password', credentials.password);
-        return api.post('/auth/login', formData);
+        const params = new URLSearchParams();
+        params.append('username', credentials.email);
+        params.append('password', credentials.password);
+        return api.post('/auth/login', params);
     },
     getMe: () => api.get('/auth/me'),
     getProfile: () => api.get('/auth/profile'),
@@ -58,10 +68,24 @@ export const mandiService = {
     getHistory: () => api.get('/mandi/analytics'),
 };
 
+export const graphService = {
+    getGraph: () => api.get('/graph'),
+};
+
+export const pipelineService = {
+    getPipelines: () => api.get('/pipelines'),
+    runPipeline: (id) => api.post(`/pipelines/${id}/run`),
+};
+
 export const predictionService = {
     predictYield: (data) => api.post('/predict/yield', data),
     predictPest: (data) => api.post('/predict/pest', data),
     predictIrrigation: (data) => api.post('/predict/irrigation', data),
+};
+
+export const moatService = {
+    getStats: () => api.get('/moat/stats'),
+    exportDataset: () => api.get('/moat/export', { responseType: 'blob' }),
 };
 
 export default api;

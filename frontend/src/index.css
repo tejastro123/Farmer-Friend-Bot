@@ -108,6 +108,12 @@ button, a, input, select, textarea {
   -webkit-backdrop-filter: var(--glass);
   backdrop-filter: var(--glass);
   border: 1px solid rgba(82, 183, 136, 0.15);
+  transition: all 0.3s ease;
+}
+
+.glass-dark:hover {
+  border-color: var(--secondary);
+  background: rgba(82, 183, 136, 0.05);
 }
 
 /* Animations */
@@ -120,6 +126,34 @@ button, a, input, select, textarea {
   0% { box-shadow: 0 0 0 0 var(--border-glow); }
   70% { box-shadow: 0 0 0 10px rgba(123, 198, 126, 0); }
   100% { box-shadow: 0 0 0 0 rgba(123, 198, 126, 0); }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+@keyframes grain {
+  0% { transform: translate(0,0) }
+  10% { transform: translate(-5%,-5%) }
+  20% { transform: translate(-10%,5%) }
+  30% { transform: translate(5%,-10%) }
+  40% { transform: translate(-5%,15%) }
+  50% { transform: translate(-10%,5%) }
+  60% { transform: translate(15%,0) }
+  70% { transform: translate(0,10%) }
+  80% { transform: translate(-15%,0) }
+  90% { transform: translate(10%,5%) }
+  100% { transform: translate(5%,0) }
+}
+
+.motion-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.glass-glow {
+  animation: pulseBorder 3s infinite;
 }
 
 /* Navigation */

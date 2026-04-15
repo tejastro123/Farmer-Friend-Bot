@@ -7,7 +7,7 @@ from text chunks and updates the Knowledge Graph.
 
 import logging
 import json
-import google.generativeai as genai
+from google import genai
 from typing import List, Dict
 
 from backend.config import settings
@@ -41,8 +41,7 @@ class GraphIngestor:
     def __init__(self):
         if not settings.gemini_api_key:
             raise ValueError("GEMINI_API_KEY not set")
-        genai.configure(api_key=settings.gemini_api_key)
-        self.model = genai.GenerativeModel("gemini-flash-latest")
+        self.client = genai.Client(api_key=settings.gemini_api_key)
         self.kg = get_knowledge_graph()
 
     def process_chunk(self, text: str):
@@ -50,7 +49,7 @@ class GraphIngestor:
         try:
             logger.info("KG: Extracting triplets from chunk...")
             prompt = EXTRACTION_PROMPT.format(text=text)
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(model="gemini-flash-latest", contents=prompt)
             
             # Extract JSON from response (handling potential markdown blocks)
             raw_text = response.text.strip()

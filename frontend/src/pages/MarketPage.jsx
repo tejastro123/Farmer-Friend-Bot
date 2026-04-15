@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { mandiService } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
+
 import { 
     TrendingUp, Users, FileText, ShoppingBag, Search, 
     ChevronRight, ArrowUpRight, Scale, Clock, ShieldCheck, 
@@ -48,6 +49,7 @@ const MarketPage = () => {
                     setSyncStatus({ type: 'success', msg: 'Location synced' });
                 },
                 (err) => {
+                    console.error("Location sync failed:", err);
                     setSyncStatus({ type: 'error', msg: 'Location access denied' });
                     setSyncing(false);
                 }
@@ -112,13 +114,15 @@ const MarketPage = () => {
             <main className="dashboard-main p-8 overflow-y-auto">
                 {/* Header with Geolocation */}
                 <header className="flex justify-between items-start mb-12">
-                    <div>
+                    <Motion.div
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                    >
                         <div className="flex items-center gap-2 text-[10px] font-bold text-secondary uppercase tracking-[0.3em] mb-2">
                              <div className="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse"></div> Localized Intelligence Hub
                         </div>
                         <h1 className="text-5xl font-black tracking-tighter">Digital Mandi Hub</h1>
                         
-                        {/* Location Sync Warning/Success Pill */}
                         <div className="mt-4 flex items-center gap-3">
                             <button 
                                 onClick={handleSyncLocation}
@@ -141,9 +145,13 @@ const MarketPage = () => {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </Motion.div>
                     
-                    <div className="flex items-center gap-8 text-right">
+                    <Motion.div 
+                        className="flex items-center gap-8 text-right"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                    >
                         <div>
                             <div className="text-[10px] font-bold text-muted uppercase mb-1">Regional Core</div>
                             <div className="text-sm font-bold">{coords ? 'Nearby Station Active' : 'Pune-Nashik Node v4.2'}</div>
@@ -153,7 +161,7 @@ const MarketPage = () => {
                             <div className="text-[10px] font-bold text-muted uppercase mb-1">Network Latency</div>
                             <div className="text-sm font-bold text-secondary">12ms - Stable</div>
                         </div>
-                    </div>
+                    </Motion.div>
                 </header>
 
                 <div className="mandi-layout">
@@ -167,8 +175,14 @@ const MarketPage = () => {
                                 COMPONENT TICKER <span>Live</span>
                             </h4>
                             <div className="space-y-1">
-                                {Object.entries(marketData.prices || {}).map(([crop, data]) => (
-                                    <div key={crop} className="pulse-item group cursor-pointer">
+                                {Object.entries(marketData.prices || {}).map(([crop, data], idx) => (
+                                    <Motion.div 
+                                        key={crop} 
+                                        initial={{ opacity: 0, x: -10 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        className="pulse-item group cursor-pointer"
+                                    >
                                         <div>
                                             <div className="text-[10px] font-bold text-muted uppercase group-hover:text-main transition-colors">{crop}</div>
                                             <div className="text-lg font-black tracking-tighter">₹{data?.price || 'N/A'}</div>
@@ -187,7 +201,7 @@ const MarketPage = () => {
                                                 ))}
                                             </div>
                                         </div>
-                                    </div>
+                                    </Motion.div>
                                 ))}
                             </div>
                         </div>
@@ -200,8 +214,15 @@ const MarketPage = () => {
                         <section>
                             <div className="mandi-panel-header"><ShoppingBag size={14}/> Active Inventory Matrix</div>
                             <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                                {marketData.active_listings.map(listing => (
-                                    <div key={listing.id} className="inventory-chip glass min-w-[240px]">
+                                {marketData.active_listings.map((listing, lIdx) => (
+                                    <Motion.div 
+                                        key={listing.id} 
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: lIdx * 0.1 }}
+                                        whileHover={{ y: -5, borderColor: 'var(--secondary)' }}
+                                        className="inventory-chip glass min-w-[240px]"
+                                    >
                                         <div className="p-3 bg-secondary/10 rounded-xl text-secondary">
                                             <Zap size={20}/>
                                         </div>
@@ -210,7 +231,7 @@ const MarketPage = () => {
                                             <div className="text-base font-black">{listing.weight} KG Active</div>
                                             <div className="text-[9px] font-bold text-secondary mt-0.5">ASK: ₹{listing.price}/Q</div>
                                         </div>
-                                    </div>
+                                    </Motion.div>
                                 ))}
                                 <button className="inventory-chip border-dashed border-white/20 hover:border-secondary/50 transition bg-transparent group">
                                     <div className="w-10 h-10 rounded-xl border border-white/10 flex items-center justify-center group-hover:bg-secondary/10 transition">
@@ -242,9 +263,28 @@ const MarketPage = () => {
                                 </div>
                             </div>
                             
-                            <div className="space-y-3">
+                            <Motion.div 
+                                className="space-y-3"
+                                initial="hidden"
+                                animate="show"
+                                variants={{
+                                    hidden: { opacity: 0 },
+                                    show: {
+                                        opacity: 1,
+                                        transition: { staggerChildren: 0.1 }
+                                    }
+                                }}
+                            >
                                 {marketData.dealers.map(dealer => (
-                                    <div key={dealer.id} className="dealer-row glass">
+                                    <Motion.div 
+                                        key={dealer.id}
+                                        variants={{
+                                            hidden: { opacity: 0, x: -20 },
+                                            show: { opacity: 1, x: 0 }
+                                        }}
+                                        whileHover={{ x: 10, backgroundColor: 'rgba(255,255,255,0.02)' }}
+                                        className="dealer-row glass"
+                                    >
                                         <div className="w-12 h-12 bg-white/5 rounded-xl border border-white/5 flex items-center justify-center text-secondary">
                                             <ShoppingBag size={24}/>
                                         </div>
@@ -268,9 +308,11 @@ const MarketPage = () => {
                                                 <div className="text-[9px] font-bold text-muted uppercase">Premium</div>
                                                 <div className="text-sm font-black text-secondary">{((dealer.premium - 1) * 100).toFixed(1)}%</div>
                                             </div>
-                                            {dealer.focus.slice(0, 1).map(f => (
-                                                <div key={f} className="px-2 py-1 bg-white/5 rounded text-[9px] font-bold text-muted flex items-center">{f}</div>
-                                            ))}
+                                            <div className="hidden md:flex gap-1">
+                                                {dealer.focus.slice(0, 1).map(f => (
+                                                    <div key={f} className="px-2 py-1 bg-white/5 rounded text-[9px] font-bold text-muted flex items-center">{f}</div>
+                                                ))}
+                                            </div>
                                         </div>
                                         <button 
                                             onClick={() => handleInitTrade(dealer)}
@@ -283,15 +325,19 @@ const MarketPage = () => {
                                                 </div>
                                             ) : 'Init Trade'}
                                         </button>
-                                    </div>
+                                    </Motion.div>
                                 ))}
-                            </div>
+                            </Motion.div>
                         </section>
 
                         {/* Trade Ledger */}
                         <section>
                             <div className="mandi-panel-header"><FileText size={14}/> Comprehensive Settlement Ledger</div>
-                            <div className="glass rounded-2xl overflow-hidden border border-white/5">
+                            <Motion.div 
+                                className="glass rounded-2xl overflow-hidden border border-white/5"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                            >
                                 <table className="table-premium">
                                     <thead>
                                         <tr>
@@ -305,31 +351,39 @@ const MarketPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="text-sm font-medium">
-                                        {marketData.deals.map(deal => (
-                                            <tr key={deal.id}>
-                                                <td className="font-mono text-[10px] font-bold text-secondary">{deal.id}</td>
-                                                <td className="font-bold">{deal.dealer}</td>
-                                                <td className="text-muted">{deal.commodity}</td>
-                                                <td>{deal.qty_quintals} Q</td>
-                                                <td className="font-black">₹{deal.total.toLocaleString()}</td>
-                                                <td>
-                                                    <span className={`status-pill ${deal.status === 'Confirmed' ? 'pill-info' : 'pill-success'}`}>
-                                                        {deal.status}
-                                                    </span>
-                                                </td>
-                                                <td className="text-right">
-                                                    <button 
-                                                        onClick={() => navigate(`/market/bill/${deal.id}`)}
-                                                        className="btn btn-secondary !p-2 !rounded-lg"
-                                                    >
-                                                        <ArrowUpRight size={16}/>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
+                                        <AnimatePresence>
+                                            {marketData.deals.map((deal, dIdx) => (
+                                                <Motion.tr 
+                                                    key={deal.id}
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: 'auto' }}
+                                                    exit={{ opacity: 0, x: -100 }}
+                                                    transition={{ delay: dIdx * 0.05 }}
+                                                >
+                                                    <td className="font-mono text-[10px] font-bold text-secondary">{deal.id}</td>
+                                                    <td className="font-bold">{deal.dealer}</td>
+                                                    <td className="text-muted">{deal.commodity}</td>
+                                                    <td>{deal.qty_quintals} Q</td>
+                                                    <td className="font-black">₹{deal.total.toLocaleString()}</td>
+                                                    <td>
+                                                        <span className={`status-pill ${deal.status === 'Confirmed' ? 'pill-info' : 'pill-success'}`}>
+                                                            {deal.status}
+                                                        </span>
+                                                    </td>
+                                                    <td className="text-right">
+                                                        <button 
+                                                            onClick={() => navigate(`/market/bill/${deal.id}`)}
+                                                            className="btn btn-secondary !p-2 !rounded-lg"
+                                                        >
+                                                            <ArrowUpRight size={16}/>
+                                                        </button>
+                                                    </td>
+                                                </Motion.tr>
+                                            ))}
+                                        </AnimatePresence>
                                     </tbody>
                                 </table>
-                            </div>
+                            </Motion.div>
                         </section>
                     </div>
 
@@ -337,7 +391,11 @@ const MarketPage = () => {
                     <aside className="space-y-6 right-sidebar">
                         <div className="mandi-panel-header"><Zap size={14}/> Network Intelligence</div>
                         
-                        <div className="pulse-card">
+                        <Motion.div 
+                            className="pulse-card"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                        >
                             <h5 className="text-[10px] font-bold text-muted uppercase mb-4">Sentiment Index</h5>
                             <div className="sentiment-gauge">
                                 <div className="gauge-seg bg-danger opacity-20"></div>
@@ -351,16 +409,19 @@ const MarketPage = () => {
                                 <span className="text-secondary">Bullish (0.84)</span>
                                 <span>Strong</span>
                             </div>
-                        </div>
+                        </Motion.div>
 
-                        <div className="pulse-card bg-accent/5 border-accent/20">
+                        <Motion.div 
+                            className="pulse-card bg-accent/5 border-accent/20"
+                            whileHover={{ scale: 1.05 }}
+                        >
                              <div className="flex items-center gap-2 text-[10px] font-bold text-accent uppercase mb-3 text-warning">
                                 <Star size={12}/> Market Insight
                              </div>
                              <p className="text-xs text-muted leading-relaxed italic">
                                 "{marketData.prices.tomato?.forecast || 'Market fluctuations expected. Monitor local rates.'}"
                              </p>
-                        </div>
+                        </Motion.div>
                     </aside>
                 </div>
             </main>

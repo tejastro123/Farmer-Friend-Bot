@@ -57,20 +57,59 @@ class KnowledgeGraph:
             })
         return results
 
-    def get_causal_chain(self, start_node: str, depth: int = 2) -> List[str]:
-        """Explain the 'Why' by tracing relationships up to a certain depth."""
+    def get_multi_hop_context(self, entity: str, hops: int = 2) -> List[Dict[str, str]]:
+        """Finds entities and relationships up to N hops away."""
+        eid = entity.lower().strip()
+        if not self._graph.has_node(eid):
+            return []
+            
+        visited = set()
+        queue = [(eid, 0)]
+        results = []
+        
+        while queue:
+            node, d = queue.pop(0)
+            if d >= hops: continue
+            if node in visited: continue
+            visited.add(node)
+            
+            # Get neighbors
+            neighbors = self.search_neighbors(self._graph.nodes[node].get("label", node))
+            for n in neighbors:
+                results.append(n)
+                # Add target to queue
+                target_eid = n["object"].lower().strip() if n["subject"].lower().strip() == node else n["subject"].lower().strip()
+                queue.append((target_eid, d + 1))
+                
+        return results
+
+    def get_causal_chain(self, start_node: str, depth: int = 3) -> List[str]:
+        """Explain the 'Why' by tracing expert relationships (e.g., Crop -> Disease -> Treatment)."""
         eid = start_node.lower().strip()
         if not self._graph.has_node(eid):
             return []
             
-        # Simple BFS-like traversal to build a causal string list
         chains = []
-        for level in range(depth):
-            neighbors = self.search_neighbors(start_node if level == 0 else neighbors[-1]["object"])
-            if not neighbors: break
-            for n in neighbors:
-                chains.append(f"({n['subject']}) --[{n['predicate']}]--> ({n['object']})")
-        return list(set(chains)) # Dedupe
+        current_node = eid
+        
+        for _ in range(depth):
+            # Prioritize outgoing relationships as "Cause -> Effect"
+            outgoing = []
+            for _, target, data in self._graph.out_edges(current_node, data=True):
+                sub_label = self._graph.nodes[current_node].get("label", current_node)
+                obj_label = self._graph.nodes[target].get("label", target)
+                rel = data.get("relationship", "RELATES_TO")
+                outgoing.append((target, f"({sub_label}) --[{rel}]--> ({obj_label})"))
+            
+            if not outgoing:
+                break
+            
+            # Follow the first outgoing edge for the "chain" (simple heuristic)
+            next_node, chain_str = outgoing[0]
+            chains.append(chain_str)
+            current_node = next_node
+            
+        return list(dict.fromkeys(chains)) # Dedupe while preserving order
 
     def save(self):
         """Persist graph to JSON."""

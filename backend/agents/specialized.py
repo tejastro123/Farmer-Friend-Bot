@@ -6,7 +6,9 @@ Defines the specialized sub-agents that serve as experts in their respective dom
 
 import logging
 import base64
-import google.generativeai as genai
+from google import genai
+from google.genai import types
+from backend.config import settings
 from typing import Callable, List, Optional
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 from backend.rag.knowledge_graph import get_knowledge_graph
@@ -52,12 +54,7 @@ class SubAgent:
         self.name = name
         self.system_prompt = system_prompt
         self.tools = tools or []
-        
-        self.model = genai.GenerativeModel(
-            model_name="gemini-flash-latest",
-            system_instruction=system_prompt,
-            tools=self.tools if self.tools else None
-        )
+        self.client = genai.Client(api_key=settings.gemini_api_key)
         logger.info(f"Initialized SubAgent: {self.name}")
         
     @retry(
@@ -70,7 +67,15 @@ class SubAgent:
         """Executes the sub-agent and returns its string response with retry logic."""
         try:
             logger.info(f"SubAgent [{self.name}] starting execution with prompt preview: '{prompt[:50]}...'")
-            chat = self.model.start_chat(enable_automatic_function_calling=bool(self.tools))
+            
+            chat = self.client.chats.create(
+                model="gemini-flash-latest",
+                config=types.GenerateContentConfig(
+                    system_instruction=self.system_prompt,
+                    tools=self.tools if self.tools else None,
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=False)
+                )
+            )
             
             payload = [prompt]
             
@@ -83,7 +88,7 @@ class SubAgent:
                     header, b64 = img.split(",", 1)
                     mime_type = header.split(";")[0].split(":")[1]
                     image_bytes = base64.b64decode(b64)
-                    payload.append({"mime_type": mime_type, "data": image_bytes})
+                    payload.append(types.Part.from_bytes(data=image_bytes, mime_type=mime_type))
                     logger.info(f"Attached multimodal part ({mime_type}) to {self.name} payload.")
                 except Exception as ex:
                     logger.warning(f"Failed to parse base64 part in {self.name}: {ex}")

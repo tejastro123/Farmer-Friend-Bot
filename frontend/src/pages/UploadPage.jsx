@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { UploadCloud, File, CheckCircle, AlertCircle, Loader2, Database, Search, FileText, Trash2, Zap } from 'lucide-react';
 import { ingestService } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 
 const UploadPage = () => {
   const [dragActive, setDragActive] = useState(false);
@@ -100,12 +100,13 @@ const UploadPage = () => {
             <div className="file-queue">
               <AnimatePresence>
                 {queue.map((item) => (
-                  <motion.div 
+                  <Motion.div 
                     key={item.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
-                    className="queue-item glass"
+                    whileHover={{ scale: 1.01, borderColor: "rgba(82,183,136,0.3)" }}
+                    className="queue-item glass transition-colors"
                   >
                     <FileText size={28} className="text-secondary" />
                     <div className="file-info">
@@ -116,17 +117,30 @@ const UploadPage = () => {
                       {item.message && <div className={`text-xs mt-1 ${item.status === 'success' ? 'text-success' : 'text-danger'}`}>{item.message}</div>}
                     </div>
                     {item.status === 'idle' && (
-                      <button className="btn btn-primary btn-sm" onClick={() => processFile(item)}>Ingest</button>
+                      <Motion.button 
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="btn btn-primary btn-sm" 
+                        onClick={() => processFile(item)}
+                      >
+                        Ingest
+                      </Motion.button>
                     )}
                     {item.status === 'uploading' && <Loader2 size={18} className="lucide-spin text-secondary" />}
                     {item.status === 'success' && <CheckCircle size={20} className="text-success" />}
                     {item.status !== 'uploading' && (
                       <button className="p-2 text-muted hover:text-danger" onClick={() => removeFromQueue(item.id)}><Trash2 size={16} /></button>
                     )}
-                  </motion.div>
+                  </Motion.div>
                 ))}
                 {queue.length === 0 && (
-                  <p className="text-muted text-center py-8 glass rounded-xl text-sm italic">Queue is currently empty. Drop files to begin neural indexing.</p>
+                  <Motion.p 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.5 }}
+                    className="text-muted text-center py-8 glass rounded-xl text-sm italic"
+                  >
+                    Queue is currently empty. Drop files to begin neural indexing.
+                  </Motion.p>
                 )}
               </AnimatePresence>
             </div>
@@ -143,23 +157,42 @@ const UploadPage = () => {
               </div>
             </div>
             
-            <div className="doc-list-mock space-y-4">
+            <Motion.div 
+              className="doc-list-mock space-y-4"
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.1 }
+                }
+              }}
+            >
               {[
                 { name: "Government_Mandi_Policy_2024.pdf", size: "1.2 MB", chunks: 45, date: "2h ago" },
                 { name: "Pest_Control_Cotton_V3.pdf", size: "3.4 MB", chunks: 120, date: "1d ago" },
                 { name: "Soil_Health_Card_Schemes.pdf", size: "0.8 MB", chunks: 22, date: "3d ago" },
                 { name: "Irrigation_Guidelines_Pune.pdf", size: "2.1 MB", chunks: 56, date: "1w ago" }
               ].map((doc, idx) => (
-                <div key={idx} className="flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition border border-white/5">
+                <Motion.div 
+                  key={idx} 
+                  variants={{
+                    hidden: { opacity: 0, x: -10 },
+                    show: { opacity: 1, x: 0 }
+                  }}
+                  whileHover={{ x: 5, backgroundColor: "rgba(255,255,255,0.05)" }}
+                  className="flex items-center gap-4 p-3 rounded-xl transition border border-white/5"
+                >
                   <div className="p-2 bg-secondary/10 rounded-lg"><File size={18} className="text-secondary" /></div>
                   <div className="flex-1">
                     <div className="text-sm font-medium">{doc.name}</div>
                     <div className="text-[10px] text-muted">{doc.size} • {doc.chunks} Chunks</div>
                   </div>
                   <div className="text-[10px] text-muted">{doc.date}</div>
-                </div>
+                </Motion.div>
               ))}
-            </div>
+            </Motion.div>
           </div>
         </div>
       </div>

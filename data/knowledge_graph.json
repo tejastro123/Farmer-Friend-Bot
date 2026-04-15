@@ -70,6 +70,290 @@
     {
       "label": "Humid Conditions",
       "id": "humid conditions"
+    },
+    {
+      "label": "Rice Blast",
+      "id": "rice blast"
+    },
+    {
+      "label": "Yellow Rust",
+      "id": "yellow rust"
+    },
+    {
+      "label": "Early Blight",
+      "id": "early blight"
+    },
+    {
+      "label": "Potato",
+      "id": "potato"
+    },
+    {
+      "label": "Late Blight",
+      "id": "late blight"
+    },
+    {
+      "label": "Tricyclazole",
+      "id": "tricyclazole"
+    },
+    {
+      "label": "Propiconazole",
+      "id": "propiconazole"
+    },
+    {
+      "label": "Mancozeb",
+      "id": "mancozeb"
+    },
+    {
+      "label": "Indoxacarb",
+      "id": "indoxacarb"
+    },
+    {
+      "label": "Metalaxyl",
+      "id": "metalaxyl"
+    },
+    {
+      "label": "Clay Soil",
+      "id": "clay soil"
+    },
+    {
+      "label": "Potassium",
+      "id": "potassium"
+    },
+    {
+      "label": "Sandy Soil",
+      "id": "sandy soil"
+    },
+    {
+      "label": "Loamy Soil",
+      "id": "loamy soil"
+    },
+    {
+      "label": "Phosphorus Retention",
+      "id": "phosphorus retention"
+    },
+    {
+      "label": "Black Soil",
+      "id": "black soil"
+    },
+    {
+      "label": "High Lime Content",
+      "id": "high lime content"
+    },
+    {
+      "label": "Red Soil",
+      "id": "red soil"
+    },
+    {
+      "label": "Magnesium",
+      "id": "magnesium"
+    },
+    {
+      "label": "Phosphorus",
+      "id": "phosphorus"
+    },
+    {
+      "label": "DAP (Diammonium Phosphate)",
+      "id": "dap (diammonium phosphate)"
+    },
+    {
+      "label": "MOP (Muriate of Potash)",
+      "id": "mop (muriate of potash)"
+    },
+    {
+      "label": "Sulfur",
+      "id": "sulfur"
+    },
+    {
+      "label": "Bentonite Sulfur",
+      "id": "bentonite sulfur"
+    },
+    {
+      "label": "Zinc",
+      "id": "zinc"
+    },
+    {
+      "label": "Zinc Sulfate",
+      "id": "zinc sulfate"
+    },
+    {
+      "label": "Nursery",
+      "id": "nursery"
+    },
+    {
+      "label": "Tillering",
+      "id": "tillering"
+    },
+    {
+      "label": "Panicle Initiation",
+      "id": "panicle initiation"
+    },
+    {
+      "label": "CRI (Crown Root Initiation)",
+      "id": "cri (crown root initiation)"
+    },
+    {
+      "label": "Flowering",
+      "id": "flowering"
+    },
+    {
+      "label": "Continuous Standing Water",
+      "id": "continuous standing water"
+    },
+    {
+      "label": "Adequate Soil Moisture",
+      "id": "adequate soil moisture"
+    },
+    {
+      "label": "CRI",
+      "id": "cri"
+    },
+    {
+      "label": "Water Stress",
+      "id": "water stress"
+    },
+    {
+      "label": "Light Sprinkling",
+      "id": "light sprinkling"
+    },
+    {
+      "label": "Maturation",
+      "id": "maturation"
+    },
+    {
+      "label": "Reduced Watering",
+      "id": "reduced watering"
+    },
+    {
+      "label": "Aphids",
+      "id": "aphids"
+    },
+    {
+      "label": "Leaf Curling",
+      "id": "leaf curling"
+    },
+    {
+      "label": "Whiteflies",
+      "id": "whiteflies"
+    },
+    {
+      "label": "Sooty Mold",
+      "id": "sooty mold"
+    },
+    {
+      "label": "Bollworm",
+      "id": "bollworm"
+    },
+    {
+      "label": "Square Dropping",
+      "id": "square dropping"
+    },
+    {
+      "label": "Thrips",
+      "id": "thrips"
+    },
+    {
+      "label": "Silvery Scars",
+      "id": "silvery scars"
+    },
+    {
+      "label": "Mites",
+      "id": "mites"
+    },
+    {
+      "label": "Yellow Speckling",
+      "id": "yellow speckling"
+    },
+    {
+      "label": "Ladybugs",
+      "id": "ladybugs"
+    },
+    {
+      "label": "Minute Pirate Bugs",
+      "id": "minute pirate bugs"
+    },
+    {
+      "label": "Phytoseiid Mites",
+      "id": "phytoseiid mites"
+    },
+    {
+      "label": "Encarsia formosa",
+      "id": "encarsia formosa"
+    },
+    {
+      "label": "Caterpillars",
+      "id": "caterpillars"
+    },
+    {
+      "label": "Braconid Wasps",
+      "id": "braconid wasps"
+    },
+    {
+      "label": "Arid Zone",
+      "id": "arid zone"
+    },
+    {
+      "label": "Bajra (Pearl Millet)",
+      "id": "bajra (pearl millet)"
+    },
+    {
+      "label": "Guar",
+      "id": "guar"
+    },
+    {
+      "label": "Tropical Zone",
+      "id": "tropical zone"
+    },
+    {
+      "label": "Sugarcane",
+      "id": "sugarcane"
+    },
+    {
+      "label": "Banana",
+      "id": "banana"
+    },
+    {
+      "label": "Temperate Zone",
+      "id": "temperate zone"
+    },
+    {
+      "label": "Apples",
+      "id": "apples"
+    },
+    {
+      "label": "Soil Acidification",
+      "id": "soil acidification"
+    },
+    {
+      "label": "Ammonium Sulfate",
+      "id": "ammonium sulfate"
+    },
+    {
+      "label": "Strong Acidification",
+      "id": "strong acidification"
+    },
+    {
+      "label": "Calcium Nitrate",
+      "id": "calcium nitrate"
+    },
+    {
+      "label": "Alkalizing",
+      "id": "alkalizing"
+    },
+    {
+      "label": "Rock Phosphate",
+      "id": "rock phosphate"
+    },
+    {
+      "label": "Acidic Soil for Solubility",
+      "id": "acidic soil for solubility"
+    },
+    {
+      "label": "Lime",
+      "id": "lime"
+    },
+    {
+      "label": "Increase pH",
+      "id": "increase ph"
     }
   ],
   "edges": [
@@ -113,10 +397,40 @@
       "key": 1
     },
     {
+      "relationship": "CAN_BE_AFFECTED_BY",
+      "source": "tomato",
+      "target": "early blight",
+      "key": 0
+    },
+    {
       "relationship": "SUFFER_FROM",
       "source_chunk": "Q: What causes Brown Spot in Rice?\nA: Brown Spot in Rice is primarily triggered by high humidity (ab",
       "source": "rice",
       "target": "brown spot",
+      "key": 0
+    },
+    {
+      "relationship": "CAN_BE_AFFECTED_BY",
+      "source": "rice",
+      "target": "rice blast",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_STAGE",
+      "source": "rice",
+      "target": "nursery",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_STAGE",
+      "source": "rice",
+      "target": "tillering",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_STAGE",
+      "source": "rice",
+      "target": "panicle initiation",
       "key": 0
     },
     {
@@ -141,6 +455,12 @@
       "key": 0
     },
     {
+      "relationship": "SUPPLIED_BY",
+      "source": "nitrogen",
+      "target": "urea",
+      "key": 1
+    },
+    {
       "relationship": "RECOMMENDED_FOR",
       "source_chunk": "Q: What is the relationship between Urea and Nitrogen?\nA: Urea is the most common nitrogenous fertil",
       "source": "urea",
@@ -152,6 +472,30 @@
       "source_chunk": "Q: What is the relationship between Urea and Nitrogen?\nA: Urea is the most common nitrogenous fertil",
       "source": "urea",
       "target": "rice",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_EFFECT",
+      "source": "urea",
+      "target": "soil acidification",
+      "key": 0
+    },
+    {
+      "relationship": "CAN_BE_AFFECTED_BY",
+      "source": "wheat",
+      "target": "yellow rust",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_STAGE",
+      "source": "wheat",
+      "target": "cri (crown root initiation)",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_STAGE",
+      "source": "wheat",
+      "target": "flowering",
       "key": 0
     },
     {
@@ -169,6 +513,12 @@
       "key": 0
     },
     {
+      "relationship": "CAN_BE_AFFECTED_BY",
+      "source": "cotton",
+      "target": "pink bollworm",
+      "key": 1
+    },
+    {
       "relationship": "TRIGGERED_BY",
       "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
       "source": "pink bollworm",
@@ -183,6 +533,12 @@
       "key": 0
     },
     {
+      "relationship": "TREATED_WITH",
+      "source": "pink bollworm",
+      "target": "indoxacarb",
+      "key": 0
+    },
+    {
       "relationship": "INCREASES_RISK_OF",
       "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
       "source": "warm conditions",
@@ -194,6 +550,234 @@
       "source_chunk": "Q: What weather triggers Pests in Cotton?\nA: Warm and humid conditions often lead to an increase in ",
       "source": "humid conditions",
       "target": "pink bollworm",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_WITH",
+      "source": "rice blast",
+      "target": "tricyclazole",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_WITH",
+      "source": "yellow rust",
+      "target": "propiconazole",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_WITH",
+      "source": "early blight",
+      "target": "mancozeb",
+      "key": 0
+    },
+    {
+      "relationship": "CAN_BE_AFFECTED_BY",
+      "source": "potato",
+      "target": "late blight",
+      "key": 0
+    },
+    {
+      "relationship": "TREATED_WITH",
+      "source": "late blight",
+      "target": "metalaxyl",
+      "key": 0
+    },
+    {
+      "relationship": "NATURALLY_HIGH_IN",
+      "source": "clay soil",
+      "target": "potassium",
+      "key": 0
+    },
+    {
+      "relationship": "SUPPLIED_BY",
+      "source": "potassium",
+      "target": "mop (muriate of potash)",
+      "key": 0
+    },
+    {
+      "relationship": "NATURALLY_LOW_IN",
+      "source": "sandy soil",
+      "target": "nitrogen",
+      "key": 0
+    },
+    {
+      "relationship": "IDEAL_FOR",
+      "source": "loamy soil",
+      "target": "phosphorus retention",
+      "key": 0
+    },
+    {
+      "relationship": "KNOWN_FOR",
+      "source": "black soil",
+      "target": "high lime content",
+      "key": 0
+    },
+    {
+      "relationship": "DEFICIENT_IN",
+      "source": "red soil",
+      "target": "magnesium",
+      "key": 0
+    },
+    {
+      "relationship": "SUPPLIED_BY",
+      "source": "phosphorus",
+      "target": "dap (diammonium phosphate)",
+      "key": 0
+    },
+    {
+      "relationship": "SUPPLIED_BY",
+      "source": "sulfur",
+      "target": "bentonite sulfur",
+      "key": 0
+    },
+    {
+      "relationship": "SUPPLIED_BY",
+      "source": "zinc",
+      "target": "zinc sulfate",
+      "key": 0
+    },
+    {
+      "relationship": "REQUIRES",
+      "source": "nursery",
+      "target": "light sprinkling",
+      "key": 0
+    },
+    {
+      "relationship": "REQUIRES",
+      "source": "tillering",
+      "target": "continuous standing water",
+      "key": 0
+    },
+    {
+      "relationship": "CRITICAL_FOR",
+      "source": "flowering",
+      "target": "adequate soil moisture",
+      "key": 0
+    },
+    {
+      "relationship": "SENSITIVE_TO",
+      "source": "cri",
+      "target": "water stress",
+      "key": 0
+    },
+    {
+      "relationship": "REQUIRES",
+      "source": "maturation",
+      "target": "reduced watering",
+      "key": 0
+    },
+    {
+      "relationship": "CAUSES",
+      "source": "aphids",
+      "target": "leaf curling",
+      "key": 0
+    },
+    {
+      "relationship": "PREYED_UPON_BY",
+      "source": "aphids",
+      "target": "ladybugs",
+      "key": 0
+    },
+    {
+      "relationship": "CAUSES",
+      "source": "whiteflies",
+      "target": "sooty mold",
+      "key": 0
+    },
+    {
+      "relationship": "PREYED_UPON_BY",
+      "source": "whiteflies",
+      "target": "encarsia formosa",
+      "key": 0
+    },
+    {
+      "relationship": "CAUSES",
+      "source": "bollworm",
+      "target": "square dropping",
+      "key": 0
+    },
+    {
+      "relationship": "CAUSES",
+      "source": "thrips",
+      "target": "silvery scars",
+      "key": 0
+    },
+    {
+      "relationship": "PREYED_UPON_BY",
+      "source": "thrips",
+      "target": "minute pirate bugs",
+      "key": 0
+    },
+    {
+      "relationship": "CAUSES",
+      "source": "mites",
+      "target": "yellow speckling",
+      "key": 0
+    },
+    {
+      "relationship": "PREYED_UPON_BY",
+      "source": "mites",
+      "target": "phytoseiid mites",
+      "key": 0
+    },
+    {
+      "relationship": "PREYED_UPON_BY",
+      "source": "caterpillars",
+      "target": "braconid wasps",
+      "key": 0
+    },
+    {
+      "relationship": "SUITABLE_FOR",
+      "source": "arid zone",
+      "target": "bajra (pearl millet)",
+      "key": 0
+    },
+    {
+      "relationship": "SUITABLE_FOR",
+      "source": "arid zone",
+      "target": "guar",
+      "key": 0
+    },
+    {
+      "relationship": "SUITABLE_FOR",
+      "source": "tropical zone",
+      "target": "sugarcane",
+      "key": 0
+    },
+    {
+      "relationship": "SUITABLE_FOR",
+      "source": "tropical zone",
+      "target": "banana",
+      "key": 0
+    },
+    {
+      "relationship": "SUITABLE_FOR",
+      "source": "temperate zone",
+      "target": "apples",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_EFFECT",
+      "source": "ammonium sulfate",
+      "target": "strong acidification",
+      "key": 0
+    },
+    {
+      "relationship": "HAS_EFFECT",
+      "source": "calcium nitrate",
+      "target": "alkalizing",
+      "key": 0
+    },
+    {
+      "relationship": "REQUIRES",
+      "source": "rock phosphate",
+      "target": "acidic soil for solubility",
+      "key": 0
+    },
+    {
+      "relationship": "USED_TO",
+      "source": "lime",
+      "target": "increase ph",
       "key": 0
     }
   ]

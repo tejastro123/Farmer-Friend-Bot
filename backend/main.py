@@ -5,6 +5,7 @@ FastAPI application entry point.
 """
 
 # Patch for Python 3.14 Protobuf issue: force _CanImport to fail gracefully
+# ... (protobuf patches remain)
 import sys
 import os
 sys.modules['google._upb._message'] = None 
@@ -18,10 +19,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from backend.api import chat, health, ingest, graph, mandi, auth, prediction
+from backend.api import chat, health, ingest, graph, mandi, auth, prediction, moat, pipelines
 from backend.config import settings
-from backend.db.session import engine, Base
-import backend.models.models as models
+from backend.db.db_utils import init_db_raw
 
 # Setup logging
 logging.basicConfig(
@@ -39,7 +39,7 @@ app = FastAPI(
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.origins_list,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -51,13 +51,15 @@ app.include_router(chat.router, prefix="/api")
 app.include_router(ingest.router, prefix="/api")
 app.include_router(graph.router, prefix="/api")
 app.include_router(mandi.router, prefix="/api")
-app.include_router(auth.router, prefix="/api/auth")
+app.include_router(auth.router, prefix="/api")
 app.include_router(prediction.router, prefix="/api")
+app.include_router(moat.router, prefix="/api")
+app.include_router(pipelines.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup_event():
-    logger.info("Initializing database tables...")
-    Base.metadata.create_all(bind=engine)
+    logger.info("Initializing database (Raw SQL)...")
+    init_db_raw()
     logger.info(f"Starting Farmer Helper in {settings.app_env} mode.")
     logger.info(f"Allowed CORS origins: {settings.origins_list}")
     if not settings.gemini_api_key:

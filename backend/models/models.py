@@ -1,92 +1,33 @@
-from sqlalchemy import Column, Integer, String, Float, ForeignKey, DateTime, JSON
-from sqlalchemy.orm import relationship
-from datetime import datetime
-from backend.db.session import Base
+"""
+backend/models/models.py
+========================
+DEPRECATED: SQLAlchemy models are disabled for Python 3.14 stability.
+All data access now uses raw SQL via backend.db.db_utils.
+"""
 
-class User(Base):
-    __tablename__ = "users"
+# The following classes are kept as documentation of the schema only.
+# They no longer inherit from Base to avoid SQLAlchemy initialization.
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String, unique=True, index=True)
-    hashed_password = Column(String)
-    full_name = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
+class User:
+    """id, email, hashed_password, full_name, created_at"""
+    pass
 
-    profile = relationship("FarmerProfile", back_populates="user", uselist=False)
-    sessions = relationship("ChatSession", back_populates="user", cascade="all, delete-orphan")
+class FarmerProfile:
+    """id, user_id, latitude, longitude, soil_role, farm_size, primary_crop, ..."""
+    pass
 
-class FarmerProfile(Base):
-    __tablename__ = "farmer_profiles"
+class ChatSession:
+    """id, user_id, title, created_at, updated_at"""
+    pass
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), unique=True)
-    latitude = Column(Float, nullable=True)
-    longitude = Column(Float, nullable=True)
-    soil_role = Column(String, default="Standard") 
-    farm_size = Column(Float, nullable=True) 
-    primary_crop = Column(String, nullable=True)
-    sowing_date = Column(DateTime, nullable=True)
-    location_name = Column(String, nullable=True) 
-    
-    # Government-Affiliated Data
-    phone_number = Column(String, nullable=True)
-    aadhaar_number = Column(String, nullable=True)
-    kcc_number = Column(String, nullable=True)
-    survey_number = Column(String, nullable=True)
-    khata_number = Column(String, nullable=True)
-    bank_name = Column(String, nullable=True)
-    bank_account_number = Column(String, nullable=True)
-    ifsc_code = Column(String, nullable=True)
+class ChatHistory:
+    """id, session_id, user_id, query, answer, explanation, agents_used, sources, ..."""
+    pass
 
-    user = relationship("User", back_populates="profile")
+class ChunkFeedback:
+    """id, chunk_hash, helpful_count, unhelpful_count, last_updated"""
+    pass
 
-class ChatSession(Base):
-    __tablename__ = "chat_sessions"
-
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
-    title = Column(String, default="New Consultation")
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", back_populates="sessions")
-    messages = relationship("ChatHistory", back_populates="session", cascade="all, delete-orphan")
-
-class ChatHistory(Base):
-    """Acts as ChatMessage in a session context"""
-    __tablename__ = "chat_history"
-
-    id = Column(Integer, primary_key=True, index=True)
-    session_id = Column(Integer, ForeignKey("chat_sessions.id"), nullable=True) # Temporarily nullable for migration
-    user_id = Column(Integer, ForeignKey("users.id"))
-    query = Column(String)
-    answer = Column(String)
-    explanation = Column(String, nullable=True)
-    confidence_score = Column(Float, nullable=True)
-    agents_used = Column(JSON, default=[])
-    sources = Column(JSON, default=[])
-    citations = Column(JSON, default=[])
-    is_helpful = Column(Integer, nullable=True) # 1 for positive, -1 for negative
-    feedback_text = Column(String, nullable=True)
-    
-    # NEW LEARNING FIELDS
-    meta_context = Column(JSON, default={}) # Stores 7+ features: crop, location, etc.
-    latencies = Column(JSON, default={})    # Execution times per agent/step
-    document_ids = Column(JSON, default=[]) # Specific hashes/source IDs used for RAG
-    
-    timestamp = Column(DateTime, default=datetime.utcnow)
-
-    session = relationship("ChatSession", back_populates="messages")
-    user = relationship("User", back_populates="history") # Keep legacy backref for now
-
-class ChunkFeedback(Base):
-    """Tracks historical helpfulness of specific knowledge chunks for RAG boosting"""
-    __tablename__ = "chunk_feedback"
-
-    id = Column(Integer, primary_key=True, index=True)
-    chunk_hash = Column(String, unique=True, index=True)
-    helpful_count = Column(Integer, default=0)
-    unhelpful_count = Column(Integer, default=0)
-    last_updated = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-User.history = relationship("ChatHistory", back_populates="user")
+class MandiPrice:
+    """id, state, district, market, commodity, variety, arrival_date, ..."""
+    pass

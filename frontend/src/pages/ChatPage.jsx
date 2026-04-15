@@ -10,6 +10,7 @@ import { marked } from 'marked';
 import { authService, chatService } from '../services/api';
 import { motion as Motion, AnimatePresence } from 'framer-motion';
 
+
 const ChatPage = () => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
@@ -48,12 +49,21 @@ const ChatPage = () => {
     useEffect(() => {
         const init = async () => {
             try {
-                const profileRes = await authService.getProfile();
-                setProfile(profileRes.data);
-                
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const profileRes = await authService.getProfile();
+                    setProfile(profileRes.data);
+                }
                 await loadSessions();
             } catch (err) {
-                console.error("Initialization Error:", err);
+                // If 401 or 404, it's just a guest user or stale session - no need to log as error
+                if (err.response?.status === 401 || err.response?.status === 404) {
+                    if (err.response?.status === 401) {
+                        localStorage.removeItem('token');
+                    }
+                } else {
+                    console.error("Initialization Error:", err);
+                }
                 startNewChat();
             }
         };
@@ -490,13 +500,33 @@ const ChatPage = () => {
                 </div>
 
                 <footer className="chat-input-viewport">
-                    <div className="suggested-actions">
-                        {suggestedActions.map(action => (
-                            <button key={action.label} className="action-chip" onClick={() => setInput(action.query)}>
+                    <Motion.div 
+                        className="suggested-actions"
+                        initial="hidden"
+                        animate="show"
+                        variants={{
+                            hidden: { opacity: 0 },
+                            show: {
+                                opacity: 1,
+                                transition: { staggerChildren: 0.1 }
+                            }
+                        }}
+                    >
+                        {suggestedActions.map((action, idx) => (
+                            <Motion.button 
+                                key={idx} 
+                                variants={{
+                                    hidden: { opacity: 0, y: 10 },
+                                    show: { opacity: 1, y: 0 }
+                                }}
+                                whileHover={{ y: -4, backgroundColor: 'rgba(82, 183, 136, 0.15)', borderColor: 'var(--secondary)' }}
+                                className="action-chip" 
+                                onClick={() => setInput(action.query)}
+                            >
                                 {action.icon} {action.label}
-                            </button>
+                            </Motion.button>
                         ))}
-                    </div>
+                    </Motion.div>
 
                     <div className="input-box-container glass">
                         {attachments.length > 0 && (

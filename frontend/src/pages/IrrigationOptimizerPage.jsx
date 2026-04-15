@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
   Droplets, Thermometer, Wind, Sprout, Sun, 
   Activity, Loader2, AlertTriangle, ShieldCheck, 
@@ -80,7 +80,7 @@ const IrrigationOptimizerPage = () => {
         
         {/* Parameters Panel */}
         <div className="lg:col-span-7 space-y-6">
-          <motion.div 
+          <Motion.div 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             className="glass p-8 rounded-3xl border border-white/10"
@@ -107,8 +107,10 @@ const IrrigationOptimizerPage = () => {
             {/* Water Source Selector */}
             <div className="mb-10 p-2 glass bg-white/5 rounded-2xl flex gap-2">
               {['canal', 'tubewell', 'pond'].map(source => (
-                <button
+                <Motion.button
                   key={source}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => setFormData(p => ({ ...p, water_source: source }))}
                   className={`flex-1 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
                     formData.water_source === source 
@@ -117,7 +119,7 @@ const IrrigationOptimizerPage = () => {
                   }`}
                 >
                   {source}
-                </button>
+                </Motion.button>
               ))}
             </div>
 
@@ -198,34 +200,36 @@ const IrrigationOptimizerPage = () => {
             </div>
 
             <div className="mt-12">
-              <button 
+              <Motion.button 
+                whileHover={{ scale: 1.02, boxShadow: "0 15px 40px rgba(82,183,136,0.4)" }}
+                whileTap={{ scale: 0.98 }}
                 onClick={handlePredict}
                 disabled={loading}
-                className="btn btn-secondary w-full flex justify-center items-center gap-3 !py-4 !rounded-2xl text-xl font-black shadow-[0_10px_30px_rgba(82,183,136,0.3)]"
+                className="btn btn-secondary w-full flex justify-center items-center gap-3 !py-4 !rounded-2xl text-xl font-black shadow-[0_10px_30px_rgba(82,183,136,0.3)] transition-all"
               >
                 {loading ? <Loader2 className="lucide-spin" size={28} /> : <Droplets size={28} />}
                 {loading ? 'ANALYZING HYDRAULICS...' : 'OPTIMIZE WATER CYCLE'}
-              </button>
+              </Motion.button>
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
 
         {/* Results Panel */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {error && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="glass p-6 rounded-3xl border border-danger/30 bg-danger/5 text-danger flex items-center gap-4"
               >
                 <AlertTriangle size={24} />
                 <p className="text-sm font-bold">{error}</p>
-              </motion.div>
+              </Motion.div>
             )}
 
             {!result && !loading && !error && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center opacity-40"
@@ -233,11 +237,11 @@ const IrrigationOptimizerPage = () => {
                 <Waves size={80} className="mb-6 stroke-[1px] opacity-20" />
                 <h3 className="text-2xl font-light mb-2">Engines Ready</h3>
                 <p className="text-sm">Input sensor data to determine optimal watering windows and avoid resource waste.</p>
-              </motion.div>
+              </Motion.div>
             )}
 
             {loading && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center"
@@ -250,11 +254,11 @@ const IrrigationOptimizerPage = () => {
                 </div>
                 <h3 className="text-2xl font-bold text-secondary animate-pulse">Running Neural Fluid Dynamics...</h3>
                 <p className="text-muted mt-2">Computing transpiration curves and weather-dependent moisture retention.</p>
-              </motion.div>
+              </Motion.div>
             )}
 
             {result && !loading && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="flex-1 flex flex-col gap-6"
@@ -267,33 +271,49 @@ const IrrigationOptimizerPage = () => {
                   <div className="relative w-48 h-48 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
                       <circle cx="96" cy="96" r="88" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="transparent" />
-                      <circle 
+                      <Motion.circle 
                         cx="96" cy="96" r="88" 
                         stroke={getStatusColor(result.status)} 
                         strokeWidth="12" 
                         fill="transparent" 
                         strokeDasharray={552} 
-                        strokeDashoffset={552 - (552 * result.irrigation_probability) / 100} 
+                        initial={{ strokeDashoffset: 552 }}
+                        animate={{ strokeDashoffset: 552 - (552 * result.irrigation_probability) / 100 }}
+                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
                         strokeLinecap="round"
-                        className="transition-all duration-1000 ease-out"
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-black">{result.irrigation_probability.toFixed(0)}%</span>
+                      <Motion.span 
+                         initial={{ opacity: 0 }}
+                         animate={{ opacity: 1 }}
+                         transition={{ delay: 0.5 }}
+                         className="text-5xl font-black"
+                      >
+                        {result.irrigation_probability.toFixed(0)}%
+                      </Motion.span>
                       <span className="text-[10px] uppercase tracking-widest font-bold opacity-60">Water Deficit</span>
                     </div>
                   </div>
 
-                  <div 
+                  <Motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", delay: 0.8 }}
                     className="mt-6 px-6 py-2 rounded-full font-black text-sm tracking-widest uppercase"
                     style={{ background: getStatusColor(result.status), color: '#000' }}
                   >
                     {result.status} STATUS
-                  </div>
+                  </Motion.div>
                 </div>
 
                 {/* Recommendation Card */}
-                <div className="glass p-8 rounded-3xl border border-white/10 flex-1 relative flex flex-col justify-center overflow-hidden">
+                <Motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1 }}
+                    className="glass p-8 rounded-3xl border border-white/10 flex-1 relative flex flex-col justify-center overflow-hidden"
+                >
                   <Waves className="absolute -right-10 -bottom-10 opacity-5" size={200} />
                   <div className="flex items-center gap-3 mb-4 text-info font-bold uppercase tracking-widest text-xs">
                     <Clock size={16} /> Optimal Watering Window
@@ -305,12 +325,15 @@ const IrrigationOptimizerPage = () => {
                     <div className="text-[10px] flex items-center gap-2">
                        <Zap size={12} className="text-warning"/> Projected Saving: 15%
                     </div>
-                    <button className="text-[10px] flex items-center gap-1 font-bold hover:text-secondary">
+                    <Motion.button 
+                        whileHover={{ x: 5, color: "var(--secondary)" }}
+                        className="text-[10px] flex items-center gap-1 font-bold"
+                    >
                       Full Schedule <ChevronRight size={10}/>
-                    </button>
+                    </Motion.button>
                   </div>
-                </div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </div>

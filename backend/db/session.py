@@ -1,19 +1,23 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+import sqlite3
 import os
+from contextlib import contextmanager
 
-DATABASE_URL = "sqlite:///./krishimitra.db"
+DB_PATH = "krishimitra.db"
 
-engine = create_engine(
-    DATABASE_URL, connect_args={"check_same_thread": False}
-)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-def get_db():
-    db = SessionLocal()
+@contextmanager
+def get_db_conn():
+    """
+    Standard library sqlite3 connection provider.
+    Bypasses SQLAlchemy for Python 3.14 compatibility.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     try:
-        yield db
+        yield conn
     finally:
-        db.close()
+        conn.close()
+
+# Mock get_db for FastAPI dependency injection compatibility
+def get_db():
+    with get_db_conn() as conn:
+        yield conn

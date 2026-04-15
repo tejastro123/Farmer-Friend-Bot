@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { 
   Bug, Droplets, Thermometer, Wind, Sprout, 
   Activity, Loader2, AlertTriangle, ShieldCheck, 
@@ -77,7 +77,7 @@ const PestForecastPage = () => {
         
         {/* Parameters Panel */}
         <div className="lg:col-span-7 space-y-6">
-          <motion.div 
+          <Motion.div 
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             className="glass p-8 rounded-3xl border border-white/10"
@@ -187,14 +187,14 @@ const PestForecastPage = () => {
                 {loading ? 'CALCULATING BIO-RISK...' : 'RUN FORECAST ENGINE'}
               </button>
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
 
         {/* Results Panel */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {error && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 key="error"
@@ -205,11 +205,11 @@ const PestForecastPage = () => {
                   <h4 className="font-bold text-lg">System Error</h4>
                   <p className="text-sm opacity-80">{error}</p>
                 </div>
-              </motion.div>
+              </Motion.div>
             )}
 
             {!result && !loading && !error && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 key="empty"
@@ -218,11 +218,11 @@ const PestForecastPage = () => {
                 <Gauge size={80} className="mb-6 stroke-[1px] opacity-20" />
                 <h3 className="text-2xl font-light mb-2">Engine Standby</h3>
                 <p className="text-sm">Configure observables and trigger the neural simulation to receive a site-specific risk profile.</p>
-              </motion.div>
+              </Motion.div>
             )}
 
             {loading && (
-              <motion.div 
+              <Motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 key="loading"
@@ -231,12 +231,12 @@ const PestForecastPage = () => {
                 <Loader2 size={64} className="lucide-spin text-secondary mb-6" />
                 <h3 className="text-2xl font-bold text-secondary animate-pulse">Analyzing Neural Pathways...</h3>
                 <p className="text-muted mt-2">Correlating multi-factor weather patterns with historical pest migration datasets.</p>
-              </motion.div>
+              </Motion.div>
             )}
 
             {result && !loading && (
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+              <Motion.div 
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 key="result"
                 className="flex-1 flex flex-col gap-6"
@@ -251,33 +251,49 @@ const PestForecastPage = () => {
                   <div className="relative w-48 h-48 flex items-center justify-center">
                     <svg className="w-full h-full transform -rotate-90">
                       <circle cx="96" cy="96" r="88" stroke="rgba(255,255,255,0.05)" strokeWidth="12" fill="transparent" />
-                      <circle 
+                      <Motion.circle 
                         cx="96" cy="96" r="88" 
                         stroke={getRiskColor(result.risk_level)} 
                         strokeWidth="12" 
                         fill="transparent" 
                         strokeDasharray={552} 
-                        strokeDashoffset={552 - (552 * result.risk_score) / 100} 
+                        initial={{ strokeDashoffset: 552 }}
+                        animate={{ strokeDashoffset: 552 - (552 * result.risk_score) / 100 }}
+                        transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
                         strokeLinecap="round"
-                        className="transition-all duration-1000 ease-out"
                       />
                     </svg>
                     <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-black">{result.risk_score.toFixed(0)}%</span>
+                      <Motion.span 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5 }}
+                        className="text-5xl font-black"
+                      >
+                        {result.risk_score.toFixed(0)}%
+                      </Motion.span>
                       <span className="text-[10px] uppercase tracking-widest font-bold opacity-60">Risk Prob.</span>
                     </div>
                   </div>
 
-                  <div 
+                  <Motion.div 
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", delay: 0.8 }}
                     className="mt-6 px-6 py-2 rounded-full font-black text-sm tracking-widest"
                     style={{ background: getRiskColor(result.risk_level), color: '#000' }}
                   >
                     {result.risk_level} ALERT
-                  </div>
+                  </Motion.div>
                 </div>
 
                 {/* Advisory Card */}
-                <div className="glass p-8 rounded-3xl border border-white/10 flex-1 relative flex flex-col justify-center">
+                <Motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1 }}
+                    className="glass p-8 rounded-3xl border border-white/10 flex-1 relative flex flex-col justify-center"
+                >
                   <div className="flex items-center gap-3 mb-4 text-info font-bold uppercase tracking-widest text-xs">
                     <ShieldCheck size={16} /> Neural Advisory Insight
                   </div>
@@ -288,12 +304,15 @@ const PestForecastPage = () => {
                     <div className="text-[10px] flex items-center gap-2">
                        <History size={12}/> Next update in 6h
                     </div>
-                    <button className="text-[10px] flex items-center gap-1 font-bold hover:text-secondary hover:underline">
+                    <Motion.button 
+                        whileHover={{ x: 5, color: "var(--secondary)" }}
+                        className="text-[10px] flex items-center gap-1 font-bold"
+                    >
                       View Full Bio-History <ChevronRight size={10}/>
-                    </button>
+                    </Motion.button>
                   </div>
-                </div>
-              </motion.div>
+                </Motion.div>
+              </Motion.div>
             )}
           </AnimatePresence>
         </div>

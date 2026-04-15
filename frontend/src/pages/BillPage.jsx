@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mandiService } from '../services/api';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { 
     ChevronLeft, Printer, DownloadCloud, Share2, 
     ShieldCheck, QrCode, FileText, MapPin, 
@@ -87,7 +87,7 @@ const BillPage = () => {
 
             {/* THE COMPACT REALISTIC BILL (Centered in viewport) */}
             <div className="bill-viewport-centered">
-                <motion.div 
+                <Motion.div 
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     id="printable-bill"
@@ -264,7 +264,7 @@ const BillPage = () => {
                         APMC REGULATED // E-DEED SETTLEMENT // LEDGER V4.2
                     </p>
                 </div>
-            </motion.div>
+            </Motion.div>
             </div>
         </div>
     );

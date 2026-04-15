@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion, AnimatePresence } from 'framer-motion';
 import { TrendingUp, Droplets, Thermometer, Map, Activity, Loader2, Sprout } from 'lucide-react';
 import { predictionService } from '../services/api';
 
@@ -54,7 +54,7 @@ const YieldPage = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Input Form Column */}
-        <motion.div 
+        <Motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="glass p-8 rounded-3xl border border-white/10"
@@ -178,69 +178,96 @@ const YieldPage = () => {
               </button>
             </div>
           </form>
-        </motion.div>
+          </Motion.div>
 
         {/* Results Column */}
         <div className="space-y-8 flex flex-col">
-          {error && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="glass p-6 rounded-2xl border border-danger/30 bg-danger/5 text-danger flex items-center gap-3"
-            >
-              <Activity size={24} />
-              <div>
-                <h4 className="font-bold">Prediction Failed</h4>
-                <p className="text-sm opacity-90">{error}</p>
-              </div>
-            </motion.div>
-          )}
-
-          {!result && !loading && !error && (
-            <div className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center opacity-60">
-              <Sprout size={64} className="mb-4 opacity-50" />
-              <h3 className="text-xl mb-2 font-medium">Awaiting Data</h3>
-              <p className="text-sm">Adjust the simulation parameters on the left and run the prediction engine to see estimated yield and A.I. insights.</p>
-            </div>
-          )}
-
-          {loading && (
-            <div className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center">
-              <Loader2 size={48} className="lucide-spin text-secondary mb-4" />
-              <h3 className="text-xl font-medium animate-pulse text-secondary">Analyzing Environmental Model...</h3>
-            </div>
-          )}
-
-          {result && !loading && (
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex-1 flex flex-col gap-6"
-            >
-              <div className="glass p-8 rounded-3xl border border-secondary/30 relative overflow-hidden group hover:border-secondary/50 transition duration-500 bg-gradient-to-br from-secondary/5 to-transparent">
-                <TrendingUp size={120} className="absolute -right-6 -top-6 text-secondary/10 group-hover:scale-110 group-hover:-rotate-12 transition duration-700" />
-                <h4 className="text-muted font-medium mb-2 uppercase tracking-widest text-sm text-secondary/80">Estimated Crop Yield</h4>
-                <div className="flex items-baseline gap-2 mt-4">
-                  <span className="text-6xl font-black tracking-tighter text-white">
-                    {result.predict_tonnage.toFixed(2)}
-                  </span>
-                  <span className="text-xl text-muted font-medium">Metric Tons</span>
+          <AnimatePresence mode="wait">
+            {error && (
+              <Motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                key="error"
+                className="glass p-6 rounded-2xl border border-danger/30 bg-danger/5 text-danger flex items-center gap-3"
+              >
+                <Activity size={24} />
+                <div>
+                  <h4 className="font-bold">Prediction Failed</h4>
+                  <p className="text-sm opacity-90">{error}</p>
                 </div>
-                <div className="mt-4 px-3 py-1 bg-secondary/20 border border-secondary/30 rounded-full inline-block text-xs font-semibold text-secondary">
-                  Based on proprietary XGBoost models
-                </div>
-              </div>
+              </Motion.div>
+            )}
 
-              <div className="glass p-8 rounded-3xl border border-info/30 flex-1 relative bg-gradient-to-b from-transparent to-info/5">
-                <h4 className="text-info/80 font-medium mb-4 uppercase tracking-widest text-sm flex items-center gap-2">
-                  <Activity size={16} /> A.I. Diagnostic Insight
-                </h4>
-                <p className="text-lg leading-relaxed text-slate-200">
-                  {result.explanation}
-                </p>
-              </div>
-            </motion.div>
-          )}
+            {!result && !loading && !error && (
+              <Motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                key="empty"
+                className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center opacity-60"
+              >
+                <Sprout size={64} className="mb-4 opacity-50" />
+                <h3 className="text-xl mb-2 font-medium">Awaiting Data</h3>
+                <p className="text-sm">Adjust the simulation parameters on the left and run the prediction engine to see estimated yield and A.I. insights.</p>
+              </Motion.div>
+            )}
+
+            {loading && (
+              <Motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                key="loading"
+                className="flex-1 glass rounded-3xl border border-white/5 flex flex-col items-center justify-center p-12 text-center"
+              >
+                <Loader2 size={48} className="lucide-spin text-secondary mb-4" />
+                <h3 className="text-xl font-medium animate-pulse text-secondary">Analyzing Environmental Model...</h3>
+              </Motion.div>
+            )}
+
+            {result && !loading && (
+              <Motion.div 
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                key="result"
+                className="flex-1 flex flex-col gap-6"
+              >
+                <Motion.div 
+                    whileHover={{ scale: 1.02 }}
+                    className="glass p-8 rounded-3xl border border-secondary/30 relative overflow-hidden group transition-all duration-500 bg-gradient-to-br from-secondary/5 to-transparent"
+                >
+                  <TrendingUp size={120} className="absolute -right-6 -top-6 text-secondary/10 group-hover:scale-110 group-hover:-rotate-12 transition duration-700" />
+                  <h4 className="text-muted font-medium mb-2 uppercase tracking-widest text-sm text-secondary/80">Estimated Crop Yield</h4>
+                  <div className="flex items-baseline gap-2 mt-4">
+                    <Motion.span 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                        className="text-6xl font-black tracking-tighter text-white"
+                    >
+                      {result.predict_tonnage.toFixed(2)}
+                    </Motion.span>
+                    <span className="text-xl text-muted font-medium">Metric Tons</span>
+                  </div>
+                  <div className="mt-4 px-3 py-1 bg-secondary/20 border border-secondary/30 rounded-full inline-block text-xs font-semibold text-secondary">
+                    Based on proprietary XGBoost models
+                  </div>
+                </Motion.div>
+
+                <Motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="glass p-8 rounded-3xl border border-info/30 flex-1 relative bg-gradient-to-b from-transparent to-info/5"
+                >
+                  <h4 className="text-info/80 font-medium mb-4 uppercase tracking-widest text-sm flex items-center gap-2">
+                    <Activity size={16} /> A.I. Diagnostic Insight
+                  </h4>
+                  <p className="text-lg leading-relaxed text-slate-200">
+                    "{result.explanation}"
+                  </p>
+                </Motion.div>
+              </Motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </div>

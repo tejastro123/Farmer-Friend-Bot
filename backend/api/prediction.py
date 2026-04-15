@@ -1,7 +1,8 @@
 import logging
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
+from backend.config import settings
 from backend.ml.models import get_ml_predictors
 
 logger = logging.getLogger(__name__)
@@ -79,8 +80,8 @@ Provide a short, direct, 1-2 sentence explanation of WHY this yield is expected.
 Do NOT output any markdown formatting, headers, or lists. Just the plain text explanation.
 """
         # Call the LLM
-        model = genai.GenerativeModel("gemini-flash-latest")
-        response = model.generate_content(explanation_prompt)
+        client = genai.Client(api_key=settings.gemini_api_key)
+        response = client.models.generate_content(model="gemini-flash-latest", contents=explanation_prompt)
         explanation = response.text.strip()
         
         return YieldPredictionResponse(
@@ -125,8 +126,8 @@ Sentence 1: Explain the primary driver of this risk (e.g., fungal trigger or pes
 Sentence 2: Give one immediate action for the farmer.
 Do NOT output markdown. Just plain text.
 """
-        model = genai.GenerativeModel("gemini-flash-latest")
-        response = model.generate_content(advisory_prompt)
+        client = genai.Client(api_key=settings.gemini_api_key)
+        response = client.models.generate_content(model="gemini-flash-latest", contents=advisory_prompt)
         advisory = response.text.strip()
         
         return PestPredictionResponse(
@@ -170,8 +171,8 @@ Sentence 1: Tell the farmer exactly WHEN to irrigate (e.g. "Irrigate tomorrow ev
 Sentence 2: Explain the reasoning based on the environmental data AND the source type constraints (Canal has latency, Tubewell has high electricity cost, Pond has limited quantity).
 Do NOT output markdown. Just plain text.
 """
-        model = genai.GenerativeModel("gemini-flash-latest")
-        response = model.generate_content(rec_prompt)
+        client = genai.Client(api_key=settings.gemini_api_key)
+        response = client.models.generate_content(model="gemini-flash-latest", contents=rec_prompt)
         recommendation = response.text.strip()
         
         return IrrigationPredictionResponse(

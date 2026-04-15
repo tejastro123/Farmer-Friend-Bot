@@ -29,45 +29,18 @@ def get_weather_forecast(location: str) -> str:
     Args:
         location: The name of the city, district, or village in India (e.g., "Pune", "Nashik").
     """
-    if not settings.weather_api_key:
-        logger.debug("Weather API key not configured — skipping weather context")
-        return "Weather API is not configured. Tell the user you cannot check the weather right now."
+    data = get_raw_weather_data(location)
+    if isinstance(data, str):
+        return data # Error message
 
     try:
-        # Current weather
-        resp = requests.get(
-            f"{OWM_BASE}/weather",
-            params={
-                "q": f"{location},IN",
-                "appid": settings.weather_api_key,
-                "units": "metric",
-            },
-            timeout=5,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-
-        temp = data["main"]["temp"]
-        humidity = data["main"]["humidity"]
-        description = data["weather"][0]["description"].capitalize()
-        wind_speed = data["wind"]["speed"]
-
-        # 5-day forecast (3-hourly) — take the next 3 entries
-        forecast_resp = requests.get(
-            f"{OWM_BASE}/forecast",
-            params={
-                "q": f"{location},IN",
-                "appid": settings.weather_api_key,
-                "units": "metric",
-                "cnt": 8,
-            },
-            timeout=5,
-        )
-        forecast_resp.raise_for_status()
-        forecast_data = forecast_resp.json()
+        temp = data["current"]["main"]["temp"]
+        humidity = data["current"]["main"]["humidity"]
+        description = data["current"]["weather"][0]["description"].capitalize()
+        wind_speed = data["current"]["wind"]["speed"]
 
         forecast_lines = []
-        for item in forecast_data["list"][:3]:
+        for item in data["forecast"]["list"][:3]:
             dt_txt = item["dt_txt"]
             t = item["main"]["temp"]
             desc = item["weather"][0]["description"]
@@ -93,6 +66,46 @@ def get_weather_forecast(location: str) -> str:
             
         summary += f"\nUpcoming forecast:\n" + "\n".join(forecast_lines)
         return summary
+    except Exception as e:
+        logger.error(f"Error formatting weather for {location}: {e}")
+        return f"Error processing weather data for {location}."
+
+def get_raw_weather_data(location: str) -> dict | str:
+    """
+    Fetch structured weather data from OWM.
+    """
+    if not settings.weather_api_key:
+        return "Weather API is not configured."
+
+    try:
+        # Current weather
+        resp = requests.get(
+            f"{OWM_BASE}/weather",
+            params={
+                "q": f"{location},IN",
+                "appid": settings.weather_api_key,
+                "units": "metric",
+            },
+            timeout=5,
+        )
+        resp.raise_for_status()
+        current_data = resp.json()
+
+        # 5-day forecast
+        forecast_resp = requests.get(
+            f"{OWM_BASE}/forecast",
+            params={
+                "q": f"{location},IN",
+                "appid": settings.weather_api_key,
+                "units": "metric",
+                "cnt": 8,
+            },
+            timeout=5,
+        )
+        forecast_resp.raise_for_status()
+        forecast_data = forecast_resp.json()
+
+        return {"current": current_data, "forecast": forecast_data}
 
     except requests.exceptions.RequestException as e:
         logger.warning(f"Weather API request failed for '{location}': {e}")

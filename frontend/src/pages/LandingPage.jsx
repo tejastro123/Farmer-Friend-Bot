@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion as Motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Leaf, TrendingUp, ShieldCheck, Zap, ArrowRight, MessageSquare, CloudSun, MapPin, Activity, Award } from 'lucide-react';
 
@@ -12,7 +12,7 @@ const LandingPage = () => {
             <section className="hero-section">
                 <div className="hero-bg-glow"></div>
                 <div className="hero-container">
-                    <motion.div 
+                    <Motion.div 
                         className="hero-text"
                         initial={{ opacity: 0, x: -50 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -26,22 +26,22 @@ const LandingPage = () => {
                         <p>Empower your farm with KrishiMitra's hyperlocal intelligence. Specialized agents for soil, weather, and mandi trends, working together to maximize your harvest.</p>
                         
                         <div className="hero-btns">
-                            <motion.button 
+                            <Motion.button 
                                 className="btn btn-primary px-10 py-5 text-lg" 
                                 onClick={() => navigate('/chat')}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Start Consultations <Zap size={22} />
-                            </motion.button>
-                            <motion.button 
+                            </Motion.button>
+                            <Motion.button 
                                 className="btn btn-secondary px-10 py-5 text-lg" 
                                 onClick={() => navigate('/register')}
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
                                 Create Farmer Account
-                            </motion.button>
+                            </Motion.button>
                         </div>
 
                         <div className="hero-highlights">
@@ -60,9 +60,9 @@ const LandingPage = () => {
                                 <p>Agent Availability</p>
                             </div>
                         </div>
-                    </motion.div>
+                    </Motion.div>
 
-                    <motion.div 
+                    <Motion.div 
                         className="hero-visual-wrapper"
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
@@ -89,49 +89,93 @@ const LandingPage = () => {
                             </div>
                         </div>
                         {/* Floating Cards */}
-                        <motion.div 
+                        <Motion.div 
                             className="floating-card-ui glass top-right"
                             animate={{ y: [0, -10, 0] }}
                             transition={{ duration: 4, repeat: Infinity }}
                         >
                             <ShieldCheck size={20} color="var(--secondary)" />
                             <p>Soil Nitrogen: Optimal</p>
-                        </motion.div>
-                        <motion.div 
+                        </Motion.div>
+                        <Motion.div 
                             className="floating-card-ui glass bottom-left"
                             animate={{ y: [0, 10, 0] }}
                             transition={{ duration: 5, repeat: Infinity }}
                         >
                             <MapPin size={20} color="var(--accent)" />
                             <p>Village: Pune South</p>
-                        </motion.div>
-                    </motion.div>
+                        </Motion.div>
+                    </Motion.div>
                 </div>
             </section>
 
             {/* Feature Innovation Section */}
             <section className="innovation-section">
-                <div className="section-header">
+                <Motion.div 
+                    className="section-header"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                >
                     <h2>Engineered for <span>Excellence</span></h2>
                     <p>Moving beyond basic chatbots to full-stack agricultural reasoning.</p>
-                </div>
-                <div className="innovation-grid">
-                    <div className="innov-card glass">
+                </Motion.div>
+                
+                <Motion.div 
+                    className="innovation-grid"
+                    initial="hidden"
+                    whileInView="show"
+                    viewport={{ once: true, margin: "-100px" }}
+                    variants={{
+                        hidden: { opacity: 0 },
+                        show: {
+                            opacity: 1,
+                            transition: {
+                                staggerChildren: 0.2
+                            }
+                        }
+                    }}
+                >
+                    <Motion.div 
+                        variants={{
+                            hidden: { opacity: 0, y: 20 },
+                            show: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ y: -10, boxShadow: "0 20px 40px rgba(82,183,136,0.2)" }}
+                        className="innov-card glass"
+                    >
                         <div className="innov-icon"><MessageSquare /></div>
                         <h3>ChatGPT-Style Chat</h3>
                         <p>Streamlined conversations with history, markdown tables, and voice support.</p>
-                    </div>
-                    <div className="innov-card glass">
+                    </Motion.div>
+                    
+                    <Motion.div 
+                        variants={{
+                            hidden: { opacity: 0, y: 20 },
+                            show: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ y: -10, boxShadow: "0 20px 40px rgba(82,183,136,0.2)" }}
+                        className="innov-card glass"
+                    >
                         <div className="innov-icon"><Zap /></div>
                         <h3>Agent Orchestration</h3>
                         <p>Specialized agents consult weather, soil, and mandi data simultaneously.</p>
-                    </div>
-                    <div className="innov-card glass">
+                    </Motion.div>
+                    
+                    <Motion.div 
+                        variants={{
+                            hidden: { opacity: 0, y: 20 },
+                            show: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ y: -10, boxShadow: "0 20px 40px rgba(82,183,136,0.2)" }}
+                        className="innov-card glass"
+                    >
                         <div className="innov-icon"><Activity /></div>
                         <h3>Advanced Dashboard</h3>
                         <p>Track your farm health score and crop lifecycle in real-time.</p>
-                    </div>
-                </div>
+                    </Motion.div>
+                </Motion.div>
             </section>
         </div>
     );

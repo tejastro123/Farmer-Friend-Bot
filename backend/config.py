@@ -20,8 +20,11 @@ class Settings(BaseSettings):
     # ── LLM ──────────────────────────────────────────────────
     gemini_api_key: str = ""
 
-    # ── Weather ───────────────────────────────────────────────
+    # ── External Data APIs ────────────────────────────────────
     weather_api_key: str = ""
+    mandi_api_key: str = ""
+    mandi_resource_id: str = "9ef84268-d588-465a-a308-a864a43d0070" 
+    news_api_key: str = ""
 
     # ── App ───────────────────────────────────────────────────
     app_env: str = "development"
