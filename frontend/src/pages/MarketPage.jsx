@@ -375,7 +375,7 @@ const MarketPage = () => {
                             {marketData?.deals?.length > 0 ? (
                                 marketData.deals.map((deal, dIdx) => (
                                     <Motion.div 
-                                        key={deal.id}
+                                        key={deal.id || dIdx}
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: dIdx * 0.03 }}

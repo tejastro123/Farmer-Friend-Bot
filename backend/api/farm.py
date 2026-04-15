@@ -5,6 +5,7 @@ Farm Management API - Crop, Weather, Financial, Inventory, Advisory, Schemes, So
 """
 
 import logging
+from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
