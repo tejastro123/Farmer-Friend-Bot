@@ -394,13 +394,31 @@ const MarketPage = () => {
                                             </span>
                                         </div>
                                         <div className="ledger-td">
-                                            <button 
-                                                onClick={() => navigate(`/market/bill/${deal.id}`)}
-                                                className="btn btn-secondary btn-sm"
-                                                title="Generate Bill"
-                                            >
-                                                <ArrowUpRight size={14} />
-                                            </button>
+                                            {deal.status === 'Completed' ? (
+                                                <button 
+                                                    onClick={() => navigate(`/market/bill/${deal.id}`)}
+                                                    className="btn btn-secondary btn-sm"
+                                                    title="View Bill"
+                                                >
+                                                    <ArrowUpRight size={14} />
+                                                </button>
+                                            ) : deal.status === 'Pending' ? (
+                                                <button 
+                                                    onClick={() => navigate(`/market/confirm/${deal.id}`)}
+                                                    className="btn btn-primary btn-sm"
+                                                    title="Confirm Trade"
+                                                >
+                                                    <CheckCircle size={14} />
+                                                </button>
+                                            ) : deal.status === 'Confirmed' ? (
+                                                <button 
+                                                    onClick={() => navigate(`/market/payment/${deal.id}`)}
+                                                    className="btn btn-primary btn-sm"
+                                                    title="Make Payment"
+                                                >
+                                                    <DollarSign size={14} />
+                                                </button>
+                                            ) : null}
                                         </div>
                                     </Motion.div>
                                 ))

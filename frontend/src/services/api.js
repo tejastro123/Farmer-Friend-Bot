@@ -70,6 +70,7 @@ export const mandiService = {
     createListing: (data) => api.post('/mandi/listing', data),
     initiateTrade: (data) => api.post('/mandi/trade', data),
     confirmTrade: (dealId) => api.post(`/mandi/trade/${dealId}/confirm`),
+    updateTrade: (dealId, data) => api.put(`/mandi/trade/${dealId}`, data),
     recordPayment: (dealId, paymentMethod) => api.post(`/mandi/trade/${dealId}/payment`, { payment_method: paymentMethod }),
     completeTrade: (dealId) => api.post(`/mandi/trade/${dealId}/complete`),
 };

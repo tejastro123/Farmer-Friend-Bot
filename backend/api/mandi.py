@@ -7,7 +7,8 @@ API endpoints for the Digital Mandi simulated marketplace.
 from fastapi import APIRouter, HTTPException
 from backend.services.trading import (
     get_mandi_summary, get_deal_by_id, create_sale_listing, 
-    initiate_trade, confirm_trade, record_payment, complete_trade, get_all_deals
+    initiate_trade, confirm_trade, record_payment, complete_trade, get_all_deals,
+    update_trade
 )
 
 router = APIRouter(tags=["Digital Mandi"])
@@ -58,6 +59,19 @@ def handle_confirm_trade(deal_id: str):
     if not deal:
         raise HTTPException(status_code=404, detail="Deal not found")
     return {"deal": deal, "next_step": "payment"}
+
+@router.put("/mandi/trade/{deal_id}")
+def handle_update_trade(deal_id: str, data: dict):
+    """Updates trade details before confirmation."""
+    deal = update_trade(
+        deal_id,
+        commodity=data.get("commodity"),
+        qty_quintals=data.get("qty_quintals"),
+        price_per_quintal=data.get("price_per_quintal")
+    )
+    if not deal:
+        raise HTTPException(status_code=404, detail="Deal not found")
+    return deal
 
 @router.post("/mandi/trade/{deal_id}/payment")
 def handle_record_payment(deal_id: str, data: dict = None):

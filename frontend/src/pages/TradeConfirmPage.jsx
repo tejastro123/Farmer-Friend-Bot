@@ -6,7 +6,7 @@ import { motion as Motion } from 'framer-motion';
 import { 
     CheckCircle, XCircle, ArrowLeft, ArrowRight, Loader2,
     MapPin, Package, DollarSign, User, FileText,
-    Clock, ShieldCheck, AlertTriangle, ShoppingBag
+    Clock, ShieldCheck, AlertTriangle, ShoppingBag, Edit3
 } from 'lucide-react';
 
 const TradeConfirmPage = () => {
@@ -15,6 +15,13 @@ const TradeConfirmPage = () => {
     const [deal, setDeal] = useState(null);
     const [loading, setLoading] = useState(true);
     const [confirming, setConfirming] = useState(false);
+    const [editing, setEditing] = useState(false);
+    const [updating, setUpdating] = useState(false);
+    const [editForm, setEditForm] = useState({
+        commodity: '',
+        qty_quintals: '',
+        price_per_quintal: ''
+    });
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -47,6 +54,38 @@ const TradeConfirmPage = () => {
 
     const handleCancel = () => {
         navigate('/market');
+    };
+
+    const handleEditClick = () => {
+        setEditForm({
+            commodity: deal.commodity,
+            qty_quintals: deal.qty_quintals,
+            price_per_quintal: deal.price_per_quintal
+        });
+        setEditing(true);
+    };
+
+    const handleSaveEdit = async () => {
+        setUpdating(true);
+        try {
+            const res = await mandiService.updateTrade(dealId, {
+                commodity: editForm.commodity,
+                qty_quintals: parseInt(editForm.qty_quintals),
+                price_per_quintal: parseInt(editForm.price_per_quintal)
+            });
+            setDeal(res.data);
+            setEditing(false);
+        } catch (err) {
+            console.error("Failed to update trade:", err);
+            alert('Failed to update trade: ' + (err.response?.data?.detail || err.message));
+        } finally {
+            setUpdating(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditing(false);
+        setEditForm({ commodity: '', qty_quintals: '', price_per_quintal: '' });
     };
 
     if (loading) {
@@ -135,46 +174,116 @@ const TradeConfirmPage = () => {
                     <div className="confirm-header">
                         <div className="confirm-title">Trade Details</div>
                         <div className="confirm-id">{deal.id}</div>
+                        {isPending && !editing && (
+                            <button 
+                                onClick={handleEditClick}
+                                className="btn btn-secondary btn-sm"
+                                style={{ marginLeft: 'auto', marginRight: '8px' }}
+                            >
+                                <Edit3 size={14} />
+                                Edit
+                            </button>
+                        )}
                     </div>
 
                     <div className="confirm-details">
-                        <div className="detail-row">
-                            <div className="detail-icon"><User size={18} /></div>
-                            <div className="detail-content">
-                                <div className="detail-label">Dealer</div>
-                                <div className="detail-value">{deal.dealer}</div>
-                            </div>
-                        </div>
-
-                        <div className="detail-row">
-                            <div className="detail-icon"><Package size={18} /></div>
-                            <div className="detail-content">
-                                <div className="detail-label">Commodity</div>
-                                <div className="detail-value">{deal.commodity}</div>
-                            </div>
-                        </div>
-
-                        <div className="detail-row">
-                            <div className="detail-icon"><ShoppingBag size={18} /></div>
-                            <div className="detail-content">
-                                <div className="detail-label">Quantity</div>
-                                <div className="detail-value">{deal.qty_quintals} Quintals</div>
-                            </div>
-                        </div>
-
-                        <div className="detail-row">
-                            <div className="detail-icon"><DollarSign size={18} /></div>
-                            <div className="detail-content">
-                                <div className="detail-label">Price per Quintal</div>
-                                <div className="detail-value">₹{deal.price_per_quintal}</div>
-                            </div>
-                        </div>
+                        {editing ? (
+                            <>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><User size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Dealer</div>
+                                        <div className="detail-value">{deal.dealer}</div>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><Package size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Commodity</div>
+                                        <select 
+                                            className="input"
+                                            value={editForm.commodity}
+                                            onChange={e => setEditForm({...editForm, commodity: e.target.value})}
+                                        >
+                                            <option value="Wheat">Wheat</option>
+                                            <option value="Rice">Rice</option>
+                                            <option value="Maize">Maize</option>
+                                            <option value="Tomato">Tomato</option>
+                                            <option value="Onion">Onion</option>
+                                            <option value="Cotton">Cotton</option>
+                                            <option value="Soybean">Soybean</option>
+                                            <option value="Sugarcane">Sugarcane</option>
+                                            <option value="Potato">Potato</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><ShoppingBag size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Quantity (Quintals)</div>
+                                        <input 
+                                            type="number"
+                                            className="input"
+                                            value={editForm.qty_quintals}
+                                            onChange={e => setEditForm({...editForm, qty_quintals: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><DollarSign size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Price per Quintal (₹)</div>
+                                        <input 
+                                            type="number"
+                                            className="input"
+                                            value={editForm.price_per_quintal}
+                                            onChange={e => setEditForm({...editForm, price_per_quintal: e.target.value})}
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><User size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Dealer</div>
+                                        <div className="detail-value">{deal.dealer}</div>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><Package size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Commodity</div>
+                                        <div className="detail-value">{deal.commodity}</div>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><ShoppingBag size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Quantity</div>
+                                        <div className="detail-value">{deal.qty_quintals} Quintals</div>
+                                    </div>
+                                </div>
+                                <div className="detail-row">
+                                    <div className="detail-icon"><DollarSign size={18} /></div>
+                                    <div className="detail-content">
+                                        <div className="detail-label">Price per Quintal</div>
+                                        <div className="detail-value">₹{deal.price_per_quintal}</div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
 
-                    <div className="confirm-total">
-                        <div className="total-label">Total Amount</div>
-                        <div className="total-value">₹{deal.total?.toLocaleString()}</div>
-                    </div>
+                    {editing && (
+                        <div className="confirm-total">
+                            <div className="total-label">New Total Amount</div>
+                            <div className="total-value">₹{(
+                                parseInt(editForm.qty_quintals || 0) * parseInt(editForm.price_per_quintal || 0)
+                            ).toLocaleString()}</div>
+                        </div>
+                    )}
 
                     <div className="confirm-meta">
                         <div className="meta-item">
@@ -219,24 +328,49 @@ const TradeConfirmPage = () => {
 
             {/* Action Buttons */}
             <div className="confirm-actions">
-                <button onClick={handleCancel} className="btn btn-secondary">
-                    <XCircle size={18} />
-                    Cancel
-                </button>
-                <button 
-                    onClick={handleConfirm} 
-                    disabled={confirming}
-                    className="btn btn-primary"
-                >
-                    {confirming ? (
-                        <Loader2 size={18} className="animate-spin" />
-                    ) : (
-                        <>
-                            <CheckCircle size={18} />
-                            Confirm & Proceed to Payment
-                        </>
-                    )}
-                </button>
+                {editing ? (
+                    <>
+                        <button onClick={handleCancelEdit} className="btn btn-secondary" disabled={updating}>
+                            <XCircle size={18} />
+                            Cancel Edit
+                        </button>
+                        <button 
+                            onClick={handleSaveEdit} 
+                            disabled={updating}
+                            className="btn btn-primary"
+                        >
+                            {updating ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <>
+                                    <CheckCircle size={18} />
+                                    Save Changes
+                                </>
+                            )}
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <button onClick={handleCancel} className="btn btn-secondary">
+                            <XCircle size={18} />
+                            Cancel
+                        </button>
+                        <button 
+                            onClick={handleConfirm} 
+                            disabled={confirming}
+                            className="btn btn-primary"
+                        >
+                            {confirming ? (
+                                <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                                <>
+                                    <CheckCircle size={18} />
+                                    Confirm & Proceed to Payment
+                                </>
+                            )}
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );

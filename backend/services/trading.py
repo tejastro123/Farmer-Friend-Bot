@@ -255,3 +255,17 @@ def complete_trade(deal_id: str) -> Optional[Dict]:
 def get_all_deals() -> List[Dict]:
     """Returns all deals from the ledger."""
     return _state["deals"]
+
+def update_trade(deal_id: str, commodity: str = None, qty_quintals: int = None, price_per_quintal: float = None) -> Optional[Dict]:
+    """Updates trade details before confirmation."""
+    deal = get_deal_by_id(deal_id)
+    if deal and deal["status"] == "Pending":
+        if commodity is not None:
+            deal["commodity"] = commodity
+        if qty_quintals is not None:
+            deal["qty_quintals"] = qty_quintals
+            deal["total"] = qty_quintals * deal["price_per_quintal"]
+        if price_per_quintal is not None:
+            deal["price_per_quintal"] = price_per_quintal
+            deal["total"] = deal["qty_quintals"] * price_per_quintal
+    return deal

@@ -51,6 +51,7 @@ const PaymentPage = () => {
         setProcessing(true);
         try {
             await mandiService.recordPayment(dealId, selectedMethod);
+            await mandiService.completeTrade(dealId);
             navigate(`/market/bill/${dealId}`);
         } catch (err) {
             console.error("Payment failed:", err);
