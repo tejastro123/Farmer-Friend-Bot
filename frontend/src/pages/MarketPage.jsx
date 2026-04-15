@@ -8,7 +8,7 @@ import {
     ChevronRight, ArrowUpRight, Scale, Clock, ShieldCheck, 
     X, Printer, Download, MapPin, Star, Activity, Zap, 
     AlertCircle, CheckCircle, QrCode, FileCheck, Loader2,
-    ChevronUp, ChevronDown
+    ChevronUp, ChevronDown, Plus, Wheat
 } from 'lucide-react';
 
 const MarketPage = () => {
@@ -21,6 +21,13 @@ const MarketPage = () => {
     const [syncing, setSyncing] = useState(false);
     const [syncStatus, setSyncStatus] = useState({ type: 'initial', msg: '' });
     const [tradingId, setTradingId] = useState(null);
+    
+    const [showListingModal, setShowListingModal] = useState(false);
+    const [showTradeModal, setShowTradeModal] = useState(false);
+    const [selectedDealer, setSelectedDealer] = useState(null);
+    const [tradeForm, setTradeForm] = useState({ commodity: '', qty_quintals: 10, price_per_quintal: 2000 });
+    const [listingForm, setListingForm] = useState({ commodity: '', weight_kg: 100, min_price_quintal: 2000 });
+    const [creatingListing, setCreatingListing] = useState(false);
 
     const fetchMarket = async (lat = null, lon = null) => {
         try {
@@ -57,30 +64,55 @@ const MarketPage = () => {
         }
     };
 
-    const handleInitTrade = (dealer) => {
-        setTradingId(dealer.id);
+    const handleCreateListing = async () => {
+        setCreatingListing(true);
+        try {
+            await mandiService.createListing(listingForm);
+            setShowListingModal(false);
+            setListingForm({ commodity: '', weight_kg: 100, min_price_quintal: 2000 });
+            fetchMarket();
+        } catch (err) {
+            console.error("Failed to create listing:", err);
+        } finally {
+            setCreatingListing(false);
+        }
+    };
+
+    const handleInitTrade = async (dealer) => {
+        setSelectedDealer(dealer);
+        setTradeForm({
+            commodity: dealer.focus?.[0] || 'Wheat',
+            qty_quintals: 10,
+            price_per_quintal: marketData?.prices?.[dealer.focus?.[0]?.toLowerCase()]?.price || 2000
+        });
+        setShowTradeModal(true);
+    };
+
+    const handleConfirmTrade = async () => {
+        if (!selectedDealer) return;
+        setTradingId(selectedDealer.id);
         
-        setTimeout(() => {
-            const newDeal = {
-                id: `TXN-${Math.floor(Math.random() * 90000) + 10000}`,
-                timestamp: new Date().toISOString(),
-                dealer: dealer.name,
-                commodity: dealer.focus[0] || 'Mixed Grain',
-                qty_quintals: Math.floor(Math.random() * 50) + 10,
-                total: Math.floor(Math.random() * 200000) + 50000,
-                status: 'Confirmed'
-            };
+        try {
+            const res = await mandiService.initiateTrade({
+                dealer_id: selectedDealer.id,
+                dealer_name: selectedDealer.name,
+                commodity: tradeForm.commodity,
+                qty_quintals: parseInt(tradeForm.qty_quintals),
+                price_per_quintal: parseInt(tradeForm.price_per_quintal)
+            });
             
             setMarketData(prev => ({
                 ...prev,
-                deals: [newDeal, ...prev.deals]
+                deals: [res.data, ...(prev.deals || [])]
             }));
             
+            setShowTradeModal(false);
+            setSelectedDealer(null);
+        } catch (err) {
+            console.error("Trade failed:", err);
+        } finally {
             setTradingId(null);
-            
-            const ledger = document.querySelector('.ledger-container');
-            if (ledger) ledger.scrollIntoView({ behavior: 'smooth' });
-        }, 1500);
+        }
     };
 
     if (loading) {
@@ -99,10 +131,10 @@ const MarketPage = () => {
         return (
             <div className="flex items-center justify-center" style={{ height: 'calc(100vh - var(--nav-height))' }}>
                 <div className="surface p-xl text-center" style={{ maxWidth: '400px' }}>
-                    <X size={64} className="text-danger mx-auto mb-6" style={{ opacity: 0.5 }} />
+                    <X size={64} className="mx-auto mb-6" style={{ color: 'var(--danger)', opacity: 0.5 }} />
                     <h2 className="mb-3">Core Connectivity Lost</h2>
                     <p className="text-sm mb-8">The regional mandi oracle is currently unreachable. Please verify your satellite uplink or retry synchronization.</p>
-                    <button onClick={() => window.location.reload()} className="btn btn-primary btn-block">Re-establish Uplink</button>
+                    <button onClick={() => window.location.reload()} className="btn btn-primary">Re-establish Uplink</button>
                 </div>
             </div>
         );
@@ -123,7 +155,7 @@ const MarketPage = () => {
                     <div className="ticker-live-dot"></div>
                 </div>
                 
-                <div className="space-y-0">
+                <div>
                     {priceEntries.map(([crop, data], idx) => (
                         <Motion.div 
                             key={crop}
@@ -180,11 +212,14 @@ const MarketPage = () => {
                                 <span className="listing-status">Listed</span>
                             </Motion.div>
                         ))}
-                        <button className="listing-card border-dashed flex items-center justify-center" style={{ minWidth: '220px', borderStyle: 'dashed', opacity: 0.7 }}>
+                        <button 
+                            className="listing-card border-dashed flex items-center justify-center" 
+                            style={{ minWidth: '220px', borderStyle: 'dashed', opacity: 0.7 }}
+                            onClick={() => setShowListingModal(true)}
+                        >
                             <div className="text-center">
-                                <Scale size={24} className="mx-auto mb-sm" style={{ color: 'var(--text-tertiary)' }} />
-                                <div className="text-sm">Inbound Listing</div>
-                                <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Register New Crop</div>
+                                <Plus size={24} className="mx-auto mb-sm" style={{ color: 'var(--text-tertiary)' }} />
+                                <div className="text-sm">Register New Crop</div>
                             </div>
                         </button>
                     </div>
@@ -201,8 +236,8 @@ const MarketPage = () => {
                             <input 
                                 type="text" 
                                 placeholder="Filter Entity..." 
-                                className="input pl-10"
-                                style={{ width: '200px', padding: '8px 12px', fontSize: '12px' }}
+                                className="input"
+                                style={{ width: '200px', padding: '8px 12px 8px 36px', fontSize: '12px' }}
                                 value={searchTerm}
                                 onChange={e => setSearchTerm(e.target.value)}
                             />
@@ -326,6 +361,151 @@ const MarketPage = () => {
                     </div>
                 </Motion.div>
             </aside>
+
+            {/* Create Listing Modal */}
+            <AnimatePresence>
+                {showListingModal && (
+                    <Motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="modal-overlay"
+                        onClick={() => setShowListingModal(false)}
+                    >
+                        <Motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="modal-content"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="modal-header">
+                                <h3>Register New Crop Listing</h3>
+                                <button onClick={() => setShowListingModal(false)}><X size={20} /></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="form-group">
+                                    <label className="label">Commodity</label>
+                                    <select 
+                                        className="input"
+                                        value={listingForm.commodity}
+                                        onChange={e => setListingForm({...listingForm, commodity: e.target.value})}
+                                    >
+                                        <option value="">Select Crop</option>
+                                        <option value="Wheat">Wheat</option>
+                                        <option value="Rice">Rice</option>
+                                        <option value="Tomato">Tomato</option>
+                                        <option value="Onion">Onion</option>
+                                        <option value="Cotton">Cotton</option>
+                                        <option value="Soybean">Soybean</option>
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Weight (KG)</label>
+                                    <input 
+                                        type="number"
+                                        className="input"
+                                        value={listingForm.weight_kg}
+                                        onChange={e => setListingForm({...listingForm, weight_kg: e.target.value})}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Min Price (₹/Quintal)</label>
+                                    <input 
+                                        type="number"
+                                        className="input"
+                                        value={listingForm.min_price_quintal}
+                                        onChange={e => setListingForm({...listingForm, min_price_quintal: e.target.value})}
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowListingModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={handleCreateListing} disabled={creatingListing}>
+                                    {creatingListing ? <Loader2 size={18} className="animate-spin" /> : 'Create Listing'}
+                                </button>
+                            </div>
+                        </Motion.div>
+                    </Motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* Trade Modal */}
+            <AnimatePresence>
+                {showTradeModal && selectedDealer && (
+                    <Motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="modal-overlay"
+                        onClick={() => setShowTradeModal(false)}
+                    >
+                        <Motion.div 
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="modal-content"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="modal-header">
+                                <h3>Initiate Trade</h3>
+                                <button onClick={() => setShowTradeModal(false)}><X size={20} /></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="trade-dealer-info">
+                                    <div className="dealer-avatar" style={{ width: 48, height: 48, fontSize: 16 }}>
+                                        {selectedDealer.name.substring(0, 2).toUpperCase()}
+                                    </div>
+                                    <div>
+                                        <div className="dealer-name">{selectedDealer.name}</div>
+                                        <div className="dealer-location"><MapPin size={12} /> {selectedDealer.location}</div>
+                                    </div>
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Commodity</label>
+                                    <select 
+                                        className="input"
+                                        value={tradeForm.commodity}
+                                        onChange={e => setTradeForm({...tradeForm, commodity: e.target.value})}
+                                    >
+                                        {selectedDealer.focus?.map(c => (
+                                            <option key={c} value={c}>{c}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Quantity (Quintals)</label>
+                                    <input 
+                                        type="number"
+                                        className="input"
+                                        value={tradeForm.qty_quintals}
+                                        onChange={e => setTradeForm({...tradeForm, qty_quintals: e.target.value})}
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="label">Price (₹/Quintal)</label>
+                                    <input 
+                                        type="number"
+                                        className="input"
+                                        value={tradeForm.price_per_quintal}
+                                        onChange={e => setTradeForm({...tradeForm, price_per_quintal: e.target.value})}
+                                    />
+                                </div>
+                                <div className="trade-total">
+                                    <span>Total Value:</span>
+                                    <span className="stat-number">₹{((tradeForm.qty_quintals || 0) * (tradeForm.price_per_quintal || 0)).toLocaleString()}</span>
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button className="btn btn-secondary" onClick={() => setShowTradeModal(false)}>Cancel</button>
+                                <button className="btn btn-primary" onClick={handleConfirmTrade}>
+                                    Confirm Trade
+                                </button>
+                            </div>
+                        </Motion.div>
+                    </Motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

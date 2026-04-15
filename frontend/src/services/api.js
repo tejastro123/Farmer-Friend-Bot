@@ -66,6 +66,8 @@ export const mandiService = {
     },
     getDeal: (id) => api.get(`/mandi/deal/${id}`),
     getHistory: () => api.get('/mandi/analytics'),
+    createListing: (data) => api.post('/mandi/listing', data),
+    initiateTrade: (data) => api.post('/mandi/trade', data),
 };
 
 export const graphService = {

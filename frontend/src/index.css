@@ -5036,6 +5036,93 @@ input:focus, textarea:focus, select:focus {
 .mt-xl { margin-top: var(--space-xl); }
 
 /* ----------------------------------------------------------------------
+    MODAL COMPONENTS
+    ---------------------------------------------------------------------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--space-lg);
+}
+
+.modal-content {
+  background: var(--bg-surface);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 440px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  border-bottom: 1px solid rgba(245,240,232,0.1);
+}
+
+.modal-header h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: var(--text-h3);
+  color: var(--text-primary);
+}
+
+.modal-header button {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: var(--space-xs);
+}
+
+.modal-header button:hover {
+  color: var(--text-primary);
+}
+
+.modal-body {
+  padding: var(--space-lg);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  border-top: 1px solid rgba(245,240,232,0.1);
+}
+
+.trade-dealer-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--bg-raised);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-lg);
+}
+
+.trade-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md);
+  background: var(--gold-muted);
+  border-radius: var(--radius-md);
+  margin-top: var(--space-md);
+}
+
+.trade-total span:first-child {
+  font-family: 'DM Sans', sans-serif;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+/* ----------------------------------------------------------------------
     GLASS DEPRECATED
     ---------------------------------------------------------------------- */
 .glass {

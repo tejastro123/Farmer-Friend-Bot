@@ -8,6 +8,7 @@ Tracks "Virtual Listings" and "Price Alerts".
 import logging
 from typing import List, Dict, Optional
 import time
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -180,3 +181,23 @@ def get_deal_by_id(deal_id: str) -> Optional[Dict]:
         if deal["id"] == deal_id:
             return deal
     return None
+
+def initiate_trade(dealer_id: str, dealer_name: str, commodity: str, qty_quintals: int, price_per_quintal: float) -> Dict:
+    """Creates a new trade/deal and adds it to the ledger."""
+    import random
+    deal_id = f"DEAL-{random.randint(1000, 9999)}"
+    
+    deal = {
+        "id": deal_id,
+        "dealer": dealer_name,
+        "commodity": commodity,
+        "qty_quintals": qty_quintals,
+        "price_per_quintal": price_per_quintal,
+        "total": qty_quintals * price_per_quintal,
+        "date": str(datetime.now().date()),
+        "status": "Confirmed",
+        "bill_no": f"KM-TRS-{random.randint(1000, 9999)}"
+    }
+    
+    _state["deals"].insert(0, deal)
+    return deal
