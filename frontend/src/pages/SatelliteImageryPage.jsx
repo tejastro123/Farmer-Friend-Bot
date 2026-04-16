@@ -22,6 +22,16 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
+function MapController({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    if (center && center.lat && center.lon) {
+      map.setView([center.lat, center.lon], zoom || 11);
+    }
+  }, [center?.lat, center?.lon, zoom]);
+  return null;
+}
+
 const SATELLITE_INFO = {
   "sentinel-1-grd": { name: "Sentinel-1 GRD", type: "SAR Radar", color: "#9C27B0", res: "10m" },
   "sentinel-2-l1c": { name: "Sentinel-2 L1C", type: "Optical", color: "#4CAF50", res: "10m" },
@@ -292,6 +302,7 @@ const SatelliteImageryPage = () => {
               style={{ height: '100%', width: '100%' }}
               ref={mapRef}
             >
+              <MapController center={location} zoom={zoom} />
               <TileLayer
                 attribution={MAP_LAYERS[mapLayer].attribution}
                 url={MAP_LAYERS[mapLayer].url}

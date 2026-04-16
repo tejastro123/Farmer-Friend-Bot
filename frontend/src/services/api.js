@@ -190,7 +190,7 @@ export const satelliteService = {
     getSatelliteFeatures: (data) => api.post('/satellite/features', data),
     
     // Geocoding
-    reverseGeocode: (lat, lon) => api.post('/geocoding/reverse', { lat, lon }),
+    reverseGeocode: (lat, lon) => api.post('/reverse', { lat, lon }),
 };
 
 export default api;
