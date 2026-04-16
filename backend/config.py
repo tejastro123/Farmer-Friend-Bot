@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     mandi_resource_id: str = "9ef84268-d588-465a-a308-a864a43d0070" 
     news_api_key: str = ""
 
+    # ── Satellite / Remote Sensing ───────────────────────
+    satellite_api_key: str = ""
+    planet_api_key: str = ""
+
     # ── App ───────────────────────────────────────────────────
     app_env: str = "development"
     backend_port: int = 8000
