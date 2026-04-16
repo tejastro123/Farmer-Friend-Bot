@@ -265,7 +265,7 @@ async def search_satellite(request: SatelliteSearchRequest):
         logger.error(f"Search error: {str(e)}")
         # Return demo data on error
         demo_data = satellite_service._generate_demo_imagery(
-            request.lat, request.lon, request.satellite, request.days
+            request.lat, request.lon, request.satellite, request.days, request.cloud_cover or 30.0
         )
         return {"success": True, "data": {**demo_data, "demo": True, "error": str(e)}}
 

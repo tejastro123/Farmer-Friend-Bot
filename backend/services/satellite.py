@@ -466,13 +466,22 @@ class SatelliteService:
 
     def _parse_planet_item(self, item: dict) -> dict:
         props = item.get("properties", {})
+        item_type = props.get("item_type", "Sentinel2")
+        acquired = props.get("acquired", "")
+        date_str = acquired[:10] if acquired else "2024-01-01"
+        
         return {
             "id": item.get("id"),
-            "item_type": props.get("item_type"),
-            "acquired": props.get("acquired"),
-            "cloud_cover": props.get("cloud_cover"),
-            "provider": props.get("provider"),
-            "gsd": props.get("gsd"),
+            "item_type": item_type,
+            "date": date_str,
+            "acquired": acquired,
+            "cloud_cover": props.get("cloud_cover", 10),
+            "provider": props.get("provider", "Planet"),
+            "gsd": props.get("gsd", 10),
+            "bounds": props.get("geometry", {}).get("coordinates", [[0, 0]]),
+            "preview": f"https://api.planet.com/data/v1/aux/{item.get('id')}/thumb?size=medium",
+            "thumbnail": f"https://api.planet.com/data/v1/aux/{item.get('id')}/thumb?size=small",
+            "download_url": f"https://planet.com/data/v1/download?id={item.get('id')}",
         }
 
     async def planet_get_assets(
@@ -642,7 +651,7 @@ class SatelliteService:
     ) -> dict:
         """Search any satellite type for imagery."""
         if not self.planet_api_key:
-            return {**self._generate_demo_imagery(lat, lon, satellite, days), "demo": True}
+            return {**self._generate_demo_imagery(lat, lon, satellite, days, cloud_cover), "demo": True}
 
         if satellite not in self.SATELLITE_CONFIGS:
             return {"error": f"Unknown satellite: {satellite}", "items": []}
@@ -698,12 +707,12 @@ class SatelliteService:
                         }
                     
                 logger.warning(f"Planet API returned no items, using demo data")
-                return {**self._generate_demo_imagery(lat, lon, satellite, days), "demo": True}
+                return {**self._generate_demo_imagery(lat, lon, satellite, days, cloud_cover or 30.0), "demo": True}
         except Exception as e:
             logger.warning(f"Planet API error: {e}, using demo data")
-            return {**self._generate_demo_imagery(lat, lon, satellite, days), "demo": True}
+            return {**self._generate_demo_imagery(lat, lon, satellite, days, 30.0), "demo": True}
 
-    def _generate_demo_imagery(self, lat: float, lon: float, satellite: str, days: int) -> dict:
+    def _generate_demo_imagery(self, lat: float, lon: float, satellite: str, days: int, cloud_cover: float = 30.0) -> dict:
         """Generate demo imagery when API is unavailable."""
         import random
         random.seed(int(lat * 1000 + lon * 100))
@@ -713,8 +722,9 @@ class SatelliteService:
         
         for i in range(min(12, days // 3)):
             date = end_date - timedelta(days=i * 3)
+            item_id = f"demo_{satellite}_{i}_{int(date.timestamp())}"
             items.append({
-                "id": f"demo_{satellite}_{i}_{int(date.timestamp())}",
+                "id": item_id,
                 "date": date.strftime("%Y-%m-%d"),
                 "cloud_cover": round(random.uniform(0, cloud_cover), 1),
                 "provider": "ESA" if "sentinel" in satellite else "USGS",
@@ -729,7 +739,10 @@ class SatelliteService:
                 "geometry": {
                     "type": "Point",
                     "coordinates": [lon, lat]
-                }
+                },
+                "preview": f"https://pccs.planet.com/placeholder/{item_id}/preview.jpg",
+                "thumbnail": f"https://pccs.planet.com/placeholder/{item_id}/thumb.jpg",
+                "download_url": f"https://planet.com/data/v1/download?id={item_id}",
             })
         
         return {
