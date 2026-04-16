@@ -32,7 +32,49 @@ const PrivateRoute = ({ children }) => {
   return token ? children : <Navigate to="/login" />;
 };
 
-// Wheat grain SVG icon for branding
+// KrishiMitra logo SVG
+const KrishiMitraLogo = ({ size = 36, className = "" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 64 64"
+    fill="none"
+    className={className}
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="wheatGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#c8912b"/>
+        <stop offset="100%" stopColor="#4a7c4a"/>
+      </linearGradient>
+    </defs>
+    <circle cx="32" cy="32" r="30" fill="#1a2e1a"/>
+    <circle cx="32" cy="32" r="28" fill="none" stroke="url(#wheatGrad)" strokeWidth="1.5"/>
+    <g stroke="#c8912b" strokeWidth="2.5" strokeLinecap="round" fill="none">
+      <path d="M22 52V26c0-3 2-5 5-5s5 2 5 5v21"/>
+      <path d="M22 30c-2-4-5-6-5-9s3-5 5-5"/>
+      <path d="M22 30c2-4 5-6 5-9s-3-5-5-5"/>
+      <path d="M22 38c-2.5-4-6-6-6-10s3.5-6 6-6"/>
+      <path d="M22 38c2.5-4 6-6 6-10s-3.5-6-6-6"/>
+    </g>
+    <g stroke="#4a7c4a" strokeWidth="2.5" strokeLinecap="round" fill="none">
+      <path d="M42 52V26c0-3-2-5-5-5s-5 2-5 5v21"/>
+      <path d="M42 30c2-4 5-6 5-9s-3-5-5-5"/>
+      <path d="M42 30c-2-4-5-6-5-9s3-5 5-5"/>
+      <path d="M42 38c2.5-4 6-6 6-10s-3.5-6-6-6"/>
+      <path d="M42 38c-2.5-4-6-6-6-10s3.5-6 6-6"/>
+    </g>
+    <circle cx="32" cy="42" r="4" fill="#c8912b"/>
+    <circle cx="32" cy="42" r="2" fill="#1a2e1a"/>
+    <g stroke="#c8912b" strokeWidth="1.5" strokeLinecap="round">
+      <path d="M32 50v3"/>
+      <path d="M25 47l-2 3"/>
+      <path d="M39 47l2 3"/>
+    </g>
+  </svg>
+);
+
+// Wheat grain SVG icon for branding (legacy)
 const WheatIcon = ({ size = 20, className = "" }) => (
   <svg
     width={size}
@@ -112,9 +154,7 @@ function App() {
       <nav className="navbar">
         {/* LEFT — Brand Identity */}
         <Link to="/" className="navbar-brand">
-          <div className="brand-logo">
-            <WheatIcon size={20} className="wheat-icon" />
-          </div>
+          <KrishiMitraLogo size={36} className="brand-logo" />
           <div className="brand-text">
             <span className="brand-name">KrishiMitra</span>
             <span className="brand-ai">AI</span>
@@ -210,9 +250,7 @@ function App() {
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
               <div className="mobile-menu-header">
-                <div className="brand-logo">
-                  <WheatIcon size={24} className="wheat-icon" />
-                </div>
+                <KrishiMitraLogo size={36} className="brand-logo" />
                 <button
                   className="mobile-close"
                   onClick={() => setMobileMenuOpen(false)}

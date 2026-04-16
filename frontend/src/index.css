@@ -674,9 +674,6 @@ textarea:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--gold-muted);
-  border: 2px solid var(--gold);
-  box-shadow: var(--glow-gold);
 }
 
 .wheat-icon {
