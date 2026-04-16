@@ -51,7 +51,13 @@ const SatelliteImageryPage = () => {
   const [viewMode, setViewMode] = useState("grid");
   const [isDemo, setIsDemo] = useState(false);
   const [previewImage, setPreviewImage] = useState(null);
+  const [mapLayer, setMapLayer] = useState("osm");
   const mapRef = useRef(null);
+
+  const MAP_LAYERS = {
+    osm: { name: "OpenStreetMap", url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' },
+    satellite: { name: "Satellite", url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", attribution: 'Esri' },
+  };
 
   const fetchImagery = async () => {
     setLoading(true);
@@ -239,6 +245,24 @@ const SatelliteImageryPage = () => {
             </div>
           </div>
 
+          <div className="sidebar-section">
+            <h3><Map size={16} /> Map Type</h3>
+            <div className="view-toggles">
+              <button 
+                className={mapLayer === "osm" ? "active" : ""}
+                onClick={() => setMapLayer("osm")}
+              >
+                Map
+              </button>
+              <button 
+                className={mapLayer === "satellite" ? "active" : ""}
+                onClick={() => setMapLayer("satellite")}
+              >
+                Satellite
+              </button>
+            </div>
+          </div>
+
           {isDemo && (
             <div className="demo-notice">
               <Info size={14} />
@@ -256,8 +280,8 @@ const SatelliteImageryPage = () => {
               ref={mapRef}
             >
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution={MAP_LAYERS[mapLayer].attribution}
+                url={MAP_LAYERS[mapLayer].url}
               />
               <Marker position={[location.lat, location.lon]}>
                 <Popup>
