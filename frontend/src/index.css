@@ -8281,6 +8281,324 @@ input:focus, textarea:focus, select:focus {
 .features-grid-full { grid-template-columns: 1fr 1fr; }
 }
 
+/* Satellite Imagery Page */
+.si-page { max-width: 1600px; margin: 0 auto; padding: 1.5rem; }
+.si-header { margin-bottom: 1.5rem; }
+.si-title { display: flex; align-items: center; gap: 1rem; margin-top: 1rem; }
+.si-title h1 { font-size: 1.75rem; font-weight: 600; }
+.si-title p { color: var(--text-secondary); font-size: 0.875rem; }
+
+.si-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1rem; }
+
+.si-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+
+.sidebar-section {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.sidebar-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.location-inputs { display: flex; flex-direction: column; gap: 0.5rem; }
+.location-inputs input {
+  padding: 0.5rem;
+  background: var(--bg-base);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.zoom-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.75rem;
+  padding: 0.5rem;
+  background: var(--bg-raised);
+  border-radius: 6px;
+}
+
+.zoom-controls button {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.zoom-controls span { font-size: 0.75rem; color: var(--text-secondary); }
+
+.filter-group { margin-bottom: 0.75rem; }
+.filter-group label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.25rem;
+}
+
+.filter-group select, .filter-group input[type="range"] {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--bg-base);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+}
+
+.range-value {
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--sage);
+  margin-top: 0.25rem;
+}
+
+.view-toggles { display: flex; gap: 0.5rem; }
+.view-toggles button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  background: var(--bg-base);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+
+.view-toggles button.active {
+  background: var(--sage);
+  color: var(--bg-base);
+}
+
+.si-main { display: flex; flex-direction: column; gap: 1rem; }
+
+.map-container {
+  position: relative;
+  height: 400px;
+  background: var(--bg-surface);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-secondary);
+}
+
+.map-placeholder h3 { margin: 1rem 0 0.5rem; }
+.map-placeholder p { font-size: 0.75rem; }
+
+.map-overlay-info {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--bg-raised);
+  border-radius: 6px;
+  font-size: 0.75rem;
+}
+
+.map-controls {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.map-controls button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.move-buttons { display: flex; gap: 0.25rem; }
+
+.imagery-results {
+  background: var(--bg-surface);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.results-header h3 { font-size: 1rem; }
+.results-info { font-size: 0.75rem; color: var(--text-secondary); font-family: monospace; }
+
+.imagery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.imagery-card {
+  background: var(--bg-raised);
+  border-radius: 8px;
+  padding: 0.75rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.imagery-card:hover { transform: translateY(-2px); }
+.imagery-card.selected { border-color: var(--sage); }
+
+.card-preview {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-base);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  color: var(--text-tertiary);
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-date { font-size: 0.75rem; font-weight: 600; }
+.card-cloud {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.card-provider {
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  margin-top: 0.25rem;
+}
+
+.imagery-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--bg-raised);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.timeline-marker {
+  width: 12px;
+  height: 12px;
+  background: var(--sage);
+  border-radius: 50%;
+}
+
+.timeline-content {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem;
+  color: var(--text-secondary);
+}
+
+.loading-state .spin { animation: spin 1s linear infinite; }
+
+.image-details-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--bg-surface);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 1rem 2rem;
+  z-index: 100;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.detail-header h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; }
+
+.close-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item .label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-tertiary);
+  margin-bottom: 0.25rem;
+}
+
+.detail-item .value {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@media (max-width: 1024px) {
+  .si-layout { grid-template-columns: 1fr; }
+  .imagery-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 .sat-card {
   padding: 0.875rem;
   background: var(--bg-surface);

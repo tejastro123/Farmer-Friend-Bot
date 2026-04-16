@@ -248,7 +248,7 @@ const CropHealthPage = () => {
   const [selectedSatellite, setSelectedSatellite] = useState("sentinel-2-l2a");
   const [days, setDays] = useState(30);
   const [cloudCover, setCloudCover] = useState(20);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
   const [locating, setLocating] = useState(false);
@@ -315,11 +315,31 @@ const CropHealthPage = () => {
 
   const formatValue = (feature, value) => {
     if (!value) return "-";
-    const numVal = value.value ?? value.score ?? value.index ?? value;
-    if (typeof numVal === "number") {
-      return numVal > 10 ? Math.round(numVal) : Number(numVal).toFixed(2);
+    
+    // Handle objects like {vv: 0.x, vh: 0.y} - display as JSON
+    if (typeof value === "object") {
+      // Extract the primary numeric value - check value, score, index, vv keys
+      const numVal = value.value ?? value.score ?? value.index ?? value.vv;
+      
+      if (numVal !== undefined && typeof numVal === "number" && !isNaN(numVal)) {
+        return numVal > 10 ? Math.round(numVal) : numVal.toFixed(2);
+      }
+      
+      // No numeric value found - display status or other field
+      if (value.status) return value.status;
+      if (value.risk) return value.risk;
+      if (value.classification) return value.classification;
+      if (value.type) return value.type;
+      
+      // Fallback - display object as string
+      return Object.keys(value).length > 0 ? JSON.stringify(value) : "-";
     }
-    return numVal;
+    
+    // Handle primitive values
+    if (typeof value === "number" && !isNaN(value)) {
+      return value > 10 ? Math.round(value) : value.toFixed(2);
+    }
+    return String(value);
   };
 
   const getStatus = (value) => {
@@ -364,15 +384,21 @@ const CropHealthPage = () => {
             <input
               type="number"
               placeholder="Latitude"
-              value={location.lat}
-              onChange={(e) => setLocation({ ...location, lat: parseFloat(e.target.value) })}
+              value={location.lat || ""}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) setLocation({ ...location, lat: val });
+              }}
               step="0.0001"
             />
             <input
               type="number"
               placeholder="Longitude"
-              value={location.lon}
-              onChange={(e) => setLocation({ ...location, lon: parseFloat(e.target.value) })}
+              value={location.lon || ""}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val)) setLocation({ ...location, lon: val });
+              }}
               step="0.0001"
             />
             <button 

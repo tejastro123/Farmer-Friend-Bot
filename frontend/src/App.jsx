@@ -24,6 +24,7 @@ import KnowledgeGraphPage from './pages/KnowledgeGraphPage';
 import DataCenterPage from './pages/DataCenterPage';
 import FarmDashboardPage from './pages/FarmDashboardPage';
 import CropHealthPage from './pages/CropHealthPage';
+import SatelliteImageryPage from './pages/SatelliteImageryPage';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -151,7 +152,8 @@ function App() {
 
           <NavDropdown label="Farm">
             <DropdownItem to="/farm">Dashboard</DropdownItem>
-            <DropdownItem to="/crop-health">Satellite</DropdownItem>
+            <DropdownItem to="/crop-health">Crop Health</DropdownItem>
+            <DropdownItem to="/satellite-imagery">Imagery</DropdownItem>
           </NavDropdown>
         </div>
 
@@ -298,7 +300,14 @@ function App() {
                   className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  Satellite
+                  Crop Health
+                </NavLink>
+                <NavLink
+                  to="/satellite-imagery"
+                  className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Imagery
                 </NavLink>
 
                 <div className="mobile-divider" />
@@ -365,6 +374,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <CropHealthPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/satellite-imagery"
+                element={
+                  <PrivateRoute>
+                    <SatelliteImageryPage />
                   </PrivateRoute>
                 }
               />
