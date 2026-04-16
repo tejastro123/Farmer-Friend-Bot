@@ -8074,6 +8074,18 @@ input:focus, textarea:focus, select:focus {
 .btn-locate:disabled { opacity: 0.7; cursor: wait; }
 .btn-locate .spinning { animation: spin 1s linear infinite; }
 
+.location-name {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  background: rgba(10, 11, 13, 0.6);
+  border-radius: 4px;
+  margin-top: 0.375rem;
+}
+
 .btn-refresh {
   display: flex;
   align-items: center;

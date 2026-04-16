@@ -245,6 +245,7 @@ const SATELLITE_FEATURES = {
 
 const CropHealthPage = () => {
   const [location, setLocation] = useState({ lat: 17.3850, lon: 78.4867 });
+  const [locationName, setLocationName] = useState("");
   const [selectedSatellite, setSelectedSatellite] = useState("sentinel-2-l2a");
   const [days, setDays] = useState(30);
   const [cloudCover, setCloudCover] = useState(20);
@@ -290,17 +291,25 @@ const CropHealthPage = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await satelliteService.getSatelliteFeatures({
-        lat: location.lat,
-        lon: location.lon,
-        satellite: selectedSatellite,
-        crop: "general"
-      });
-      const result = response.data;
+      const [featuresRes, geoRes] = await Promise.all([
+        satelliteService.getSatelliteFeatures({
+          lat: location.lat,
+          lon: location.lon,
+          satellite: selectedSatellite,
+          crop: "general"
+        }),
+        satelliteService.reverseGeocode(location.lat, location.lon).catch(() => ({ data: { success: false } }))
+      ]);
+      
+      const result = featuresRes.data;
       if (result.success && result.data) {
         setData(result.data);
       } else {
         setError(result.error || "Failed to load data");
+      }
+      
+      if (geoRes.data?.success) {
+        setLocationName(geoRes.data.data.formatted || geoRes.data.data.display_name || "");
       }
     } catch (err) {
       setError(err.message || "Connection failed");
@@ -411,6 +420,11 @@ const CropHealthPage = () => {
               {locating ? "Locating..." : "Live"}
             </button>
           </div>
+          {locationName && (
+            <div className="location-name">
+              <MapPin size={12} /> {locationName}
+            </div>
+          )}
         </div>
 
         <div className="ctrl-group">

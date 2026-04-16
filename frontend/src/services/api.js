@@ -188,6 +188,9 @@ export const satelliteService = {
     listSatellites: () => api.get('/satellite/satellites'),
     searchSatellite: (data) => api.post('/satellite/search', data),
     getSatelliteFeatures: (data) => api.post('/satellite/features', data),
+    
+    // Geocoding
+    reverseGeocode: (lat, lon) => api.post('/geocoding/reverse', { lat, lon }),
 };
 
 export default api;

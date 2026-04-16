@@ -41,6 +41,7 @@ function MapClickHandler({ onMapClick }) {
 
 const SatelliteImageryPage = () => {
   const [location, setLocation] = useState({ lat: 17.3850, lon: 78.4867 });
+  const [locationName, setLocationName] = useState("");
   const [zoom, setZoom] = useState(11);
   const [selectedSatellite, setSelectedSatellite] = useState("sentinel-2-l2a");
   const [dateRange, setDateRange] = useState(30);
@@ -63,16 +64,19 @@ const SatelliteImageryPage = () => {
     setLoading(true);
     setIsDemo(false);
     try {
-      const response = await satelliteService.searchSatellite({
-        lat: location.lat,
-        lon: location.lon,
-        satellite: selectedSatellite,
-        days: dateRange,
-        cloud_cover: cloudCover
-      });
+      const [satRes, geoRes] = await Promise.all([
+        satelliteService.searchSatellite({
+          lat: location.lat,
+          lon: location.lon,
+          satellite: selectedSatellite,
+          days: dateRange,
+          cloud_cover: cloudCover
+        }),
+        satelliteService.reverseGeocode(location.lat, location.lon).catch(() => ({ data: { success: false } }))
+      ]);
       
-      if (response.data.success && response.data.data) {
-        const data = response.data.data;
+      if (satRes.data.success && satRes.data.data) {
+        const data = satRes.data.data;
         if (data.items && data.items.length > 0) {
           setImagery(data.items);
           setSelectedImage(data.items[0]);
@@ -80,6 +84,10 @@ const SatelliteImageryPage = () => {
         } else {
           setImagery([]);
         }
+      }
+      
+      if (geoRes.data?.success) {
+        setLocationName(geoRes.data.data.formatted || geoRes.data.data.display_name || "");
       }
     } catch (e) {
       console.error("Error fetching imagery:", e);
@@ -168,6 +176,11 @@ const SatelliteImageryPage = () => {
             <button className="btn-use-location" onClick={fetchImagery}>
               <Target size={14} /> Search This Area
             </button>
+            {locationName && (
+              <div className="location-name">
+                <MapPin size={12} /> {locationName}
+              </div>
+            )}
             
             <div className="zoom-label">
               <ZoomOut size={14} />
@@ -266,7 +279,7 @@ const SatelliteImageryPage = () => {
           {isDemo && (
             <div className="demo-notice">
               <Info size={14} />
-              <span>Showing demo data. Connect Planet API for real imagery.</span>
+              <span>Using demo data - set WEATHER_API_KEY or check logs for errors</span>
             </div>
           )}
         </div>
