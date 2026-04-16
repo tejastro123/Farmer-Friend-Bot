@@ -1,23 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  MapPin, RefreshCw, ChevronLeft, Satellite, Calendar,
-  Cloud, Layers, Grid, Clock, Filter, ZoomIn, ZoomOut,
-  Move, Play, Pause, Eye, Download, Info, Map
+  MapPin, RefreshCw, ChevronLeft, Layers, Calendar,
+  Cloud, Layers as LayersIcon, Clock, Filter, ZoomIn, ZoomOut,
+  Move, Eye, Download, Info, Map, X, ExternalLink,
+  Compass, Target
 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { satelliteService } from '../services/api';
 
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconUrl: markerIcon,
+  iconRetinaUrl: markerIcon2x,
+  shadowUrl: markerShadow,
+});
+
 const SATELLITE_INFO = {
-  "sentinel-1-grd": { name: "Sentinel-1 GRD", type: "SAR Radar", color: "#9C27B0" },
-  "sentinel-2-l1c": { name: "Sentinel-2 L1C", type: "Optical", color: "#4CAF50" },
-  "sentinel-2-l2a": { name: "Sentinel-2 L2A", type: "Optical", color: "#4CAF50" },
-  "landsat-ot-l1": { name: "Landsat 8-9 OLI", type: "Optical", color: "#00B0FF" },
-  "landsat-ot-l2": { name: "Landsat 8-9 OLI L2", type: "Optical", color: "#00B0FF" },
+  "sentinel-1-grd": { name: "Sentinel-1 GRD", type: "SAR Radar", color: "#9C27B0", res: "10m" },
+  "sentinel-2-l1c": { name: "Sentinel-2 L1C", type: "Optical", color: "#4CAF50", res: "10m" },
+  "sentinel-2-l2a": { name: "Sentinel-2 L2A", type: "Optical", color: "#4CAF50", res: "10m" },
+  "landsat-ot-l1": { name: "Landsat 8-9 OLI", type: "Optical", color: "#00B0FF", res: "30m" },
+  "landsat-ot-l2": { name: "Landsat 8-9 OLI L2", type: "Optical", color: "#00B0FF", res: "30m" },
 };
+
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({
+    click: (e) => {
+      onMapClick({ lat: e.latlng.lat, lon: e.latlng.lng });
+    },
+  });
+  return null;
+}
 
 const SatelliteImageryPage = () => {
   const [location, setLocation] = useState({ lat: 17.3850, lon: 78.4867 });
-  const [zoom, setZoom] = useState(10);
+  const [zoom, setZoom] = useState(11);
   const [selectedSatellite, setSelectedSatellite] = useState("sentinel-2-l2a");
   const [dateRange, setDateRange] = useState(30);
   const [cloudCover, setCloudCover] = useState(20);
@@ -25,37 +49,13 @@ const SatelliteImageryPage = () => {
   const [imagery, setImagery] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
   const [viewMode, setViewMode] = useState("grid");
-  const [mapErrors, setMapErrors] = useState([]);
+  const [isDemo, setIsDemo] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
   const mapRef = useRef(null);
-
-  // Simulated imagery data - in production this would come from the API
-  const generateImagery = () => {
-    const images = [];
-    const now = new Date();
-    
-    for (let i = 0; i < 12; i++) {
-      const date = new Date(now);
-      date.setDate(date.getDate() - (i * 3));
-      
-      images.push({
-        id: `img_${Date.now()}_${i}`,
-        date: date.toISOString().split('T')[0],
-        cloud_cover: Math.random() * 30,
-        provider: "ESA",
-        type: selectedSatellite,
-        bounds: {
-          north: location.lat + 0.1,
-          south: location.lat - 0.1,
-          east: location.lon + 0.1,
-          west: location.lon - 0.1
-        }
-      });
-    }
-    return images;
-  };
 
   const fetchImagery = async () => {
     setLoading(true);
+    setIsDemo(false);
     try {
       const response = await satelliteService.searchSatellite({
         lat: location.lat,
@@ -70,15 +70,14 @@ const SatelliteImageryPage = () => {
         if (data.items && data.items.length > 0) {
           setImagery(data.items);
           setSelectedImage(data.items[0]);
+          setIsDemo(data.demo || false);
         } else {
-          // Use generated data if API returns empty
-          setImagery(generateImagery());
+          setImagery([]);
         }
-      } else {
-        setImagery(generateImagery());
       }
     } catch (e) {
-      setImagery(generateImagery());
+      console.error("Error fetching imagery:", e);
+      setImagery([]);
     } finally {
       setLoading(false);
     }
@@ -86,7 +85,12 @@ const SatelliteImageryPage = () => {
 
   useEffect(() => {
     fetchImagery();
-  }, [selectedSatellite, location.lat, location.lon, dateRange, cloudCover]);
+  }, []);
+
+  const handleMapClick = (newLocation) => {
+    setLocation(newLocation);
+    fetchImagery();
+  };
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -101,6 +105,15 @@ const SatelliteImageryPage = () => {
     if (cover < 10) return '#4CAF50';
     if (cover < 20) return '#FF9800';
     return '#f44336';
+  };
+
+  const handleDownload = (image) => {
+    const planetAssetUrl = `https://planet.com/data/v1/download?id=${image.id}`;
+    window.open(planetAssetUrl, '_blank');
+  };
+
+  const handlePreview = (image) => {
+    setPreviewImage(image);
   };
 
   return (
@@ -129,26 +142,38 @@ const SatelliteImageryPage = () => {
                 type="number"
                 placeholder="Latitude"
                 value={location.lat || ""}
-                onChange={(e) => setLocation({ ...location, lat: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) setLocation({ ...location, lat: val });
+                }}
                 step="0.0001"
               />
               <input
                 type="number"
                 placeholder="Longitude"
                 value={location.lon || ""}
-                onChange={(e) => setLocation({ ...location, lon: parseFloat(e.target.value) || 0 })}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) setLocation({ ...location, lon: val });
+                }}
                 step="0.0001"
               />
             </div>
+            <button className="btn-use-location" onClick={fetchImagery}>
+              <Target size={14} /> Search This Area
+            </button>
             
-            <div className="zoom-controls">
-              <button onClick={() => setZoom(Math.max(1, zoom - 1))}>
-                <ZoomOut size={16} />
-              </button>
-              <span>Zoom: {zoom}x</span>
-              <button onClick={() => setZoom(Math.min(18, zoom + 1))}>
-                <ZoomIn size={16} />
-              </button>
+            <div className="zoom-label">
+              <ZoomOut size={14} />
+              <input
+                type="range"
+                min={8}
+                max={16}
+                value={zoom}
+                onChange={(e) => setZoom(parseInt(e.target.value))}
+              />
+              <ZoomIn size={14} />
+              <span>Zoom: {zoom}</span>
             </div>
           </div>
 
@@ -181,7 +206,7 @@ const SatelliteImageryPage = () => {
             </div>
             
             <div className="filter-group">
-              <label>Max Cloud Cover</label>
+              <label>Max Cloud Cover: {cloudCover}%</label>
               <input
                 type="range"
                 min={0}
@@ -189,22 +214,21 @@ const SatelliteImageryPage = () => {
                 value={cloudCover}
                 onChange={(e) => setCloudCover(parseInt(e.target.value))}
               />
-              <span className="range-value">{cloudCover}%</span>
             </div>
 
-            <button className="btn btn-primary" onClick={fetchImagery}>
-              <RefreshCw size={16} /> Search
+            <button className="btn btn-primary full-width" onClick={fetchImagery}>
+              <RefreshCw size={16} /> Search Imagery
             </button>
           </div>
 
           <div className="sidebar-section">
-            <h3><Grid size={16} /> View</h3>
+            <h3><LayersIcon size={16} /> View Mode</h3>
             <div className="view-toggles">
               <button 
                 className={viewMode === "grid" ? "active" : ""}
                 onClick={() => setViewMode("grid")}
               >
-                <Grid size={16} /> Grid
+                <LayersIcon size={16} /> Grid
               </button>
               <button 
                 className={viewMode === "timeline" ? "active" : ""}
@@ -214,44 +238,70 @@ const SatelliteImageryPage = () => {
               </button>
             </div>
           </div>
+
+          {isDemo && (
+            <div className="demo-notice">
+              <Info size={14} />
+              <span>Showing demo data. Connect Planet API for real imagery.</span>
+            </div>
+          )}
         </div>
 
         <div className="si-main">
           <div className="map-container">
-            <div className="map-placeholder">
-              <Map size={64} />
-              <h3>Interactive Map</h3>
-              <p>Location: {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</p>
-              <p>Zoom: {zoom}x</p>
-              <div className="map-overlay-info">
-                <span>Satellite: {SATELLITE_INFO[selectedSatellite]?.name}</span>
-                <span>Images: {imagery.length}</span>
-              </div>
-            </div>
+            <MapContainer
+              center={[location.lat, location.lon]}
+              zoom={zoom}
+              style={{ height: '100%', width: '100%' }}
+              ref={mapRef}
+            >
+              <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              />
+              <Marker position={[location.lat, location.lon]}>
+                <Popup>
+                  <div className="map-popup">
+                    <strong>Search Location</strong>
+                    <p>{location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</p>
+                    <small>Click map to move location</small>
+                  </div>
+                </Popup>
+              </Marker>
+              <MapClickHandler onMapClick={handleMapClick} />
+            </MapContainer>
             
-            <div className="map-controls">
-              <button title="Move up"><Move size={16} /></button>
-              <div className="move-buttons">
-                <button title="Move left"><Move size={16} /></button>
-                <button title="Center"><MapPin size={16} /></button>
-                <button title="Move right"><Move size={16} /></button>
+            <div className="map-overlay">
+              <div className="map-info">
+                <span><MapPin size={12} /> {location.lat.toFixed(4)}°N, {location.lon.toFixed(4)}°E</span>
+                <span>|</span>
+                <span>{imagery.length} images</span>
+                {isDemo && <span className="demo-badge">DEMO</span>}
               </div>
-              <button title="Move down"><Move size={16} /></button>
             </div>
           </div>
 
           <div className="imagery-results">
             <div className="results-header">
-              <h3>Available Imagery ({imagery.length})</h3>
+              <h3>
+                <LayersIcon size={18} /> 
+                Available Imagery ({imagery.length})
+              </h3>
               <span className="results-info">
-                {location.lat.toFixed(2)}°N, {location.lon.toFixed(2)}°E
+                {SATELLITE_INFO[selectedSatellite]?.name} | {SATELLITE_INFO[selectedSatellite]?.res}
               </span>
             </div>
 
             {loading ? (
               <div className="loading-state">
                 <RefreshCw className="spin" size={24} />
-                <p>Loading imagery...</p>
+                <p>Searching satellite imagery...</p>
+              </div>
+            ) : imagery.length === 0 ? (
+              <div className="empty-state">
+                <Map size={48} />
+                <p>No imagery found for this location</p>
+                <p className="hint">Try increasing the cloud cover or time range</p>
               </div>
             ) : viewMode === "grid" ? (
               <div className="imagery-grid">
@@ -273,7 +323,28 @@ const SatelliteImageryPage = () => {
                         <Cloud size={12} /> {(img.cloud_cover || 0).toFixed(0)}%
                       </span>
                     </div>
-                    <div className="card-provider">{img.provider || "ESA"}</div>
+                    <div className="card-actions">
+                      <button 
+                        className="action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePreview(img);
+                        }}
+                        title="Preview"
+                      >
+                        <Eye size={14} />
+                      </button>
+                      <button 
+                        className="action-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(img);
+                        }}
+                        title="Download"
+                      >
+                        <Download size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -285,7 +356,10 @@ const SatelliteImageryPage = () => {
                     className={`timeline-item ${selectedImage?.id === img.id ? 'selected' : ''}`}
                     onClick={() => setSelectedImage(img)}
                   >
-                    <div className="timeline-marker"></div>
+                    <div 
+                      className="timeline-marker" 
+                      style={{ backgroundColor: getCloudColor(img.cloud_cover || 0) }}
+                    />
                     <div className="timeline-content">
                       <span className="timeline-date">{img.date || formatDate(new Date())}</span>
                       <span className="timeline-sat">{SATELLITE_INFO[selectedSatellite]?.name}</span>
@@ -296,6 +370,14 @@ const SatelliteImageryPage = () => {
                         {(img.cloud_cover || 0).toFixed(0)}% cloud
                       </span>
                     </div>
+                    <div className="timeline-actions">
+                      <button onClick={(e) => { e.stopPropagation(); handlePreview(img); }}>
+                        <Eye size={14} />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDownload(img); }}>
+                        <Download size={14} />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -304,47 +386,55 @@ const SatelliteImageryPage = () => {
         </div>
       </div>
 
-      {selectedImage && (
-        <div className="image-details-panel">
-          <div className="detail-header">
-            <h3><Info size={18} /> Image Details</h3>
-            <button className="close-btn" onClick={() => setSelectedImage(null)}>×</button>
-          </div>
-          
-          <div className="detail-grid">
-            <div className="detail-item">
-              <span className="label">Date</span>
-              <span className="value">{selectedImage.date || formatDate(new Date())}</span>
+      {previewImage && (
+        <div className="preview-modal" onClick={() => setPreviewImage(null)}>
+          <div className="preview-content" onClick={(e) => e.stopPropagation()}>
+            <div className="preview-header">
+              <h3>Image Preview</h3>
+              <button className="close-btn" onClick={() => setPreviewImage(null)}>
+                <X size={20} />
+              </button>
             </div>
-            <div className="detail-item">
-              <span className="label">Satellite</span>
-              <span className="value">{SATELLITE_INFO[selectedSatellite]?.name}</span>
+            
+            <div className="preview-image">
+              <Layers size={64} />
+              <p>Satellite Image Preview</p>
+              <p className="hint">Connect Planet API to see actual imagery</p>
             </div>
-            <div className="detail-item">
-              <span className="label">Cloud Cover</span>
-              <span className="value">{(selectedImage.cloud_cover || 0).toFixed(1)}%</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Provider</span>
-              <span className="value">{selectedImage.provider || "ESA"}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Resolution</span>
-              <span className="value">{SATELLITE_INFO[selectedSatellite]?.name?.includes("Sentinel-2") ? "10m" : "30m"}</span>
-            </div>
-            <div className="detail-item">
-              <span className="label">Type</span>
-              <span className="value">{SATELLITE_INFO[selectedSatellite]?.type || "Optical"}</span>
-            </div>
-          </div>
 
-          <div className="detail-actions">
-            <button className="btn btn-primary">
-              <Eye size={16} /> Preview
-            </button>
-            <button className="btn btn-secondary">
-              <Download size={16} /> Download
-            </button>
+            <div className="preview-details">
+              <div className="detail-row">
+                <span className="label">Date</span>
+                <span className="value">{previewImage.date}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Satellite</span>
+                <span className="value">{SATELLITE_INFO[selectedSatellite]?.name}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Cloud Cover</span>
+                <span className="value" style={{ color: getCloudColor(previewImage.cloud_cover) }}>
+                  {previewImage.cloud_cover?.toFixed(1)}%
+                </span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Resolution</span>
+                <span className="value">{SATELLITE_INFO[selectedSatellite]?.res}</span>
+              </div>
+              <div className="detail-row">
+                <span className="label">Provider</span>
+                <span className="value">{previewImage.provider || "ESA/USGS"}</span>
+              </div>
+            </div>
+
+            <div className="preview-actions">
+              <button className="btn btn-primary" onClick={() => handleDownload(previewImage)}>
+                <Download size={16} /> Download
+              </button>
+              <button className="btn btn-secondary" onClick={() => setPreviewImage(null)}>
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}
