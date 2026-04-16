@@ -166,4 +166,28 @@ export const farmService = {
     syncWeather: () => api.post('/farm/sync-weather'),
 };
 
+export const satelliteService = {
+    // Crop Health & Vegetation Indices
+    getNDVI: (data) => api.post('/satellite/ndvi', data),
+    getCropHealth: (data) => api.post('/satellite/crop-health', data),
+    getSoilMoisture: (data) => api.post('/satellite/soil-moisture', data),
+    detectDrought: (data) => api.post('/satellite/drought-risk', data),
+    detectFlood: (data) => api.post('/satellite/flood-risk', data),
+    detectChanges: (data) => api.post('/satellite/change-detection', data),
+    estimateYield: (data) => api.post('/satellite/yield-estimation', data),
+    getTimeSeries: (data) => api.post('/satellite/time-series', data),
+    getMultiIndex: (data) => api.post('/satellite/multi-index', data),
+    getIndices: () => api.get('/satellite/indices'),
+    
+    // Planet Satellite Imagery
+    planetSearch: (data) => api.post('/satellite/planet/search', data),
+    planetAssets: (data) => api.post('/satellite/planet/assets', data),
+    planetActivate: (item_id, asset_type, item_type_param) => api.post(`/satellite/planet/activate?item_id=${item_id}&asset_type=${asset_type}&item_type_param=${item_type_param}`),
+    
+    // Multiple Satellite Search
+    listSatellites: () => api.get('/satellite/satellites'),
+    searchSatellite: (data) => api.post('/satellite/search', data),
+    getSatelliteFeatures: (data) => api.post('/satellite/features', data),
+};
+
 export default api;

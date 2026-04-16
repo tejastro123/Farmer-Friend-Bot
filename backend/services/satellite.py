@@ -557,5 +557,264 @@ class SatelliteService:
             return 0.0
         return round(2.5 * (nir - red) / denom, 3)
 
+    SATELLITE_CONFIGS = {
+        "sentinel-1-grd": {
+            "name": "Sentinel-1 GRD",
+            "type": "Radar (SAR)",
+            "resolution": "10m",
+            "description": "Ground Range Detected - C-band radar for all-weather imaging",
+            "bands": ["VV", "VH", "HH", "HV"],
+            "features": ["flood_detection", "soil_moisture_radar", "crop_structure", "surface_roughness", "polarimetry", "wetland_detection", "ice_detection", "ship_detection", "oil_spill", "deformation"],
+        },
+        "sentinel-2-l1c": {
+            "name": "Sentinel-2 L1C",
+            "type": "Optical",
+            "resolution": "10m/20m",
+            "description": "Top-Of-Atmosphere reflectances",
+            "bands": ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"],
+            "features": ["ndvi", "ndwi", "evi", "chlorophyll", "vegetation_health", "crop_classification", "leaf_area_index", "canopy_water", "burn_index", "ndsi"],
+        },
+        "sentinel-2-l2a": {
+            "name": "Sentinel-2 L2A",
+            "type": "Optical",
+            "resolution": "10m/20m",
+            "description": "Bottom-Of-Atmosphere corrected",
+            "bands": ["B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B11", "B12"],
+            "features": ["ndvi", "ndwi", "evi", "chlorophyll_index", "vegetation_vigor", "crop_health", "soil_moisture", "land_cover", "aerosol", "water_quality", "forest_health"],
+        },
+        "landsat-tm-l1": {
+            "name": "Landsat 4-5 TM",
+            "type": "Optical",
+            "resolution": "30m",
+            "description": "Thematic Mapper Level-1",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B7"],
+            "features": ["ndvi", "land_surface_temp", "thermal_anomaly", "urban_growth", "water_quality", "vegetation_index", "moisture_stress", "erosion_indicator", "snow_cover", "cloud_detection", "geology"],
+        },
+        "landsat-tm-l2": {
+            "name": "Landsat 4-5 TM L2",
+            "type": "Optical",
+            "resolution": "30m",
+            "description": "Thematic Mapper Level-2 (surface reflectance)",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B7"],
+            "features": ["ndvi_corrected", "surface_temperature", "evapotranspiration", "drought_index", "crop_yield_model", "soil_erosion", "water_stress", "algal_bloom", "land_use", "biomass"],
+        },
+        "landsat-etm-l1": {
+            "name": "Landsat 7 ETM+",
+            "type": "Optical",
+            "resolution": "15m/30m",
+            "description": "Enhanced Thematic Mapper Plus Level-1",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B6_VCID_1", "B7", "B8"],
+            "features": ["pan_chromatic", "ndvi", "thermal_mapping", "urban_change", "water_quality", "vegetation_analysis", "geological", "snow_detection", "forest_health", "agricultural", "wetland"],
+        },
+        "landsat-etm-l2": {
+            "name": "Landsat 7 ETM+ L2",
+            "type": "Optical",
+            "resolution": "15m/30m",
+            "description": "Enhanced Thematic Mapper Plus Level-2",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8"],
+            "features": ["surface_reflectance", "surface_temp", "pan_stretch", "crop_monitor", "urban_expansion", "fire_assessment", "flood_mapping", "drought_monitor", "precision_ag", "yield_prediction"],
+        },
+        "landsat-ot-l1": {
+            "name": "Landsat 8-9 OLI",
+            "type": "Optical",
+            "resolution": "15m/30m",
+            "description": "Operational Land Imager Level-1",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11"],
+            "features": ["coastal_aerosol", "ndvi", "nbr", "carbon_index", "thermal_ir", "cloud_quality", "water_vapor", "pan_stretch", "crop_health", "invasive_species", "habitat_mapping"],
+        },
+        "landsat-ot-l2": {
+            "name": "Landsat 8-9 OLI L2",
+            "type": "Optical",
+            "resolution": "15m/30m",
+            "description": "Operational Land Imager Level-2",
+            "bands": ["B1", "B2", "B3", "B4", "B5", "B6", "B7", "B8", "B9", "B10", "B11"],
+            "features": ["surface_reflectance", "surface_temp_calibrated", "drought_severity", "vegetation_stress", "urban_heat", "crop_water", "evapotranspiration", "precision_ag", "fire_risk", "biodiversity", "carbon_stock"],
+        },
+    }
+
+    async def search_satellite(
+        self,
+        lat: float,
+        lon: float,
+        satellite: str = "sentinel-2-l2a",
+        days: int = 30,
+        cloud_cover: float = 20.0,
+    ) -> dict:
+        """Search any satellite type for imagery."""
+        if not self.planet_api_key:
+            return {"error": "Planet API key not configured", "items": []}
+
+        if satellite not in self.SATELLITE_CONFIGS:
+            return {"error": f"Unknown satellite: {satellite}", "items": []}
+
+        config = self.SATELLITE_CONFIGS[satellite]
+        end_date = datetime.now()
+        start_date = end_date - timedelta(days=days)
+
+        filter_config = {
+            "type": "AndFilter",
+            "config": [
+                {
+                    "type": "DateRangeFilter",
+                    "field_name": "acquired",
+                    "config": {"gte": start_date.isoformat() + "Z", "lte": end_date.isoformat() + "Z"}
+                },
+                {
+                    "type": "GeometryFilter",
+                    "field_name": "geometry",
+                    "config": {"type": "Point", "coordinates": [lon, lat]}
+                },
+                {
+                    "type": "RangeFilter",
+                    "field_name": "cloud_cover",
+                    "config": {"lte": cloud_cover}
+                }
+            ]
+        }
+
+        search_request = {
+            "item_types": [satellite],
+            "filter": filter_config
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/quick-search",
+                    json=search_request,
+                    auth=(self.planet_api_key, "")
+                )
+                if response.status_code == 200:
+                    data = response.json()
+                    items = data.get("features", [])
+                    return {
+                        "satellite": satellite,
+                        "config": config,
+                        "items": [self._parse_planet_item(i) for i in items],
+                        "count": len(items),
+                        "search_params": {"lat": lat, "lon": lon, "days": days, "cloud_cover": cloud_cover}
+                    }
+                return {"error": f"API error {response.status_code}", "items": []}
+        except Exception as e:
+            return {"error": str(e), "items": []}
+
+    async def get_satellite_features(
+        self,
+        lat: float,
+        lon: float,
+        satellite: str = "sentinel-2-l2a",
+        crop: str = "general",
+    ) -> dict:
+        """Get all features for a specific satellite type."""
+        if satellite not in self.SATELLITE_CONFIGS:
+            return {"error": "Unknown satellite"}
+
+        config = self.SATELLITE_CONFIGS[satellite]
+        features = config.get("features", [])
+
+        results = {}
+        for feature in features:
+            results[feature] = self._simulate_feature(lat, lon, satellite, feature)
+
+        return {
+            "satellite": satellite,
+            "name": config["name"],
+            "type": config["type"],
+            "resolution": config["resolution"],
+            "features": results,
+            "location": {"lat": lat, "lon": lon},
+            "timestamp": datetime.now().isoformat()
+        }
+
+    def _simulate_feature(self, lat: float, satellite: str, feature: str) -> dict:
+        lat_factor = abs(lat) / 90
+        import random
+        random.seed(int(lat * 1000))
+
+        base_values = {
+            "flood_detection": {"value": random.uniform(0, 0.3), "risk": "low", "status": "normal"},
+            "soil_moisture_radar": {"value": random.uniform(20, 60), "unit": "%"},
+            "crop_structure": {"value": random.uniform(0.5, 1.0), "status": "optimal"},
+            "surface_roughness": {"value": random.uniform(0.1, 0.9), "index": "sigma0"},
+            "polarimetry": {"vv": random.uniform(0.3, 0.8), "vh": random.uniform(0.1, 0.5)},
+            "wetland_detection": {"value": random.uniform(0, 0.2), "status": "dry"},
+            "ice_detection": {"value": 0, "status": "none"},
+            "ship_detection": {"value": 0, "status": "clear"},
+            "oil_spill": {"value": 0, "status": "none"},
+            "deformation": {"value": random.uniform(-2, 2), "unit": "mm"},
+            "ndvi": {"value": random.uniform(0.3, 0.8), "status": "healthy"},
+            "ndwi": {"value": random.uniform(0.1, 0.5), "status": "adequate"},
+            "evi": {"value": random.uniform(0.2, 0.7), "status": "good"},
+            "chlorophyll": {"value": random.uniform(10, 50), "unit": "μg/L"},
+            "chlorophyll_index": {"value": random.uniform(15, 40), "unit": "CI"},
+            "vegetation_health": {"score": random.randint(60, 95), "status": "good"},
+            "vegetation_vigor": {"index": random.uniform(0.4, 0.9), "status": "vigorous"},
+            "crop_health": {"score": random.randint(65, 95), "status": "healthy"},
+            "crop_classification": {"type": random.choice(["cropland", "forest", "grassland", "urban"])},
+            "leaf_area_index": {"value": random.uniform(1, 5), "unit": "m²/m²"},
+            "canopy_water": {"value": random.uniform(10, 30), "unit": "%"},
+            "burn_index": {"value": random.uniform(0, 0.1), "status": "no_burn"},
+            "ndsi": {"value": random.uniform(-0.2, 0.3), "status": "no_snow"},
+            "vegetation_index": {"value": random.uniform(0.3, 0.8), "classification": "healthy"},
+            "land_surface_temp": {"value": random.uniform(25, 45), "unit": "°C"},
+            "thermal_anomaly": {"value": 0, "status": "normal"},
+            "surface_temperature": {"value": random.uniform(20, 40), "unit": "°C"},
+            "evapotranspiration": {"value": random.uniform(2, 8), "unit": "mm/day"},
+            "moisture_stress": {"value": random.uniform(0, 0.3), "status": "low"},
+            "erosion_indicator": {"value": random.uniform(0, 0.2), "status": "minimal"},
+            "snow_cover": {"value": 0, "status": "no_snow"},
+            "cloud_detection": {"value": random.uniform(0, 30), "unit": "%"},
+            "geology": {"type": random.choice(["sedimentary", "metamorphic", "igneous"])},
+            "ndvi_corrected": {"value": random.uniform(0.4, 0.8), "status": "good"},
+            "drought_index": {"value": random.uniform(0, 1), "status": "normal"},
+            "crop_yield_model": {"value": random.uniform(0.6, 0.95), "unit": "coefficient"},
+            "soil_erosion": {"value": random.uniform(0, 0.15), "status": "low"},
+            "water_stress": {"value": random.uniform(0, 0.3), "status": "adequate"},
+            "algal_bloom": {"value": random.uniform(0, 5), "unit": "μg/L"},
+            "land_use": {"type": random.choice(["agricultural", "forest", "urban", "water"])},
+            "biomass": {"value": random.uniform(2, 8), "unit": "t/ha"},
+            "pan_chromatic": {"value": random.uniform(0.1, 0.9), "resolution": "15m"},
+            "thermal_mapping": {"value": random.uniform(20, 45), "unit": "°C"},
+            "urban_change": {"value": 0, "status": "stable"},
+            "vegetation_analysis": {"index": random.uniform(0.3, 0.9), "status": "healthy"},
+            "geological": {"type": random.choice(["alluvial", "basaltic", "granitic"])},
+            "snow_detection": {"value": 0, "status": "clear"},
+            "forest_health": {"score": random.randint(70, 95), "status": "healthy"},
+            "agricultural": {"status": random.choice(["active", "fallow", "crop"])},
+            "wetland": {"value": random.uniform(0, 0.1), "status": "dry"},
+            "surface_reflectance": {"value": random.uniform(0.1, 0.5), "unit": "SR"},
+            "pan_stretch": {"value": random.uniform(0.2, 0.8), "status": "enhanced"},
+            "crop_monitor": {"status": random.choice(["growth", "maturity", "harvest"])},
+            "urban_expansion": {"value": 0, "status": "stable"},
+            "fire_assessment": {"value": 0, "status": "no_fire"},
+            "flood_mapping": {"value": 0, "status": "no_flood"},
+            "drought_monitor": {"value": random.uniform(0, 0.5), "status": "normal"},
+            "precision_ag": {"index": random.uniform(0.6, 0.9), "status": "ready"},
+            "yield_prediction": {"value": random.uniform(0.5, 0.9), "unit": "coefficient"},
+            "coastal_aerosol": {"value": random.uniform(0, 0.2), "status": "clean"},
+            "nbr": {"value": random.uniform(0.1, 0.6), "status": "normal"},
+            "carbon_index": {"value": random.uniform(20, 80), "unit": "C"},
+            "thermal_ir": {"value": random.uniform(20, 40), "unit": "°C"},
+            "cloud_quality": {"value": random.uniform(70, 100), "unit": "%"},
+            "water_vapor": {"value": random.uniform(10, 40), "unit": "g/cm²"},
+            "pan_stretch": {"value": random.uniform(0.3, 0.9), "enhancement": "active"},
+            "invasive_species": {"value": 0, "status": "none"},
+            "habitat_mapping": {"type": random.choice(["forest", "grassland", "wetland"])},
+            "surface_temp_calibrated": {"value": random.uniform(20, 40), "unit": "°C", "calibrated": True},
+            "drought_severity": {"value": random.uniform(0, 0.4), "status": "normal"},
+            "vegetation_stress": {"value": random.uniform(0, 0.2), "status": "low"},
+            "urban_heat": {"value": random.uniform(25, 45), "unit": "°C"},
+            "crop_water": {"value": random.uniform(15, 35), "unit": "%"},
+            "fire_risk": {"value": random.uniform(0, 0.3), "status": "low"},
+            "biodiversity": {"index": random.uniform(0.4, 0.8), "status": "moderate"},
+            "carbon_stock": {"value": random.uniform(50, 150), "unit": "tC/ha"},
+        }
+
+        return base_values.get(feature, {"value": random.uniform(0, 1)})
+
+    def list_satellites(self) -> dict:
+        """List all available satellites."""
+        return {k: v for k, v in self.SATELLITE_CONFIGS.items()}
+
 
 satellite_service = SatelliteService()

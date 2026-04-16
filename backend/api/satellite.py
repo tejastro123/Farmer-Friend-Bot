@@ -219,6 +219,58 @@ async def list_indices():
     }
 
 
+class SatelliteSearchRequest(BaseModel):
+    lat: float
+    lon: float
+    satellite: str = "sentinel-2-l2a"
+    days: int = 30
+    cloud_cover: float = 20.0
+
+
+class SatelliteFeaturesRequest(BaseModel):
+    lat: float
+    lon: float
+    satellite: str = "sentinel-2-l2a"
+    crop: str = "general"
+
+
+@router.get("/satellites")
+async def list_satellites():
+    """List all available satellite datasets."""
+    return {"satellites": satellite_service.list_satellites()}
+
+
+@router.post("/search")
+async def search_satellite(request: SatelliteSearchRequest):
+    """Search any satellite for imagery."""
+    try:
+        result = await satellite_service.search_satellite(
+            lat=request.lat,
+            lon=request.lon,
+            satellite=request.satellite,
+            days=request.days,
+            cloud_cover=request.cloud_cover,
+        )
+        return {"success": True, "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/features")
+async def get_satellite_features(request: SatelliteFeaturesRequest):
+    """Get all features for a specific satellite."""
+    try:
+        result = await satellite_service.get_satellite_features(
+            lat=request.lat,
+            lon=request.lon,
+            satellite=request.satellite,
+            crop=request.crop,
+        )
+        return {"success": True, "data": result}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 class PlanetSearchRequest(BaseModel):
     lat: float
     lon: float

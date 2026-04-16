@@ -23,6 +23,7 @@ import MoatDashboardPage from './pages/MoatDashboardPage';
 import KnowledgeGraphPage from './pages/KnowledgeGraphPage';
 import DataCenterPage from './pages/DataCenterPage';
 import FarmDashboardPage from './pages/FarmDashboardPage';
+import CropHealthPage from './pages/CropHealthPage';
 import './index.css';
 
 const PrivateRoute = ({ children }) => {
@@ -150,6 +151,7 @@ function App() {
 
           <NavDropdown label="Farm">
             <DropdownItem to="/farm">Dashboard</DropdownItem>
+            <DropdownItem to="/crop-health">Satellite</DropdownItem>
           </NavDropdown>
         </div>
 
@@ -291,6 +293,13 @@ function App() {
                 >
                   Dashboard
                 </NavLink>
+                <NavLink
+                  to="/crop-health"
+                  className={({ isActive }) => `mobile-link ${isActive ? 'active' : ''}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Satellite
+                </NavLink>
 
                 <div className="mobile-divider" />
 
@@ -348,6 +357,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <FarmDashboardPage />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/crop-health"
+                element={
+                  <PrivateRoute>
+                    <CropHealthPage />
                   </PrivateRoute>
                 }
               />
