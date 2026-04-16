@@ -726,10 +726,10 @@ class SatelliteService:
             "timestamp": datetime.now().isoformat()
         }
 
-    def _simulate_feature(self, lat: float, satellite: str, feature: str) -> dict:
+    def _simulate_feature(self, lat: float, lon: float, satellite: str, feature: str) -> dict:
         lat_factor = abs(lat) / 90
         import random
-        random.seed(int(lat * 1000))
+        random.seed(int(lat * 10000 + abs(lon) * 100))
 
         base_values = {
             "flood_detection": {"value": random.uniform(0, 0.3), "risk": "low", "status": "normal"},

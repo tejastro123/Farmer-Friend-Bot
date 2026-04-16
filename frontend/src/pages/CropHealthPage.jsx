@@ -1,56 +1,292 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Leaf, MapPin, Droplets, Sun, CloudRain, TrendingUp, 
-  AlertTriangle, Download, RefreshCw, Activity, Target,
-  Calendar, ChevronLeft, Satellite, Settings, Layers
+  MapPin, RefreshCw, ChevronLeft, Satellite,
+  Thermometer, Waves, Sprout, Radar, Target,
+  AlertTriangle, Maximize2, Eye, Crosshair
 } from 'lucide-react';
 import { satelliteService } from '../services/api';
 
-const SATELLITES = {
-  "sentinel-1-grd": { name: "Sentinel-1 GRD", type: "Radar", desc: "All-weather, day/night imaging" },
-  "sentinel-2-l1c": { name: "Sentinel-2 L1C", type: "Optical", desc: "Top-of-atmosphere" },
-  "sentinel-2-l2a": { name: "Sentinel-2 L2A", type: "Optical", desc: "Atmosphere corrected" },
-  "landsat-tm-l1": { name: "Landsat 4-5 TM", type: "Optical", desc: "Thematic Mapper" },
-  "landsat-tm-l2": { name: "Landsat 4-5 TM L2", type: "Optical", desc: "Surface reflectance" },
-  "landsat-etm-l1": { name: "Landsat 7 ETM+", type: "Optical", desc: "Enhanced TM" },
-  "landsat-etm-l2": { name: "Landsat 7 ETM+ L2", type: "Optical", desc: "Enhanced TM L2" },
-  "landsat-ot-l1": { name: "Landsat 8-9 OLI", type: "Optical", desc: "Operational Land Imager" },
-  "landsat-ot-l2": { name: "Landsat 8-9 OLI L2", type: "Optical", desc: "Surface reflectance" },
+const SATELLITE_INFO = {
+  "sentinel-1-grd": { name: "Sentinel-1 GRD", type: "SAR Radar", desc: "All-weather C-band imaging", color: "#9C27B0", icon: Radar },
+  "sentinel-2-l1c": { name: "Sentinel-2 L1C", type: "Optical", desc: "Top-of-atmosphere", color: "#4CAF50", icon: Sprout },
+  "sentinel-2-l2a": { name: "Sentinel-2 L2A", type: "Optical", desc: "Atmosphere-corrected", color: "#4CAF50", icon: Sprout },
+  "landsat-tm-l1": { name: "Landsat 4-5 TM", type: "Optical", desc: "Thematic Mapper L1", color: "#FF9800", icon: Sprout },
+  "landsat-tm-l2": { name: "Landsat 4-5 TM L2", type: "Optical", desc: "Surface reflectance", color: "#FF9800", icon: Sprout },
+  "landsat-etm-l1": { name: "Landsat 7 ETM+", type: "Optical", desc: "Enhanced TM", color: "#FF9800", icon: Sprout },
+  "landsat-etm-l2": { name: "Landsat 7 ETM+ L2", type: "Optical", desc: "Enhanced TM L2", color: "#FF9800", icon: Sprout },
+  "landsat-ot-l1": { name: "Landsat 8-9 OLI", type: "Optical", desc: "Land Imager", color: "#00B0FF", icon: Sprout },
+  "landsat-ot-l2": { name: "Landsat 8-9 OLI L2", type: "Optical", desc: "Surface Refl L2", color: "#00B0FF", icon: Sprout },
+};
+
+const CATEGORY_CONFIG = {
+  vegetation: { label: "Vegetation & Crops", icon: Sprout, color: "#4CAF50" },
+  water: { label: "Water & Moisture", icon: Waves, color: "#00B0FF" },
+  temperature: { label: "Temperature & Thermal", icon: Thermometer, color: "#FF9800" },
+  crop: { label: "Agriculture & Yield", icon: Target, color: "#FFD54F" },
+  radar: { label: "Radar & SAR", icon: Radar, color: "#9C27B0" },
+  other: { label: "Other Features", icon: Maximize2, color: "#607D8B" },
+};
+
+const SATELLITE_FEATURES = {
+  "sentinel-1-grd": {
+    radar: [
+      { key: "flood_detection", label: "Flood Detection", desc: "Water accumulation detection" },
+      { key: "soil_moisture_radar", label: "Soil Moisture", desc: "Radar-based soil moisture", unit: "%" },
+      { key: "crop_structure", label: "Crop Structure", desc: "Canopy structure analysis" },
+      { key: "surface_roughness", label: "Surface Roughness", desc: "Sigma-0 roughness" },
+      { key: "polarimetry", label: "Polarimetry", desc: "VV/VH polarization" },
+      { key: "wetland_detection", label: "Wetland Detection", desc: "Wetland mapping" },
+      { key: "ice_detection", label: "Ice Detection", desc: "Ice/snow detection" },
+      { key: "ship_detection", label: "Ship Detection", desc: "Maritime vessel detection" },
+      { key: "oil_spill", label: "Oil Spill", desc: "Oil spill detection" },
+      { key: "deformation", label: "Deformation", desc: "Ground deformation", unit: "mm" },
+    ],
+    vegetation: [],
+    water: [],
+    temperature: [],
+    crop: [],
+  },
+  "sentinel-2-l1c": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "evi", label: "EVI", desc: "Enhanced Vegetation Index" },
+      { key: "chlorophyll", label: "Chlorophyll", desc: "Chlorophyll-a concentration", unit: "μg/L" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Overall vegetation condition" },
+      { key: "leaf_area_index", label: "LAI", desc: "Leaf Area Index", unit: "m²/m²" },
+      { key: "canopy_water", label: "Canopy Water", desc: "Vegetation water content", unit: "%" },
+    ],
+    water: [
+      { key: "ndwi", label: "NDWI", desc: "Normalized Difference Water Index" },
+      { key: "burn_index", label: "Burn Index", desc: "Fire burn severity" },
+      { key: "ndsi", label: "NDSI", desc: "Normalized Difference Snow Index" },
+    ],
+    temperature: [],
+    crop: [
+      { key: "crop_classification", label: "Crop Classification", desc: "Land cover type" },
+    ],
+  },
+  "sentinel-2-l2a": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "evi", label: "EVI", desc: "Enhanced Vegetation Index" },
+      { key: "chlorophyll_index", label: "Chlorophyll Index", desc: "Chlorophyll fluorescence", unit: "CI" },
+      { key: "vegetation_vigor", label: "Vegetation Vigor", desc: "Plant vigor assessment" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Overall vegetation condition" },
+      { key: "forest_health", label: "Forest Health", desc: "Forest condition" },
+    ],
+    water: [
+      { key: "ndwi", label: "NDWI", desc: "Normalized Difference Water Index" },
+      { key: "soil_moisture", label: "Soil Moisture", desc: "Surface soil water", unit: "%" },
+      { key: "water_quality", label: "Water Quality", desc: "Inland water status" },
+    ],
+    temperature: [
+      { key: "land_surface_temp", label: "Land Surface Temp", desc: "Surface temperature", unit: "°C" },
+    ],
+    crop: [
+      { key: "crop_health", label: "Crop Health Score", desc: "Crop condition (0-100)" },
+      { key: "crop_classification", label: "Crop Classification", desc: "Land cover type" },
+      { key: "land_cover", label: "Land Cover", desc: "Surface classification" },
+    ],
+  },
+  "landsat-tm-l1": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "vegetation_index", label: "Vegetation Index", desc: "Vegetation vigor" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Plant condition" },
+    ],
+    water: [
+      { key: "water_quality", label: "Water Quality", desc: "Surface water status" },
+      { key: "moisture_stress", label: "Moisture Stress", desc: "Water stress level" },
+    ],
+    temperature: [
+      { key: "land_surface_temp", label: "Land Surface Temp", desc: "Surface temperature", unit: "°C" },
+      { key: "thermal_anomaly", label: "Thermal Anomaly", desc: "Heat detection" },
+    ],
+    crop: [
+      { key: "crop_yield_model", label: "Crop Yield Model", desc: "Yield estimation" },
+      { key: "erosion_indicator", label: "Erosion Indicator", desc: "Soil erosion risk" },
+    ],
+    other: [
+      { key: "urban_growth", label: "Urban Growth", desc: "Urban expansion" },
+      { key: "snow_cover", label: "Snow Cover", desc: "Snow extent" },
+      { key: "cloud_detection", label: "Cloud Cover", desc: "Cloud percentage", unit: "%" },
+      { key: "geology", label: "Geology", desc: "Geological formation" },
+    ],
+  },
+  "landsat-tm-l2": {
+    vegetation: [
+      { key: "ndvi_corrected", label: "NDVI Corrected", desc: "Atmosphere-corrected NDVI" },
+      { key: "vegetation_index", label: "Vegetation Index", desc: "Vegetation vigor" },
+    ],
+    water: [
+      { key: "water_stress", label: "Water Stress", desc: "Crop water demand" },
+      { key: "algal_bloom", label: "Algal Bloom", desc: "Water quality", unit: "μg/L" },
+    ],
+    temperature: [
+      { key: "surface_temperature", label: "Surface Temp", desc: "Land surface temperature", unit: "°C" },
+      { key: "evapotranspiration", label: "Evapotranspiration", desc: "Daily ET rate", unit: "mm/day" },
+    ],
+    crop: [
+      { key: "crop_yield_model", label: "Yield Model", desc: "Yield prediction" },
+      { key: "soil_erosion", label: "Soil Erosion", desc: "Erosion risk" },
+      { key: "drought_index", label: "Drought Index", desc: "Drought severity" },
+      { key: "land_use", label: "Land Use", desc: "Land cover type" },
+      { key: "biomass", label: "Biomass", desc: "Aboveground biomass", unit: "t/ha" },
+    ],
+  },
+  "landsat-etm-l1": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "vegetation_analysis", label: "Vegetation Analysis", desc: "Vegetation index" },
+      { key: "forest_health", label: "Forest Health", desc: "Forest condition" },
+    ],
+    water: [
+      { key: "water_quality", label: "Water Quality", desc: "Surface water status" },
+      { key: "wetland", label: "Wetland", desc: "Wetland mapping" },
+    ],
+    temperature: [
+      { key: "thermal_mapping", label: "Thermal Mapping", desc: "Thermal imaging", unit: "°C" },
+    ],
+    crop: [
+      { key: "agricultural", label: "Agricultural", desc: "Farming activity" },
+      { key: "crop_yield_model", label: "Yield Model", desc: "Yield prediction" },
+    ],
+    other: [
+      { key: "pan_chromatic", label: "Panchromatic", desc: "15m panchromatic band" },
+      { key: "urban_change", label: "Urban Change", desc: "Built-up changes" },
+      { key: "geological", label: "Geological", desc: "Geological mapping" },
+      { key: "snow_detection", label: "Snow Detection", desc: "Snow cover" },
+    ],
+  },
+  "landsat-etm-l2": {
+    vegetation: [
+      { key: "vegetation_index", label: "Vegetation Index", desc: "Vegetation vigor" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Plant condition" },
+    ],
+    water: [
+      { key: "water_quality", label: "Water Quality", desc: "Surface water status" },
+      { key: "flood_mapping", label: "Flood Mapping", desc: "Flood extent" },
+    ],
+    temperature: [
+      { key: "surface_temp", label: "Surface Temp", desc: "Land temperature", unit: "°C" },
+    ],
+    crop: [
+      { key: "crop_monitor", label: "Crop Monitor", desc: "Growth stage" },
+      { key: "precision_ag", label: "Precision Ag", desc: "Variable rate" },
+      { key: "yield_prediction", label: "Yield Prediction", desc: "Expected yield" },
+      { key: "drought_monitor", label: "Drought Monitor", desc: "Drought conditions" },
+    ],
+    other: [
+      { key: "surface_reflectance", label: "Surface Reflectance", desc: "Atmospheric corrected", unit: "SR" },
+      { key: "pan_stretch", label: "Panchromatic", desc: "Resolution enhancement" },
+      { key: "urban_expansion", label: "Urban Expansion", desc: "City growth" },
+      { key: "fire_assessment", label: "Fire Assessment", desc: "Burned area" },
+    ],
+  },
+  "landsat-ot-l1": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Plant condition" },
+      { key: "vegetation_index", label: "Vegetation Index", desc: "Vegetation vigor" },
+    ],
+    water: [
+      { key: "water_quality", label: "Water Quality", desc: "Surface water status" },
+      { key: "water_vapor", label: "Water Vapor", desc: "Atmospheric water", unit: "g/cm²" },
+    ],
+    temperature: [
+      { key: "thermal_ir", label: "Thermal IR", desc: "Thermal imaging", unit: "°C" },
+    ],
+    crop: [
+      { key: "crop_health", label: "Crop Health", desc: "Crop condition" },
+      { key: "crop_yield_model", label: "Yield Model", desc: "Yield prediction" },
+      { key: "invasive_species", label: "Invasive Species", desc: "Invasive plants" },
+    ],
+    other: [
+      { key: "coastal_aerosol", label: "Coastal Aerosol", desc: "Coastal band" },
+      { key: "nbr", label: "NBR", desc: "Normalized Burn Ratio" },
+      { key: "carbon_index", label: "Carbon Index", desc: "Carbon estimation", unit: "C" },
+      { key: "cloud_quality", label: "Cloud Quality", desc: "Image clarity", unit: "%" },
+      { key: "pan_stretch", label: "Panchromatic", desc: "Resolution boost" },
+      { key: "habitat_mapping", label: "Habitat", desc: "Ecosystem mapping" },
+    ],
+  },
+  "landsat-ot-l2": {
+    vegetation: [
+      { key: "ndvi", label: "NDVI", desc: "Normalized Difference Vegetation Index" },
+      { key: "vegetation_index", label: "Vegetation Index", desc: "Vegetation vigor" },
+      { key: "vegetation_stress", label: "Vegetation Stress", desc: "Plant water stress" },
+      { key: "vegetation_health", label: "Vegetation Health", desc: "Plant condition" },
+    ],
+    water: [
+      { key: "soil_moisture", label: "Soil Moisture", desc: "Surface soil water", unit: "%" },
+      { key: "crop_water", label: "Crop Water", desc: "Available water", unit: "%" },
+      { key: "water_quality", label: "Water Quality", desc: "Surface water status" },
+    ],
+    temperature: [
+      { key: "surface_temp_calibrated", label: "Surface Temp", desc: "Calibrated temperature", unit: "°C" },
+      { key: "urban_heat", label: "Urban Heat", desc: "Heat island effect", unit: "°C" },
+      { key: "evapotranspiration", label: "Evapotranspiration", desc: "Actual ET", unit: "mm/day" },
+    ],
+    crop: [
+      { key: "crop_health", label: "Crop Health", desc: "Crop condition" },
+      { key: "crop_yield_model", label: "Yield Model", desc: "Yield prediction" },
+      { key: "precision_ag", label: "Precision Ag", desc: "Site-specific" },
+      { key: "drought_severity", label: "Drought Severity", desc: "PDSI drought index" },
+      { key: "fire_risk", label: "Fire Risk", desc: "Fire danger" },
+    ],
+    other: [
+      { key: "surface_reflectance", label: "Surface Reflectance", desc: "Bottom-of-atmosphere", unit: "SR" },
+      { key: "biodiversity", label: "Biodiversity", desc: "Species richness" },
+      { key: "carbon_stock", label: "Carbon Stock", desc: "Aboveground carbon", unit: "tC/ha" },
+    ],
+  },
 };
 
 const CropHealthPage = () => {
   const [location, setLocation] = useState({ lat: 17.3850, lon: 78.4867 });
   const [selectedSatellite, setSelectedSatellite] = useState("sentinel-2-l2a");
-  const [settings, setSettings] = useState({ days: 30, cloudCover: 20 });
-  const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState("features");
-  const [data, setData] = useState(null);
-  const [satellites, setSatellites] = useState({});
+  const [days, setDays] = useState(30);
+  const [cloudCover, setCloudCover] = useState(20);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
+  const [locating, setLocating] = useState(false);
 
-  useEffect(() => {
-    loadSatellites();
-  }, []);
+  const satelliteFeatures = SATELLITE_FEATURES[selectedSatellite] || {};
+  const categories = Object.keys(satelliteFeatures).filter(k => satelliteFeatures[k]?.length > 0);
 
-  useEffect(() => {
-    if (activeTab === "features") {
-      fetchFeatures();
-    } else if (activeTab === "search") {
-      fetchSearch();
+  const getCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser");
+      return;
     }
-  }, [selectedSatellite, settings.days, settings.cloudCover]);
 
-  const loadSatellites = async () => {
-    try {
-      const res = await satelliteService.listSatellites();
-      setSatellites(res.data.satellites || {});
-    } catch (e) {
-      console.error("Failed to load satellites", e);
-    }
+    setLocating(true);
+    setError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          lat: parseFloat(position.coords.latitude.toFixed(6)),
+          lon: parseFloat(position.coords.longitude.toFixed(6))
+        });
+        setLocating(false);
+        fetchData();
+      },
+      (err) => {
+        setError("Unable to get location: " + err.message);
+        setLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
+      }
+    );
   };
 
-  const fetchFeatures = async () => {
+  const fetchData = async () => {
     setLoading(true);
     setError(null);
     try {
@@ -60,193 +296,128 @@ const CropHealthPage = () => {
         satellite: selectedSatellite,
         crop: "general"
       });
-      setData(response.data.data);
-    } catch (err) {
-      setError(err.message || 'Failed to fetch features');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchSearch = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await satelliteService.searchSatellite({
-        lat: location.lat,
-        lon: location.lon,
-        satellite: selectedSatellite,
-        days: settings.days,
-        cloud_cover: settings.cloudCover
-      });
-      setData(response.data.data);
-    } catch (err) {
-      setError(err.message || 'Failed to search');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const renderFeatureValue = (featureKey, featureData) => {
-    if (!featureData) return "-";
-    if (typeof featureData === "object") {
-      if (featureData.value !== undefined) {
-        const val = typeof featureData.value === "number" ? featureData.value.toFixed(2) : featureData.value;
-        const unit = featureData.unit || "";
-        return (
-          <span>
-            {val} {unit}
-            {featureData.status && (
-              <span className={`status-tag ${featureData.status}`}>{featureData.status}</span>
-            )}
-          </span>
-        );
+      const result = response.data;
+      if (result.success && result.data) {
+        setData(result.data);
+      } else {
+        setError(result.error || "Failed to load data");
       }
-      return JSON.stringify(featureData);
+    } catch (err) {
+      setError(err.message || "Connection failed");
+    } finally {
+      setLoading(false);
     }
-    return featureData;
   };
 
-  const getFeatureCategory = (featureKey) => {
-    const categories = {
-      vegetation: ["ndvi", "ndwi", "evi", "vegetation_health", "vegetation_vigor", "crop_health", "vegetation_index", "vegetation_analysis", "vegetation_stress"],
-      water: ["soil_moisture", "ndwi", "water_quality", "canopy_water", "crop_water", "water_stress", "evapotranspiration", "drought_index", "drought_monitor", "drought_severity"],
-      temperature: ["land_surface_temp", "surface_temperature", "thermal_mapping", "thermal_anomaly", "thermal_ir", "surface_temp_calibrated", "urban_heat"],
-      crop: ["crop_classification", "crop_monitor", "crop_yield_model", "precision_ag", "yield_prediction", "agricultural"],
-      radar: ["flood_detection", "soil_moisture_radar", "crop_structure", "surface_roughness", "polarimetry", "wetland_detection", "ice_detection", "deformation"],
-      other: []
-    };
-    for (const [cat, keys] of Object.entries(categories)) {
-      if (keys.includes(featureKey)) return cat;
+  useEffect(() => {
+    fetchData();
+  }, [selectedSatellite, location.lat, location.lon]);
+
+  const formatValue = (feature, value) => {
+    if (!value) return "-";
+    const numVal = value.value ?? value.score ?? value.index ?? value;
+    if (typeof numVal === "number") {
+      return numVal > 10 ? Math.round(numVal) : Number(numVal).toFixed(2);
     }
-    return "other";
+    return numVal;
   };
 
-  const renderFeatures = () => {
-    if (!data || !data.features) return null;
+  const getStatus = (value) => {
+    return value?.status || value?.risk || value?.classification || null;
+  };
+
+  const getUnit = (feature, value) => {
+    return value?.unit || feature.unit || "";
+  };
+
+  const getStatusClass = (status) => {
+    if (!status) return "";
+    const good = ["healthy", "good", "optimal", "vigorous", "low", "normal", "clear", "no_snow", "no_fire", "none", "stable", "adequate", "dry", "active"];
+    const bad = ["stressed", "high", "critical", "severe"];
     
-    const features = data.features;
-    const categories = {
-      vegetation: {},
-      water: {},
-      temperature: {},
-      crop: {},
-      radar: {},
-      other: {}
-    };
-
-    for (const [key, value] of Object.entries(features)) {
-      const cat = getFeatureCategory(key);
-      categories[cat][key] = value;
-    }
-
-    return (
-      <div className="features-grid">
-        {Object.entries(categories).map(([cat, items]) => {
-          if (Object.keys(items).length === 0) return null;
-          return (
-            <div key={cat} className={`feature-category ${cat}`}>
-              <h4>
-                {cat === "vegetation" && <Leaf size={18} />}
-                {cat === "water" && <Droplets size={18} />}
-                {cat === "temperature" && <Sun size={18} />}
-                {cat === "crop" && <Target size={18} />}
-                {cat === "radar" && <Satellite size={18} />}
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </h4>
-              <div className="feature-list">
-                {Object.entries(items).map(([key, value]) => (
-                  <div key={key} className="feature-item">
-                    <span className="feature-name">{key.replace(/_/g, " ")}</span>
-                    <span className="feature-value">{renderFeatureValue(key, value)}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
+    if (good.includes(status)) return "status-good";
+    if (bad.includes(status)) return "status-bad";
+    return "status-neutral";
   };
-
-  const tabs = [
-    { id: "features", label: "Features", icon: Layers },
-    { id: "search", label: "Search", icon: Satellite },
-  ];
 
   return (
-    <div className="page-container">
-      <div className="page-header">
+    <div className="sc-page">
+      <div className="sc-header">
         <Link to="/farm" className="back-link">
-          <ChevronLeft size={20} />
+          <ChevronLeft size={18} />
           Back to Farm
         </Link>
-        <h1>
-          <Satellite size={24} />
-          Satellite Data Center
-        </h1>
-        <p>Advanced satellite imagery and analysis for Indian agriculture</p>
+        
+        <div className="sc-title">
+          <Satellite size={28} />
+          <div>
+            <h1>Satellite Data Center</h1>
+            <p>Advanced remote sensing for precision agriculture</p>
+          </div>
+        </div>
       </div>
 
-      <div className="settings-grid">
-        <div className="card location-input">
-          <MapPin size={18} />
-          <input
-            type="number"
-            placeholder="Latitude"
-            value={location.lat}
-            onChange={(e) => setLocation({ ...location, lat: parseFloat(e.target.value) })}
-            step="0.0001"
-          />
-          <input
-            type="number"
-            placeholder="Longitude"
-            value={location.lon}
-            onChange={(e) => setLocation({ ...location, lon: parseFloat(e.target.value) })}
-            step="0.0001"
-          />
+      <div className="sc-controls">
+        <div className="ctrl-group">
+          <label><MapPin size={14} /> Location</label>
+          <div className="inputs-row">
+            <input
+              type="number"
+              placeholder="Latitude"
+              value={location.lat}
+              onChange={(e) => setLocation({ ...location, lat: parseFloat(e.target.value) })}
+              step="0.0001"
+            />
+            <input
+              type="number"
+              placeholder="Longitude"
+              value={location.lon}
+              onChange={(e) => setLocation({ ...location, lon: parseFloat(e.target.value) })}
+              step="0.0001"
+            />
+            <button 
+              className="btn-locate" 
+              onClick={getCurrentLocation}
+              disabled={locating}
+              title="Use current location"
+            >
+              <Crosshair size={14} className={locating ? "spinning" : ""} />
+              {locating ? "Locating..." : "Live"}
+            </button>
+          </div>
         </div>
 
-        <div className="card">
-          <label>
-            <Satellite size={16} />
-            Satellite Dataset
-          </label>
+        <div className="ctrl-group">
+          <label><Satellite size={14} /> Satellite</label>
           <select
             value={selectedSatellite}
             onChange={(e) => setSelectedSatellite(e.target.value)}
-            className="satellite-select"
           >
-            {Object.entries(SATELLITES).map(([id, sat]) => (
-              <option key={id} value={id}>
-                {sat.name} - {sat.desc}
-              </option>
+            {Object.entries(SATELLITE_INFO).map(([id, info]) => (
+              <option key={id} value={id}>{info.name}</option>
             ))}
           </select>
         </div>
 
-        <div className="card settings-card">
-          <label>
-            <Settings size={16} />
-            Settings
-          </label>
-          <div className="settings-row">
-            <div className="setting">
-              <span>Days Back</span>
+        <div className="ctrl-group">
+          <label><Maximize2 size={14} /> Range</label>
+          <div className="inputs-row small">
+            <div className="input-wrap">
+              <span>Days</span>
               <input
                 type="number"
-                value={settings.days}
-                onChange={(e) => setSettings({ ...settings, days: parseInt(e.target.value) })}
+                value={days}
+                onChange={(e) => setDays(parseInt(e.target.value))}
                 min={1}
                 max={365}
               />
             </div>
-            <div className="setting">
-              <span>Cloud Cover %</span>
+            <div className="input-wrap">
+              <span>Cloud</span>
               <input
                 type="number"
-                value={settings.cloudCover}
-                onChange={(e) => setSettings({ ...settings, cloudCover: parseFloat(e.target.value) })}
+                value={cloudCover}
+                onChange={(e) => setCloudCover(parseInt(e.target.value))}
                 min={0}
                 max={100}
               />
@@ -254,84 +425,106 @@ const CropHealthPage = () => {
           </div>
         </div>
 
-        <button className="btn btn-primary" onClick={activeTab === "features" ? fetchFeatures : fetchSearch}>
-          <RefreshCw size={16} />
-          Refresh
+        <button className="btn-refresh" onClick={fetchData}>
+          <RefreshCw size={18} className={loading ? "spinning" : ""} />
         </button>
       </div>
 
-      <div className="tabs">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => setActiveTab(tab.id)}
-          >
-            <tab.icon size={16} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
       {loading && (
-        <div className="loading">
-          <RefreshCw className="spin" size={32} />
+        <div className="sc-loading">
+          <div className="loader"></div>
           <p>Loading satellite data...</p>
         </div>
       )}
 
       {error && (
-        <div className="error-message">
-          <AlertTriangle size={20} />
-          {error}
+        <div className="sc-error">
+          <AlertTriangle size={24} />
+          <p>{error}</p>
+          <button className="btn btn-secondary" onClick={fetchData}>Retry</button>
         </div>
       )}
 
-      {!loading && !error && data && activeTab === "features" && (
-        <div className="satellite-info">
-          <div className="info-header">
-            <h2>{data.name}</h2>
-            <div className="info-badges">
-              <span className="badge type">{data.type}</span>
-              <span className="badge res">{data.resolution}</span>
+      {!loading && !error && data && (
+        <>
+          <div className="sc-info">
+            <div className="info-badge">
+              <span className="name">{data.name}</span>
+              <span className="type">{data.type}</span>
+              <span className="res">{data.resolution}</span>
+            </div>
+            <div className="location-info">
+              <MapPin size={14} />
+              {data.location?.lat?.toFixed(4)}°N, {data.location?.lon?.toFixed(4)}°E
             </div>
           </div>
-          {renderFeatures()}
-        </div>
-      )}
 
-      {!loading && !error && data && activeTab === "search" && (
-        <div className="search-results">
-          <h3>Search Results</h3>
-          <p className="results-count">{data.count || 0} images found</p>
-          {data.items && data.items.length > 0 && (
-            <div className="items-list">
-              {data.items.slice(0, 10).map((item, i) => (
-                <div key={i} className="item-card">
-                  <div className="item-id">{item.id}</div>
-                  <div className="item-details">
-                    <span>Acquired: {item.acquired?.split("T")[0]}</span>
-                    <span>Cloud: {item.cloud_cover}%</span>
-                    <span>Provider: {item.provider}</span>
+          <div className="features-container">
+            <h2><Maximize2 size={20} /> Features by Category</h2>
+            
+            {categories.map((cat) => {
+              const catConfig = CATEGORY_CONFIG[cat] || CATEGORY_CONFIG.other;
+              const features = satelliteFeatures[cat] || [];
+              const Icon = catConfig.icon;
+              
+              return (
+                <div key={cat} className={`category-section ${cat}`}>
+                  <div className="category-header" style={{ "--cat-color": catConfig.color }}>
+                    <Icon size={20} />
+                    <h3>{catConfig.label}</h3>
+                    <span className="cat-count">{features.length} features</span>
+                  </div>
+                  
+                  <div className="features-grid-full">
+                    {features.map((feature) => {
+                      const value = data.features?.[feature.key];
+                      const status = getStatus(value);
+                      const unit = getUnit(feature, value);
+                      const val = formatValue(feature, value);
+                      
+                      return (
+                        <div key={feature.key} className={`feature-tile ${status ? getStatusClass(status) : ""}`}>
+                          <div className="feature-header">
+                            <span className="feature-title">{feature.label}</span>
+                            {status && <span className="status-pill">{status}</span>}
+                          </div>
+                          <div className="feature-val">
+                            {val}
+                            {unit && <span className="feature-unit">{unit}</span>}
+                          </div>
+                          <div className="feature-desc">{feature.desc}</div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
-              ))}
-            </div>
-          )}
-          {data.items?.length === 0 && (
-            <p className="no-results">No imagery found. Try adjusting settings.</p>
-          )}
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {!loading && !error && !data && (
+        <div className="sc-empty">
+          <Satellite size={48} />
+          <p>Select a satellite to view features</p>
         </div>
       )}
 
-      <div className="satellites-info">
-        <h4>Available Satellite Datasets</h4>
-        <div className="satellites-grid">
-          {Object.entries(SATELLITES).map(([id, sat]) => (
-            <div key={id} className={`sat-card ${selectedSatellite === id ? 'active' : ''}`}>
-              <strong>{sat.name}</strong>
-              <span>{sat.type}</span>
-              <small>{sat.desc}</small>
+      <div className="sc-footer">
+        <h3>Available Satellite Datasets</h3>
+        <div className="sat-list">
+          {Object.entries(SATELLITE_INFO).map(([id, info]) => (
+            <div 
+              key={id} 
+              className={`sat-card ${selectedSatellite === id ? "active" : ""}`}
+              onClick={() => setSelectedSatellite(id)}
+              style={{ "--sat-color": info.color }}
+            >
+              <strong>{info.name}</strong>
+              <span className="type">{info.type}</span>
+              <span className="desc">{info.desc}</span>
+              <span className="feat-count">{Object.values(SATELLITE_FEATURES[id] || {}).reduce((a, b) => a + (b?.length || 0), 0)} features</span>
             </div>
           ))}
         </div>

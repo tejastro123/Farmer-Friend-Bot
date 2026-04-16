@@ -259,6 +259,7 @@ async def search_satellite(request: SatelliteSearchRequest):
 @router.post("/features")
 async def get_satellite_features(request: SatelliteFeaturesRequest):
     """Get all features for a specific satellite."""
+    import logging
     try:
         result = await satellite_service.get_satellite_features(
             lat=request.lat,
@@ -268,6 +269,7 @@ async def get_satellite_features(request: SatelliteFeaturesRequest):
         )
         return {"success": True, "data": result}
     except Exception as e:
+        logging.error(f"Error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
